@@ -1,10 +1,15 @@
 """
 ski_early_bird_scraper.py
-爬取日本滑雪場（白馬五龍、二世谷）官網的 Early Bird / 早鳥 優惠公告，
+爬取日本滑雪場官網的 Early Bird / 早鳥 優惠公告，
 輸出至 Excel，並預留資料庫寫入介面。
+
+目標網址來源（優先順序）：
+  1. urls.json  — 與本腳本同目錄，格式見下方 DEFAULT_TARGETS
+  2. 程式內建的 DEFAULT_TARGETS（fallback）
 """
 
 import asyncio
+import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -18,10 +23,35 @@ from playwright.async_api import async_playwright, TimeoutError as PlaywrightTim
 
 OUTPUT_DIR = Path(r"D:\SideProject\測試產出檔案")
 
-TARGETS = [
+# urls.json 與本腳本同目錄
+URLS_FILE = Path(__file__).parent / "urls.json"
+
+# 內建預設，urls.json 不存在時使用
+DEFAULT_TARGETS = [
     {"name": "白馬五龍雪場", "url": "https://www.hakubagoryu.com/"},
     {"name": "二世谷 (Niseko United)", "url": "https://www.niseko.ne.jp/"},
 ]
+
+
+def load_targets() -> list[dict]:
+    """從 urls.json 讀取目標，若檔案不存在則用內建預設。"""
+    if URLS_FILE.exists():
+        try:
+            data = json.loads(URLS_FILE.read_text(encoding="utf-8"))
+            # 基本欄位驗證
+            targets = [
+                t for t in data
+                if isinstance(t, dict) and "name" in t and "url" in t
+            ]
+            if targets:
+                print(f"[設定] 從 {URLS_FILE.name} 載入 {len(targets)} 個目標網址")
+                return targets
+            print(f"[警告] {URLS_FILE.name} 內容格式不符，改用內建預設。")
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"[警告] 讀取 {URLS_FILE.name} 失敗（{e}），改用內建預設。")
+    else:
+        print(f"[設定] 找不到 {URLS_FILE.name}，使用內建預設目標。")
+    return DEFAULT_TARGETS
 
 KEYWORDS = ["Early Bird", "early bird", "早鳥", "アーリーバード"]
 
@@ -100,7 +130,8 @@ async def scrape_resort(browser, target: dict) -> list[FoundItem]:
 
     try:
         print(f"[{target['name']}] 開啟: {target['url']}")
-        await page.goto(target["url"], timeout=30_000, wait_until="domcontentloaded")
+        # networkidle 等待 JS 渲染完成；SPA 網站需要這個
+        await page.goto(target["url"], timeout=45_000, wait_until="networkidle")
         await page.wait_for_selector("body", timeout=10_000)
 
         results = await scrape_page(page, target["url"], target["name"], seen)
@@ -111,7 +142,7 @@ async def scrape_resort(browser, target: dict) -> list[FoundItem]:
                 sub_url = target["url"].rstrip("/") + path
                 try:
                     print(f"  嘗試子頁面: {sub_url}")
-                    await page.goto(sub_url, timeout=20_000, wait_until="domcontentloaded")
+                    await page.goto(sub_url, timeout=30_000, wait_until="networkidle")
                     results = await scrape_page(page, sub_url, target["name"], seen)
                     if results:
                         break
@@ -205,12 +236,13 @@ def save_to_database(items: list[FoundItem]) -> None:
 
 async def main() -> None:
     all_items: list[FoundItem] = []
+    targets = load_targets()  # 從 urls.json 或內建預設取得目標
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         try:
-            # 兩個雪場並行爬取
-            tasks = [scrape_resort(browser, t) for t in TARGETS]
+            # 所有目標並行爬取
+            tasks = [scrape_resort(browser, t) for t in targets]
             for result in await asyncio.gather(*tasks):
                 all_items.extend(result)
         finally:
