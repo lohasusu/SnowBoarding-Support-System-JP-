@@ -1,10 +1,207 @@
 [
   {
-    "name": "白馬五龍雪場",
-    "url": "https://www.hakubagoryu.com/"
+    "name": "Asahidake",
+    "url": "http://www.wakasaresort.com/asahidakeropeway/",
+    "note": "北海道 Hokkaido"
   },
   {
-    "name": "二世谷 (Niseko United)",
-    "url": "https://www.niseko.ne.jp/"
+    "name": "Daisetsuzan Kurodake",
+    "url": "https://www.rinyu.co.jp/kurodake/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Furano",
+    "url": "https://www.princehotels.co.jp/ski/furano",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Tomamu",
+    "url": "https://www.snowtomamu.jp/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Kiroro",
+    "url": "https://www.kiroro.co.jp/en/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "二世谷 Niseko United",
+    "url": "https://niseko.ne.jp/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Niseko Moiwa",
+    "url": "https://www.niseko-moiwa.jp/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Rusutsu",
+    "url": "https://rusutsu.com/en/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Sahoro",
+    "url": "https://sahoro.co.jp/winter/ski",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Sapporo Kokusai",
+    "url": "http://www.sapporo-kokusai.jp/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "Teine",
+    "url": "https://www.sapporo-teine.com/snow/",
+    "note": "北海道 Hokkaido"
+  },
+  {
+    "name": "白馬五龍 Goryu",
+    "url": "https://www.hakubagoryu.com/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Hakuba 47",
+    "url": "https://www.hakuba47.co.jp/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Cortina",
+    "url": "https://www.hgp.co.jp/cortina/ski/index.html",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Happo One",
+    "url": "http://www.happo-one.jp/english/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Iwatake",
+    "url": "https://iwatake-mountain-resort.com/winter",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Norikura",
+    "url": "https://www.hakunori.com/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Jiigatake",
+    "url": "https://www.jiigatake.com/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Kashimayari",
+    "url": "https://www.kashimayari.net/snow/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Tsugaike",
+    "url": "https://www.tsugaike.gr.jp/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Karuizawa Prince",
+    "url": "https://www.princehotels.co.jp/ski/karuizawa/winter/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Kijimadaira",
+    "url": "https://kijimadaira-ski.com/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Madarao Kogen",
+    "url": "http://www.madarao.jp/ski",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Nozawa Onsen",
+    "url": "http://www.nozawaski.com/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Sakae",
+    "url": "http://sakaeclub.jp/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "志賀高原 Shiga Kogen",
+    "url": "https://shigakogen-ski.or.jp/english/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Sugadaira",
+    "url": "https://sugadaira-snowresort.com/",
+    "note": "長野 Nagano"
+  },
+  {
+    "name": "Myoko",
+    "url": "https://myokoskiresort.com/",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "GALA Yuzawa",
+    "url": "https://gala.co.jp/winter/english/",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "Ishiuchi Maruyama",
+    "url": "https://www.ishiuchi.or.jp/",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "Iwappara",
+    "url": "https://iwa-ppara.com/",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "Joetsu Kokusai",
+    "url": "https://www.jkokusai.co.jp/ski/",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "Kagura",
+    "url": "https://www.princehotels.co.jp/ski/kagura/index.html",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "Lotte Arai Resort",
+    "url": "https://www.lottehotel.com/arai-resort/ja/ski-webzine.html",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "Naeba",
+    "url": "https://www.princehotels.co.jp/ski/naeba/winter/",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "Yuzawa Kogen",
+    "url": "https://www.yuzawakogen.com/",
+    "note": "新潟 Niigata"
+  },
+  {
+    "name": "藏王溫泉 Zao Onsen",
+    "url": "http://www.zao-ski.or.jp/",
+    "note": "山形 Yamagata"
+  },
+  {
+    "name": "Hakkoda",
+    "url": "http://www.hakkoda-ropeway.jp/lnks/info/infomation.html",
+    "note": "青森 Aomori"
+  },
+  {
+    "name": "Alts Bandai",
+    "url": "https://www.alts.co.jp/",
+    "note": "福島 Fukushima"
+  },
+  {
+    "name": "Aizu Kogen Takatsue",
+    "url": "http://takatsue.jp/",
+    "note": "福島 Fukushima"
+  },
+  {
+    "name": "Inawashiro",
+    "url": "https://www.inawashiro-ski.com/",
+    "note": "福島 Fukushima"
   }
 ]
