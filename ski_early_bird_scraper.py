@@ -249,8 +249,14 @@ HEADER_FONT = Font(bold=True, color="FFFFFF")
 
 def save_to_excel(items: list[TicketItem], output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filepath  = output_dir / f"snowboard_tickets_{timestamp}.xlsx"
+    today = datetime.now().strftime("%Y%m%d")
+    # 同一天有多個檔案時自動遞增序號
+    seq = 1
+    while True:
+        filepath = output_dir / f"SNOWBOARD_TICKETS_{today}_{seq:03d}.xlsx"
+        if not filepath.exists():
+            break
+        seq += 1
 
     wb = openpyxl.Workbook()
     ws = wb.active
