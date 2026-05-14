@@ -15,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 
 import openpyxl
+from deep_translator import GoogleTranslator
 from openpyxl.styles import Font, PatternFill, Alignment
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
@@ -57,10 +58,29 @@ class TicketItem:
     region: str
     source_url: str
     ticket_type: str
+    ticket_type_zh: str      # 票種中文翻譯
     price: str
     scraped_at: str = field(
         default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
+
+
+# ── 翻譯工具 ─────────────────────────────────────────────────────────────────
+
+_translate_cache: dict[str, str] = {}  # 避免重複翻譯同一票種
+_translator = GoogleTranslator(source="ja", target="zh-TW")
+
+
+def translate_ja_to_zh(text: str) -> str:
+    """日文 → 繁體中文，失敗時回傳原文。結果快取避免重複呼叫。"""
+    if text in _translate_cache:
+        return _translate_cache[text]
+    try:
+        result = _translator.translate(text) or text
+    except Exception:
+        result = text
+    _translate_cache[text] = result
+    return result
 
 
 # ── 工具函式 ─────────────────────────────────────────────────────────────────
@@ -122,7 +142,7 @@ async def _try_table_rows(page, resort, region, url, seen) -> list[TicketItem]:
             key = f"{resort}||{ticket_type}||{price}"
             if key not in seen:
                 seen.add(key)
-                items.append(TicketItem(resort, region, url, ticket_type, price))
+                items.append(TicketItem(resort, region, url, ticket_type, translate_ja_to_zh(ticket_type), price))
     return items
 
 
@@ -144,7 +164,7 @@ async def _try_dt_dd(page, resort, region, url, seen) -> list[TicketItem]:
                 key = f"{resort}||{dt_text}||{price}"
                 if key not in seen:
                     seen.add(key)
-                    items.append(TicketItem(resort, region, url, dt_text, price))
+                    items.append(TicketItem(resort, region, url, dt_text, translate_ja_to_zh(dt_text), price))
     return items
 
 
@@ -165,7 +185,7 @@ async def _try_inline_elements(page, resort, region, url, seen) -> list[TicketIt
                 key = f"{resort}||{text[:80]}||{price}"
                 if key not in seen:
                     seen.add(key)
-                    items.append(TicketItem(resort, region, url, text[:120], price))
+                    items.append(TicketItem(resort, region, url, text[:120], translate_ja_to_zh(text[:120]), price))
     return items
 
 
@@ -222,7 +242,7 @@ async def scrape_resort(browser, target: dict) -> list[TicketItem]:
 
 # ── Excel 輸出 ────────────────────────────────────────────────────────────────
 
-HEADER = ["地區", "雪場名稱", "票種", "票價", "來源網址", "抓取時間"]
+HEADER = ["地區", "雪場名稱", "票種（日文）", "票種（中文）", "票價", "來源網址", "抓取時間"]
 HEADER_FILL = PatternFill("solid", fgColor="1F4E79")
 HEADER_FONT = Font(bold=True, color="FFFFFF")
 
@@ -230,7 +250,7 @@ HEADER_FONT = Font(bold=True, color="FFFFFF")
 def save_to_excel(items: list[TicketItem], output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filepath  = output_dir / f"ski_tickets_{timestamp}.xlsx"
+    filepath  = output_dir / f"snowboard_tickets_{timestamp}.xlsx"
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -248,9 +268,10 @@ def save_to_excel(items: list[TicketItem], output_dir: Path) -> Path:
         ws.cell(row=row_idx, column=1, value=item.region)
         ws.cell(row=row_idx, column=2, value=item.resort)
         ws.cell(row=row_idx, column=3, value=item.ticket_type)
-        ws.cell(row=row_idx, column=4, value=item.price)
-        ws.cell(row=row_idx, column=5, value=item.source_url)
-        ws.cell(row=row_idx, column=6, value=item.scraped_at)
+        ws.cell(row=row_idx, column=4, value=item.ticket_type_zh)
+        ws.cell(row=row_idx, column=5, value=item.price)
+        ws.cell(row=row_idx, column=6, value=item.source_url)
+        ws.cell(row=row_idx, column=7, value=item.scraped_at)
 
     # 自動欄寬
     for col in ws.columns:
