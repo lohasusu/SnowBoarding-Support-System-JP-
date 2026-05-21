@@ -7,18 +7,39 @@
   {
     "name": "Daisetsuzan Kurodake",
     "url": "https://www.rinyu.co.jp/kurodake/",
-    "note": "北海道 Hokkaido"
+    "note": "北海道 Hokkaido",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table",
+      "row": "tr"
+    }
   },
   {
     "name": "Furano",
     "url": "https://www.princehotels.co.jp/ski/furano",
     "note": "北海道 Hokkaido",
-    "ticket_url": "https://webket.jp/pc/ticket/index?fc=00257&ac=0092"
+    "ticket_url": "https://www.princehotels.co.jp/ski/furano/winter/lift/#lift-fee",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.tbl-base",
+      "row": "tr"
+    }
+  },
+  {
+    "name": "Tomamu",
+    "url": "https://www.snowtomamu.jp/",
+    "note": "北海道 Hokkaido"
   },
   {
     "name": "Kiroro",
     "url": "https://www.kiroro.co.jp/en/",
-    "note": "北海道 Hokkaido"
+    "note": "北海道 Hokkaido",
+    "ticket_url": "https://www.kiroro.co.jp/ski_international_lesson/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.fullWidth.tdp20",
+      "row": "tr"
+    }
   },
   {
     "name": "二世谷 Niseko United",
@@ -36,6 +57,7 @@
     "note": "北海道 Hokkaido",
     "ticket_url": "https://rusutsu.com/en/winter-lift-tickets/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.table-wrap01",
       "row": "tr"
     }
@@ -81,6 +103,7 @@
     "note": "長野 Nagano",
     "ticket_url": "https://iwatake-mountain-resort.com/winter/rates/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table",
       "row": "tr"
     }
@@ -91,6 +114,7 @@
     "note": "長野 Nagano",
     "ticket_url": "https://www.hakunori.com/ticket/?id=lift",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.table01",
       "row": "tr"
     }
@@ -106,6 +130,7 @@
     "note": "長野 Nagano",
     "ticket_url": "https://www.kashimayari.net/snow/#tickets",
     "selectors": {
+      "_note": "自動推測，請人工確認",
       "type": "card",
       "container": "div.p-tickets_cta-txt",
       "ticket_name": "p.p-tickets_cta-ttl",
@@ -118,6 +143,7 @@
     "note": "長野 Nagano",
     "ticket_url": "https://www.tsugaike.gr.jp/price",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.price-table",
       "row": "tr"
     }
@@ -128,6 +154,7 @@
     "note": "長野 Nagano",
     "ticket_url": "https://www.princehotels.co.jp/ski/karuizawa/winter/lift/#lift-fee",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.tbl-base",
       "row": "tr"
     }
@@ -138,6 +165,7 @@
     "note": "長野 Nagano",
     "ticket_url": "https://kijimadaira-ski.com/charge/#anc-c01",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.page-tbl",
       "row": "tr"
     }
@@ -168,6 +196,7 @@
     "note": "長野 Nagano",
     "ticket_url": "https://sugadaira-snowresort.com/ticket/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.tbl-purchase.s-red",
       "row": "tr"
     }
@@ -193,6 +222,7 @@
     "note": "新潟 Niigata",
     "ticket_url": "https://iwa-ppara.com/price/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table",
       "row": "tr"
     }
@@ -208,6 +238,7 @@
     "note": "新潟 Niigata",
     "ticket_url": "https://www.princehotels.co.jp/ski/kagura/winter/lift/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.tbl-base",
       "row": "tr"
     }
@@ -223,6 +254,7 @@
     "note": "新潟 Niigata",
     "ticket_url": "https://www.princehotels.co.jp/ski/naeba/winter/lift/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.tbl-base",
       "row": "tr"
     }
@@ -233,6 +265,7 @@
     "note": "新潟 Niigata",
     "ticket_url": "https://www.yuzawakogen.com/green/tickets/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.c-table.c-tableGreen",
       "row": "tr"
     }
@@ -263,6 +296,7 @@
     "note": "福島 Fukushima",
     "ticket_url": "https://www.inawashiro-ski.com/lift/seasonpass/",
     "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
       "container": "table.table.table-bordered",
       "row": "tr"
     }

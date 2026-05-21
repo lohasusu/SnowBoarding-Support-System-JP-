@@ -1,0 +1,1474 @@
+[
+  {
+    "name": "Asahidake",
+    "url": "http://www.wakasaresort.com/asahidakeropeway/",
+    "note": "北海道 Hokkaido",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Daisetsuzan Kurodake",
+    "url": "https://www.rinyu.co.jp/kurodake/",
+    "note": "北海道 Hokkaido",
+    "status": "analyzed",
+    "ticket_url": null,
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.rinyu.co.jp/kurodake/about/#lift",
+      "https://www.rinyu.co.jp/kurodake/about/#price",
+      "https://www.rinyu.co.jp/kurodake/ski_slope/",
+      "https://www.rinyu.co.jp/inquiry/",
+      "https://www.rinyu.co.jp/kurodake/about/"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": []
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Daisetsuzan_Kurodake.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Daisetsuzan_Kurodake.html",
+    "error": null
+  },
+  {
+    "name": "Furano",
+    "url": "https://www.princehotels.co.jp/ski/furano",
+    "note": "北海道 Hokkaido",
+    "status": "analyzed",
+    "ticket_url": "https://www.princehotels.co.jp/ski/furano/winter/lift/#lift-fee",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.tbl-base",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.princehotels.co.jp/ski/furano/winter/lift/#lift-fee",
+      "https://www.princehotels.co.jp/ski/furano/informations/liftticket",
+      "https://www.princehotels.co.jp/ski/furano/winter/lift/",
+      "https://www.princehotels.co.jp/ski/furano/summer/#",
+      "https://www.princehotels.co.jp/ski/furano/winter/lift/coupon.html"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "往復券 SEIBU PRINCE CLUB 会員さま ¥2,700 ¥1,100",
+          "片道券（上り または 下り） 正規料金 ¥2,800 ¥1,200"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "3時間券 ※1 ¥6,400 ¥5,900",
+          "5時間券 ※2 ¥7,200 ¥6,700",
+          "ナイター券 平日 ※3 ¥2,900 ¥2,700"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "1ポイント券 ¥1,100 リフト1回",
+          "2ポイント券 ¥2,200 富良野ダウンヒル第1高速リフト1回",
+          "3ポイント券 ¥3,300 ロープウェー・ゴンドラ片道1回"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "富良野ロープウェー ¥3,400 往復1回、当日限り有効"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "card",
+        "container": "ul.lst-note.mt20",
+        "name_selector": "li",
+        "price_selector": "li",
+        "samples": [
+          "※未就学児童は無料となります。 当日チケット売場で無料券をお求めください。 → ※ペット乗車も可能。/有料往復￥600"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Furano.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Furano.html",
+    "error": null
+  },
+  {
+    "name": "Tomamu",
+    "url": "https://www.snowtomamu.jp/",
+    "note": "北海道 Hokkaido",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [
+      "https://www.snowtomamu.jp/winter/ski/",
+      "https://www.snowtomamu.jp/winter/",
+      "https://www.snowtomamu.jp/winter/en/",
+      "https://www.snowtomamu.jp/winter/cn/",
+      "https://www.snowtomamu.jp/winter/zh/"
+    ],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Kiroro",
+    "url": "https://www.kiroro.co.jp/en/",
+    "note": "北海道 Hokkaido",
+    "status": "analyzed",
+    "ticket_url": "https://www.kiroro.co.jp/ski_international_lesson/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.fullWidth.tdp20",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.kiroro.co.jp/ski_international_lesson/",
+      "https://www.kiroro.co.jp/ski_lessons/",
+      "https://www.kiroro.co.jp/lift_price/",
+      "https://www.kiroro.co.jp/2016-17-lift-operation-schedule/",
+      "https://www.kiroro.co.jp/registration/"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.fullWidth.tdp20",
+        "row_selector": "tr",
+        "samples": [
+          "Full day 4 hours ¥80,000 1- 4 people 1. Please select the 4 hours between 9:00-15:30 2. If lessons are started late the "
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.table-type-dl",
+        "row_selector": "tr",
+        "samples": [
+          "Additional notes : ※To request a specific instructor costs an extra ¥2,000. ※Cancellation policy : Bookings cancelled 7 "
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Kiroro.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Kiroro.html",
+    "error": null
+  },
+  {
+    "name": "二世谷 Niseko United",
+    "url": "https://niseko.ne.jp/",
+    "note": "北海道 Hokkaido",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Niseko Moiwa",
+    "url": "https://www.niseko-moiwa.jp/",
+    "note": "北海道 Hokkaido",
+    "status": "error",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": "Page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://www.niseko-moiwa.jp/\nCall log:\n  - navigating to \"https://www.niseko-moiwa.jp/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "name": "Rusutsu",
+    "url": "https://rusutsu.com/en/",
+    "note": "北海道 Hokkaido",
+    "status": "analyzed",
+    "ticket_url": "https://rusutsu.com/en/winter-lift-tickets/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.table-wrap01",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://rusutsu.com/en/winter-lift-tickets/",
+      "https://rusutsu.com/en/#mm-11",
+      "https://rusutsu.com/en/winter-season-passes/",
+      "https://rusutsu.com/en/advance-lift-tickets/",
+      "https://rusutsu.com/en/amusement-park/calendar-tickets/"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.table-wrap01",
+        "row_selector": "tr",
+        "samples": [
+          "Disabled 1 Day Ticket 10,100 JPY 7,100 JPY 7,100 JPY 4,200 JPY",
+          "2 Days Ticket 23,600 JPY 17,400 JPY 17,400 JPY 11,200 JPY",
+          "3 Days Ticket 35,400 JPY 26,100 JPY 26,100 JPY 16,800 JPY"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.table-wrap01",
+        "row_selector": "tr",
+        "samples": [
+          "1 Day Ticket (Early Season 1) 7,200 JPY 5,400 JPY 5,400 JPY 3,700 JPY",
+          "1 Day Ticket (Early Season 2) 9,500 JPY 6,800 JPY 6,800 JPY 4,000 JPY",
+          "Point Ticket (1 Point) 800 JPY 700 JPY 700 JPY 500 JPY"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Rusutsu.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Rusutsu.html",
+    "error": null
+  },
+  {
+    "name": "Sahoro",
+    "url": "https://sahoro.co.jp/winter/ski",
+    "note": "北海道 Hokkaido",
+    "status": "error",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": "Page.goto: net::ERR_CERT_DATE_INVALID at https://sahoro.co.jp/winter/ski\nCall log:\n  - navigating to \"https://sahoro.co.jp/winter/ski\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "name": "Sapporo Kokusai",
+    "url": "http://www.sapporo-kokusai.jp/",
+    "note": "北海道 Hokkaido",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Teine",
+    "url": "https://www.sapporo-teine.com/snow/",
+    "note": "北海道 Hokkaido",
+    "status": "analyzed",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Teine.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Teine.html",
+    "error": null
+  },
+  {
+    "name": "白馬五龍 Goryu",
+    "url": "https://www.hakubagoryu.com/",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Hakuba 47",
+    "url": "https://www.hakuba47.co.jp/",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [
+      "https://www.hakuba47.co.jp/winter/",
+      "https://www.hakuba47.co.jp/winter"
+    ],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Cortina",
+    "url": "https://www.hgp.co.jp/cortina/ski/index.html",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [
+      "https://www.hgp.co.jp/cortina/ski/charge/coupon/",
+      "https://www.hgp.co.jp/cortina/ski/live/#link_lift",
+      "https://www.hgp.co.jp/cortina/ski/charge/#link_lift",
+      "https://www.hgp.co.jp/cortina/ski/",
+      "https://www.hgp.co.jp/cortina/ski/family/"
+    ],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Happo One",
+    "url": "http://www.happo-one.jp/english/",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Iwatake",
+    "url": "https://iwatake-mountain-resort.com/winter",
+    "note": "長野 Nagano",
+    "status": "analyzed",
+    "ticket_url": "https://iwatake-mountain-resort.com/winter/rates/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://iwatake-mountain-resort.com/winter/rates/",
+      "https://iwatake-mountain-resort.com/rates",
+      "https://iwatake-mountain-resort.com/winter/course_lift/",
+      "https://iwatake-mountain-resort.com/winter/rates",
+      "https://iwatake-mountain-resort.com/2026/04/23/2026%e7%99%bd%e9%a6%ac%e5%b2%a9%e5%b2%b3mtb-park%e3%82%b7%e3%83%bc%e3%82%ba%e3%83%b3%e5%88%b8%e5%8f%97%e4%bb%98%e9%96%8b%e5%a7%8b%ef%bc%81"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": [
+          "岩岳半日券 大人 6,500円 AM券・営業開始～13時までPM券・12時から営業終了(発売：11:50～)",
+          "シニア割引 6,000円",
+          "岩岳1日券 大人 7,000円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": [
+          "1日券（平日） 大人（リフト券付き） 14,850円",
+          "小人（リフト券付き） 7,500円",
+          "大人（リフト券無し） 9,000円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "card",
+        "container": "tr.each_ticket_top",
+        "name_selector": "td.ticket_name",
+        "price_selector": "td",
+        "samples": [
+          "岩岳1日券 → 7,000円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "tr.each_ticket_top",
+        "name_selector": "td.ticket_name",
+        "price_selector": "td",
+        "samples": [
+          "岩岳1日券（オンライン事前購入・チャージ） → 6,300円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "tr.each_ticket_top",
+        "name_selector": "td.ticket_name",
+        "price_selector": "td",
+        "samples": [
+          "岩岳2日券 → 12,200円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "tr.each_ticket_top",
+        "name_selector": "td.ticket_name",
+        "price_selector": "td",
+        "samples": [
+          "岩岳2日券（オンライン事前購入・チャージ） → 11,300円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "tr.each_ticket_top",
+        "name_selector": "td.ticket_name",
+        "price_selector": "td",
+        "samples": [
+          "シーズンイン割引 1日券 → 5,300円"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Iwatake.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Iwatake.html",
+    "error": null
+  },
+  {
+    "name": "Norikura",
+    "url": "https://www.hakunori.com/",
+    "note": "長野 Nagano",
+    "status": "analyzed",
+    "ticket_url": "https://www.hakunori.com/ticket/?id=lift",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.table01",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.hakunori.com/ticket/?id=lift",
+      "https://www.hakunori.com/ticket/",
+      "https://www.hakunori.com/ticket/?id=season",
+      "https://www.hakunori.com/snowboardschool/",
+      "https://www.hakunori.com/ticket/?id=open"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.table01",
+        "row_selector": "tr",
+        "samples": [
+          "共通1日券6,200円3,500円-",
+          "共通4時間券5,400円3,000円-初回ゲートインから4時間",
+          "共通1日券（障がい者割引）5,200円2,500円-要証明書 ※介護者1名は同料金（大人）"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.table01",
+        "row_selector": "tr",
+        "samples": [
+          "白乗・コルチナ共通券（超早割）45,000円22,000円42,000円25-26シーズン期間内有効9/1（月）～9/30（火）の販売コルチナ：特定日にナイター利用可",
+          "白乗・コルチナ共通券（早割）54,000円26,000円49,000円25-26シーズン期間内有効10/1（水）～11/30（日）の販売コルチナ：特定日にナイター利用可",
+          "白乗・コルチナ共通券（通常）68,000円38,000円63,000円25-26シーズン期間内有効12/1（月）からの販売コルチナ：特定日にナイター利用可"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Norikura.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Norikura.html",
+    "error": null
+  },
+  {
+    "name": "Jiigatake",
+    "url": "https://www.jiigatake.com/",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Kashimayari",
+    "url": "https://www.kashimayari.net/snow/",
+    "note": "長野 Nagano",
+    "status": "analyzed",
+    "ticket_url": "https://www.kashimayari.net/snow/#tickets",
+    "selectors": {
+      "_note": "自動推測，請人工確認",
+      "type": "card",
+      "container": "div.p-tickets_cta-txt",
+      "ticket_name": "p.p-tickets_cta-ttl",
+      "ticket_price": "p.p-tickets_cta-desc"
+    },
+    "candidate_pages": [
+      "https://www.kashimayari.net/snow/#tickets",
+      "https://www.kashimayari.net/snow/tickets/",
+      "https://www.kashimayari.net/snow/fields/#lift",
+      "https://www.kashimayari.net/snow/#",
+      "https://www.kashimayari.net/snow/topics/1481/"
+    ],
+    "selector_hints": [
+      {
+        "type": "card",
+        "container": "div.p-tickets_cta-txt",
+        "name_selector": "p.p-tickets_cta-ttl",
+        "price_selector": "p.p-tickets_cta-desc",
+        "samples": [
+          "BUY TICKETS → リフト券引き換え時に、ICカード保証金1,000円が別途必要です。\n    保証"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.p-tickets_cta-txt",
+        "name_selector": "p.p-tickets_cta-ttl",
+        "price_selector": "p.p-tickets_cta-desc",
+        "samples": [
+          "BUY TICKETS → リフト券引き換え時に、ICカード保証金1,000円が別途必要です。\n    保証"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.p-tickets_cta-txt",
+        "name_selector": "p.p-tickets_cta-ttl",
+        "price_selector": "p.p-tickets_cta-desc",
+        "samples": [
+          "BUY TICKETS → リフト券引き換え時に、ICカード保証金1,000円が別途必要です。\n    保証"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.p-tickets_cta-txt",
+        "name_selector": "p.p-tickets_cta-ttl",
+        "price_selector": "p.p-tickets_cta-desc",
+        "samples": [
+          "BUY TICKETS → リフト券引き換え時に、ICカード保証金1,000円が別途必要です。\n    保証"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Kashimayari.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Kashimayari.html",
+    "error": null
+  },
+  {
+    "name": "Tsugaike",
+    "url": "https://www.tsugaike.gr.jp/",
+    "note": "長野 Nagano",
+    "status": "analyzed",
+    "ticket_url": "https://www.tsugaike.gr.jp/price",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.price-table",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.tsugaike.gr.jp/price",
+      "https://www.tsugaike.gr.jp/winter/snow/gelande/snowpark",
+      "https://www.tsugaike.gr.jp/snow/ticket2",
+      "https://www.tsugaike.gr.jp/winter/wp-content/themes/tsugaike/common/pdf/tsugaike_mountain_resort_snowsports_instruction_terms_and_application.pdf",
+      "https://www.tsugaike.gr.jp/snow"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "早割シーズン券 通常販売価格 ¥82,000 ¥75,000 ¥56,000 販売期間：2025年12月1日〜",
+          "早割販売価格(キャンセルOPなし) ¥55,000 ¥49,000 ¥42,000 販売期間：2025年9月12日〜11月30日まで ※キャンセル可能期間：2025年9月12日〜2026年1月31日まで",
+          "早割販売価格(キャンセルOP付き) ¥60,500 ¥53,900 ¥46,200"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "早割1日券 通常販売価格 ¥8,200 ¥4,900 販売期間：2025年12月13日〜",
+          "早割券販売価格(キャンセルOPなし) ¥5,900 ¥3,800 販売期間：2025年9月12日〜12月21日まで",
+          "早割券販売価格(キャンセルOP付き) ¥6,313 ¥4,066 販売期間：同上 ※キャンセル可能期間：2026年3月31日まで"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 ¥8,200 ¥7,200 ¥4,900 ¥4,400 ¥6,700 ¥6,000 ◆窓口:2025年12月13日〜2026年3月22日まで販売 ◆WEBチャージ:2025年12月13日〜2026年3月22日まで販売 ※ユース(中・",
+          "2日券 ¥14,600 ¥13,300 ¥9,000 ¥8,000 ¥11,500 ¥10,600 ◆窓口:2025年12月13日〜2026年3月21日まで販売 ◆WEBチャージ:2025年12月13日〜2026年3月21日まで販売 ※ユー",
+          "午前券・午後券 ¥6,500 - ¥4,200 - ¥5,000 - 午前券：営業開始〜13時まで 午後券：12時〜営業終了まで(11:50〜午後券販売開始)"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "ランチパック1日券 (ランチ券1,200円付) - ¥8,000 (¥9,400) - ¥5,300 (¥6,100) 販売期間：2025年12月22日〜2026年3月22日まで （ ）内は通常料金",
+          "初滑り＆春割 ランチパック1日券 (ランチ券1,200円付) - ¥6,400 (¥7,300) - ¥4,400 (¥5,000) 販売期間：シーズンイン〜2025年12月12日 2026年3月23日〜5月6日 （ ）内は通常料金"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 ¥5,400 ¥3,200 障害者手帳などの証明書提示が必要となります。同伴者１名まで割引適用",
+          "2日券 ¥9,300 ¥5,200 障害者手帳などの証明書提示が必要となります。同伴者１名まで割引適用"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "片道券 ￥3,230 ￥1,760 ロープウェイ運行日 ◆2026年3月7日（土）～3月31日（火）毎日運行 8:30～15:00(下り最終15:00) ◆2026年4月3日（金）～4月26日（日）金・土・日のみ運行 8:30～15:30(",
+          "往復券 ￥5,780 ￥3,080"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "片道券 ¥2,380 ¥1,300",
+          "往復券 ¥4,300 ￥2,300"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.price-table",
+        "row_selector": "tr",
+        "samples": [
+          "片道券 ￥850 ￥460 ロープウェイ運行日 ◆2026年3月7日（土）～3月31日（火）毎日運行 8:30～15:00(下り最終15:00) ◆2026年4月3日（金）～4月26日（日）金・土・日のみ運行 8:30～15:30(下り最終",
+          "往復券 ￥1,480 ￥780"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Tsugaike.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Tsugaike.html",
+    "error": null
+  },
+  {
+    "name": "Karuizawa Prince",
+    "url": "https://www.princehotels.co.jp/ski/karuizawa/winter/",
+    "note": "長野 Nagano",
+    "status": "analyzed",
+    "ticket_url": "https://www.princehotels.co.jp/ski/karuizawa/winter/lift/#lift-fee",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.tbl-base",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.princehotels.co.jp/ski/karuizawa/winter/lift/#lift-fee",
+      "https://www.princehotels.co.jp/ski/karuizawa/winter/lift/",
+      "https://www.princehotels.co.jp/ski/karuizawa/winter/#",
+      "https://www.princehotels.co.jp/ski/karuizawa/winter/coursemap?tab=lift#menu03",
+      "https://www.princehotels.co.jp/ski/karuizawa/winter/family/"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "現地購入 一般 1日券 ￥8,000 無料",
+          "午後券 ※1 ￥7,000 無料",
+          "Seibu Prince Global Rewards（SEIBU PRINCE CLUB）会員さま 1日券 ￥7,000 無料"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "現地購入 一般 1日券 ￥10,000 無料",
+          "午後券 ※1 ￥9,000 無料",
+          "Seibu Prince Global Rewards（SEIBU PRINCE CLUB）会員さま 1日券 ￥9,000 無料"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "現地購入 一般 1日券 ￥11,000 無料",
+          "午後券 ※1 ￥10,000 無料",
+          "Seibu Prince Global Rewards（SEIBU PRINCE CLUB）会員さま 1日券 ￥10,000 無料"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "現地購入 一般 1日券 ￥8,000 無料",
+          "午後券 ※1 ￥7,000 無料",
+          "Seibu Prince Global Rewards（SEIBU PRINCE CLUB）会員さま 1日券 ￥7,000 無料"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "事前Web購入 1日券 シーズン ￥9,000",
+          "午後券 ※1 シーズン ￥8,000"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "全日券 新規 ￥85,000 ￥75,000",
+          "平日券 新規 ￥70,000 ￥60,000",
+          "初滑り全日券(2025年11月1日～12月19日) 新規 ￥60,000 ￥55,000"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.wrapper",
+        "name_selector": "div.box-heading-center",
+        "price_selector": "p.hdg-lv3--01",
+        "samples": [
+          "Recommended Lift Feeおすすめリフト券 → 人気な高速リフト2本を並ばずご利用いただける優先乗車券を土休日￥5,000/特日"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Karuizawa_Prince.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Karuizawa_Prince.html",
+    "error": null
+  },
+  {
+    "name": "Kijimadaira",
+    "url": "https://kijimadaira-ski.com/",
+    "note": "長野 Nagano",
+    "status": "analyzed",
+    "ticket_url": "https://kijimadaira-ski.com/charge/#anc-c01",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.page-tbl",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://kijimadaira-ski.com/charge/#anc-c01",
+      "https://kijimadaira-ski.com/charge",
+      "https://kijimadaira-ski.com/charge/#anc-c02",
+      "https://kijimadaira-ski.com/gelande/#b01-01",
+      "https://kijimadaira-ski.com/information/215"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.page-tbl",
+        "row_selector": "tr",
+        "samples": [
+          "PM 12:00〜 全日 大人（中学生以上）4,500円 シニア （60歳以上）4,000円 小学生2,500円",
+          "1日券 平日 大人（中学生以上）4,900円 シニア （60歳以上）4,500円 小学生2,500円",
+          "土日祝 大人（中学生以上）5,700円 シニア （60歳以上）5,200円 小学生2,500円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.page-tbl",
+        "row_selector": "tr",
+        "samples": [
+          "シーズン券 全日 大人（中学生以上）53,000円 シニア （60歳以上）48,000円 小学生21,000円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.page-tbl.show_pc",
+        "row_selector": "tr",
+        "samples": [
+          "フルセット 大人 6,000円 5,000円 ウェア・板・ブーツ・ストック",
+          "板・ブーツセット 大人 4,000円 3,000円 板・ブーツ・ストック",
+          "スキー板・ボード 大人 3,000円 2,500円 スキー：80cm〜177cmボード：90cm〜160cm"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.c-detail",
+        "name_selector": "div.c-row",
+        "price_selector": "div.c-row",
+        "samples": [
+          "12時以降大人：5,000円小学生以下：3,000円 → 1日大人：6,000円小学生以下：4,000円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.c-row",
+        "name_selector": "span.ttl",
+        "price_selector": "span.item",
+        "samples": [
+          "1日 → 大人：6,000円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.c-row",
+        "name_selector": "span.ttl",
+        "price_selector": "span.item",
+        "samples": [
+          "1日 → 小学生以下：4,000円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.c-detail",
+        "name_selector": "div.c-row",
+        "price_selector": "div.c-row",
+        "samples": [
+          "1日大人：6,000円小学生以下：4,000円 → 12時以降大人：5,000円小学生以下：3,000円"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "div.c-row",
+        "name_selector": "span.item",
+        "price_selector": "span.item",
+        "samples": [
+          "大人：5,000円 → 小学生以下：3,000円"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Kijimadaira.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Kijimadaira.html",
+    "error": null
+  },
+  {
+    "name": "Madarao Kogen",
+    "url": "http://www.madarao.jp/ski",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [
+      "http://www.madarao.jp/ski/shirakaba"
+    ],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Nozawa Onsen",
+    "url": "http://www.nozawaski.com/",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Sakae",
+    "url": "http://sakaeclub.jp/",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "志賀高原 Shiga Kogen",
+    "url": "https://shigakogen-ski.or.jp/english/",
+    "note": "長野 Nagano",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [
+      "https://shigakogen-ski.or.jp/winter/news/ArticalImages/6c861188a120b880c62daaf7dcefb11f8f3a831b.pdf",
+      "https://shigakogen-ski.or.jp/winter/news/2025/10/ikon-pass/index.html",
+      "https://shigakogen-ski.or.jp/winter/news/2026/05/post-54/index.html",
+      "https://shigakogen-ski.or.jp/winter/news/2026/02/post-51/index.html",
+      "https://shigakogen-ski.or.jp/winter/news/2025/12/post-38/index.html"
+    ],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Sugadaira",
+    "url": "https://sugadaira-snowresort.com/",
+    "note": "長野 Nagano",
+    "status": "analyzed",
+    "ticket_url": "https://sugadaira-snowresort.com/ticket/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.tbl-purchase.s-red",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://sugadaira-snowresort.com/ticket/",
+      "https://sugadaira-snowresort.com/ticket/#lnk_preselling",
+      "https://sugadaira-snowresort.com/",
+      "https://sugadaira-snowresort.com/condition/",
+      "https://sugadaira-snowresort.com/facility/"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.tbl-purchase.s-red",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 6,400 円 3,800 円 5,800 円",
+          "2日券 12,000 円 7,000 円 11,000 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-purchase.s-red",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 4,000 円",
+          "2日券 6,000 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-purchase",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 5,900 円 3,500 円 5,300 円",
+          "2日券 11,000 円 6,500 円 10,000 円",
+          "半日券 5,000 円 3,000 円 5,000 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-purchase",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 4,000 円 2,000 円 4,000 円",
+          "半日券 3,500 円 1,500 円 3,500 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-purchase",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 5,000 円 2,800 円 4,400 円",
+          "2日券 9,200 円 5,000 円 8,200 円",
+          "半日券 4,000 円 2,000 円 4,000 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-purchase.s-full",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 4,000 円",
+          "2日券 6,000 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-purchase.s-blue",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 5,900 円 3,300 円 5,300 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-purchase.s-blue",
+        "row_selector": "tr",
+        "samples": [
+          "1日券 4,000 円"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Sugadaira.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Sugadaira.html",
+    "error": null
+  },
+  {
+    "name": "Myoko",
+    "url": "https://myokoskiresort.com/",
+    "note": "新潟 Niigata",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [
+      "https://myokoskiresort.com/myoko-snow-report/",
+      "https://myokoskiresort.com/ikenotaira-onsen-ski-resort-alpenblick-snow-resort/",
+      "https://myokoskiresort.com/feed/",
+      "https://myokoskiresort.com/comments/feed/",
+      "https://myokoskiresort.com/#"
+    ],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "GALA Yuzawa",
+    "url": "https://gala.co.jp/winter/english/",
+    "note": "新潟 Niigata",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [
+      "https://gala.co.jp/zh-CHT/winter/buylift/",
+      "https://gala.co.jp/zh-CHT/winter/activities#c_a2",
+      "https://gala.co.jp/zh-CHT/winter/corporate/",
+      "https://gala.co.jp/zh-CHT/winter/buylift",
+      "https://gala.co.jp/zh-CHT/winter/"
+    ],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Ishiuchi Maruyama",
+    "url": "https://www.ishiuchi.or.jp/",
+    "note": "新潟 Niigata",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Iwappara",
+    "url": "https://iwa-ppara.com/",
+    "note": "新潟 Niigata",
+    "status": "analyzed",
+    "ticket_url": "https://iwa-ppara.com/price/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://iwa-ppara.com/price/",
+      "https://iwa-ppara.com/topics/ski-kodomo-no-hi_sp-lesson_2026/",
+      "https://iwa-ppara.com/topics/wormmoon_2026/",
+      "https://iwa-ppara.com/asobi/25-26_nonbiripass/",
+      "https://iwa-ppara.com/instructor-registration/"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": [
+          "午後＆ナイター入場券¥4,500¥2,800¥3,50013:00～ナイター終了まで",
+          "1日入場券¥5,500¥3,500¥4,3008:00～17:00",
+          "1日入場券＋¥5,800¥3,800¥4,6008:00～ナイター終了まで"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": [
+          "キッズパラダイス入場券A¥1,000当日途中入退場OKキッズパラダイス受付でのみ販売（予定）",
+          "キッズパラダイス入場券B¥1,500キッズパラダイス入場券＋いっかい入場券・リフト1回乗車券セット"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": [
+          "岩原&上国共通シーズンパスリピーター限定販売販売期間（10/1～10/31）¥37,000¥15,000¥31,000",
+          "早割価格販売期間（10/1～11/30）¥49,000¥25,000¥38,000",
+          "岩原シーズンパスリピーター限定販売販売期間（10/1～10/31）¥32,000¥11,000¥26,000"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table",
+        "row_selector": "tr",
+        "samples": [
+          "プリファードシーズンパス販売期間（10/1～2/28）¥50,000¥30,000¥40,000チケットを専用窓口で交換他、5つの優遇サービスをご用意"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "ul.wp-block-list",
+        "name_selector": "li",
+        "price_selector": "li",
+        "samples": [
+          "ご購入の際はシーズン券をお持ちのご本人様と同伴が必要です。シーズン券をお引換え時にお申込みください。 → 大人通常5,800円の1日入場券＋を最大3名様まで3,500円で購入できます。"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "ul.wp-block-list",
+        "name_selector": "li",
+        "price_selector": "li",
+        "samples": [
+          "岩原・上国の1日入場券＋を一律1,500円で購入できます。 → シーズンパスの提示でGALA湯沢・舞子・NASPA・湯沢高原のリフト1日券（大人"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "ul.wp-block-list",
+        "name_selector": "li",
+        "price_selector": "li",
+        "samples": [
+          "シーズンパスの提示でGALA湯沢・舞子・NASPA・湯沢高原のリフト1日券（大人・ジュニア・マスター）を3,000円で購 → 岩原・上国の1日入場券＋を一律1,500円で購入できます。"
+        ]
+      },
+      {
+        "type": "card",
+        "container": "ul.wp-block-list",
+        "name_selector": "li",
+        "price_selector": "li",
+        "samples": [
+          "上越国際アネックス「縄文の湯」　大人通常1,000円→500円、子ども通常500円→250円 → リゾートセンター２「いわっぱらの湯」　大人通常600円→300円、子ども通常30"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Iwappara.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Iwappara.html",
+    "error": null
+  },
+  {
+    "name": "Joetsu Kokusai",
+    "url": "https://www.jkokusai.co.jp/ski/",
+    "note": "新潟 Niigata",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Kagura",
+    "url": "https://www.princehotels.co.jp/ski/kagura/index.html",
+    "note": "新潟 Niigata",
+    "status": "analyzed",
+    "ticket_url": "https://www.princehotels.co.jp/ski/kagura/winter/lift/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.tbl-base",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.princehotels.co.jp/ski/kagura/winter/lift/advance_tickets/",
+      "https://www.princehotels.co.jp/ski/kagura/winter/lift/",
+      "https://www.princehotels.co.jp/ski/kagura/winter/coursemap?tab=lift#menu03",
+      "https://www.princehotels.co.jp/ski/kagura/winter/coursemap/",
+      "https://www.princehotels.co.jp/ski/kagura/informations/2025-26winter_noncertified_school"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "かぐらスキー場1日券 ￥7,500 無料 ※5"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "かぐらスキー場1日券 ※2 ￥7,000 無料 ※5"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "かぐらスキー場 午前券 ￥6,000 無料 ※5",
+          "かぐらスキー場 午後券 ￥5,500"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base.mb25",
+        "row_selector": "tr",
+        "samples": []
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "Mt.Naeba1日券 ¥9,800 無料"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Kagura.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Kagura.html",
+    "error": null
+  },
+  {
+    "name": "Lotte Arai Resort",
+    "url": "https://www.lottehotel.com/arai-resort/ja/ski-webzine.html",
+    "note": "新潟 Niigata",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Naeba",
+    "url": "https://www.princehotels.co.jp/ski/naeba/winter/",
+    "note": "新潟 Niigata",
+    "status": "analyzed",
+    "ticket_url": "https://www.princehotels.co.jp/ski/naeba/winter/lift/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.tbl-base",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.princehotels.co.jp/ski/naeba/winter/lift/",
+      "https://www.princehotels.co.jp/ski/naeba/winter/coursemap?tab=lift#menu03",
+      "https://www.princehotels.co.jp/ski/naeba/winter/coursemap/",
+      "https://www.princehotels.co.jp/ski/kids/",
+      "https://www.princehotels.co.jp/ski/naeba/winter/#sp-menu-block"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "Mt.Naeba1日券 ￥9,800 無料(リフト券売り場にて専用チケットをお求めください。)",
+          "苗場エリア1日券 ￥7,800",
+          "苗場エリア8時間券 ￥8,300"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base.mt30",
+        "row_selector": "tr",
+        "samples": [
+          "プリンス第1ゴンドラ往復プリンス第2ゴンドラ往復 ￥3,000 無料(リフト券売り場にて専用チケットをお求めください。)"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.tbl-base",
+        "row_selector": "tr",
+        "samples": [
+          "Mt.Naeba1日券 ￥8,800 無料(リフト券売り場にて専用チケットをお求めください。)",
+          "苗場エリア1日券 ￥7,300"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Naeba.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Naeba.html",
+    "error": null
+  },
+  {
+    "name": "Yuzawa Kogen",
+    "url": "https://www.yuzawakogen.com/",
+    "note": "新潟 Niigata",
+    "status": "analyzed",
+    "ticket_url": "https://www.yuzawakogen.com/green/tickets/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.c-table.c-tableGreen",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.yuzawakogen.com/green/tickets/",
+      "https://www.yuzawakogen.com/topics/2026_g_season_pass/",
+      "https://www.yuzawakogen.com/topics/25_jrskiski/",
+      "https://www.yuzawakogen.com/winter/",
+      "https://www.yuzawakogen.com/topics/winter_kidsevent/"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.c-table.c-tableGreen",
+        "row_selector": "tr",
+        "samples": [
+          "大人(中学生以上) 3,500 円",
+          "シニア(65歳以上) 3,000 円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.c-table.c-tableGreen",
+        "row_selector": "tr",
+        "samples": [
+          "ジップラインアドベンチャー※当日受付あり(繁忙期は事前予約が必要です)6月下旬～11月上旬営業予定(準備中) 1人1フライト 3,500 円 (準備中)※GW期間は休業となります。",
+          "サマーボブスレー706※8才以上(または小学2年生)より1人乗車可※2人乗りは大人1名＋子供1名(4歳～12歳)の組み合わせのみ4月25日(土)～11月上旬まで営業予定 1人乗り1回 1,200 円2人乗り1回 1,800 円"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Yuzawa_Kogen.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Yuzawa_Kogen.html",
+    "error": null
+  },
+  {
+    "name": "藏王溫泉 Zao Onsen",
+    "url": "http://www.zao-ski.or.jp/",
+    "note": "山形 Yamagata",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Hakkoda",
+    "url": "http://www.hakkoda-ropeway.jp/lnks/info/infomation.html",
+    "note": "青森 Aomori",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Alts Bandai",
+    "url": "https://www.alts.co.jp/",
+    "note": "福島 Fukushima",
+    "status": "error",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": "Page.goto: net::ERR_NAME_NOT_RESOLVED at https://www.alts.co.jp/\nCall log:\n  - navigating to \"https://www.alts.co.jp/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "name": "Aizu Kogen Takatsue",
+    "url": "http://takatsue.jp/",
+    "note": "福島 Fukushima",
+    "status": "no_price_found",
+    "ticket_url": null,
+    "selectors": {},
+    "candidate_pages": [],
+    "selector_hints": [],
+    "screenshot": null,
+    "html_file": null,
+    "error": null
+  },
+  {
+    "name": "Inawashiro",
+    "url": "https://www.inawashiro-ski.com/",
+    "note": "福島 Fukushima",
+    "status": "analyzed",
+    "ticket_url": "https://www.inawashiro-ski.com/lift/seasonpass/",
+    "selectors": {
+      "_note": "自動推測，請人工確認並補上 ticket_name / ticket_price 選擇器",
+      "container": "table.table.table-bordered",
+      "row": "tr"
+    },
+    "candidate_pages": [
+      "https://www.inawashiro-ski.com/lift/seasonpass/",
+      "https://www.inawashiro-ski.com/gelande/climbing/#summerLiftPrice",
+      "https://www.inawashiro-ski.com/service/ticket-machine/",
+      "https://www.inawashiro-ski.com/lift/",
+      "https://www.inawashiro-ski.com/gelande/climbing/#mountaineersSummerLift"
+    ],
+    "selector_hints": [
+      {
+        "type": "table",
+        "container": "table.table.table-bordered",
+        "row_selector": "tr",
+        "samples": [
+          "早割 2025年10月1日～11月30日 18,000円 8,000円 3,000円",
+          "定価 2025年12月1日～ 28,000円 18,000円 8,000円"
+        ]
+      },
+      {
+        "type": "table",
+        "container": "table.table.table-bordered",
+        "row_selector": "tr",
+        "samples": [
+          "早割 2025年10月1日～11月30日 28,000円 18,000円 8,000円",
+          "定価 2025年12月1日～ 48,000円 28,000円 18,000円"
+        ]
+      }
+    ],
+    "screenshot": "D:\\SideProject\\site_analysis\\screenshots\\Inawashiro.png",
+    "html_file": "D:\\SideProject\\site_analysis\\html\\Inawashiro.html",
+    "error": null
+  }
+]
