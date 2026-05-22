@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 
-BASE_URL = "https://snowtrip.tw"  # 部署後改這裡
+BASE_URL = "https://snowboarding-support-system-jp-production.up.railway.app"
 
 app = FastAPI(title="SnowTrip Japan", docs_url=None, redoc_url=None)
 
