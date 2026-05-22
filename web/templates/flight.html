@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}機票查詢 — SnowTrip Japan{% endblock %}
+{% block description %}搜尋台北桃園、松山、高雄出發飛往日本滑雪地區（北海道、東京、大阪）最低票價機票，支援去回程查詢。{% endblock %}
+{% block og_title %}台灣出發日本機票查詢 — SnowTrip Japan{% endblock %}
+{% block og_description %}搜尋台灣出發飛往日本各大滑雪地的最低票價機票。{% endblock %}
+
+{% block extra_ld_json %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "台灣出發日本機票查詢",
+  "description": "搜尋台灣出發飛往日本各大滑雪地的最低票價機票",
+  "url": "{{ canonical_url }}",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "首頁", "item": "{{ base_url }}/"},
+      {"@type": "ListItem", "position": 2, "name": "機票查詢", "item": "{{ canonical_url }}"}
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- 麵包屑 -->
+  <nav aria-label="麵包屑導覽">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">首頁</a></li>
+      <li class="breadcrumb-item active" aria-current="page">機票查詢</li>
+    </ol>
+  </nav>
+
+  <h1 class="h2 fw-bold mb-1">機票查詢</h1>
+  <p class="text-muted mb-4">搜尋台灣出發、前往日本滑雪地區的最低票價</p>
+
+  <!-- 搜尋表單 -->
+  <section class="card shadow-sm mb-4 border-0" aria-labelledby="flight-search-heading">
+    <div class="card-body p-4">
+      <h2 id="flight-search-heading" class="h5 mb-3">
+        <i class="bi bi-funnel me-2 text-info" aria-hidden="true"></i>搜尋條件
+      </h2>
+      <form id="flight-form" role="search" aria-label="機票搜尋">
+        <div class="row g-3">
+          <!-- 出發機場 -->
+          <div class="col-sm-6 col-md-3">
+            <label for="origin" class="form-label fw-semibold">出發機場</label>
+            <select id="origin" name="origin" class="form-select">
+              <option value="TPE">台北桃園 (TPE)</option>
+              <option value="TSA">台北松山 (TSA)</option>
+              <option value="KHH">高雄 (KHH)</option>
+              <option value="RMQ">台中 (RMQ)</option>
+            </select>
+          </div>
+          <!-- 目的地 -->
+          <div class="col-sm-6 col-md-3">
+            <label for="destination" class="form-label fw-semibold">目的地</label>
+            <select id="destination" name="destination" class="form-select">
+              <option value="CTS" data-name="新千歲">北海道 新千歲 (CTS)</option>
+              <option value="NRT" data-name="成田">東京 成田 (NRT)</option>
+              <option value="HND" data-name="羽田">東京 羽田 (HND)</option>
+              <option value="KIX" data-name="關西">大阪 關西 (KIX)</option>
+              <option value="ITM" data-name="伊丹">大阪 伊丹 (ITM)</option>
+              <option value="NGO" data-name="中部">名古屋 中部 (NGO)</option>
+              <option value="OKA" data-name="那霸">沖繩 那霸 (OKA)</option>
+            </select>
+          </div>
+          <!-- 出發日期 -->
+          <div class="col-sm-6 col-md-2">
+            <label for="departure" class="form-label fw-semibold">出發日期</label>
+            <input type="date" id="departure" name="departure" class="form-control" required
+                   aria-required="true">
+          </div>
+          <!-- 回程日期 -->
+          <div class="col-sm-6 col-md-2">
+            <label for="ret-date" class="form-label fw-semibold">
+              回程 <span class="text-muted fw-normal small">（選填）</span>
+            </label>
+            <input type="date" id="ret-date" name="ret_date" class="form-control">
+          </div>
+          <!-- 人數 -->
+          <div class="col-sm-4 col-md-1">
+            <label for="adults" class="form-label fw-semibold">人數</label>
+            <input type="number" id="adults" name="adults" class="form-control"
+                   value="1" min="1" max="9" aria-label="成人人數">
+          </div>
+          <!-- 搜尋按鈕 -->
+          <div class="col-sm-8 col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-info text-white w-100">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <span class="d-none d-md-inline ms-1">搜尋</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 說明提示 -->
+        <div class="mt-3 small text-muted">
+          <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+          機票資料來自 Google Flights，價格為即時查詢，僅供參考。
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- 結果區域 -->
+  <section aria-labelledby="flight-results-heading" aria-live="polite" aria-atomic="false">
+    <div id="flight-results">
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-airplane fs-1 d-block mb-3 text-info" aria-hidden="true"></i>
+        <p class="mb-0">請輸入出發日期後按下搜尋</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const form      = document.getElementById('flight-form');
+const resultsEl = document.getElementById('flight-results');
+
+// 最小日期：今天
+document.getElementById('departure').min = new Date().toISOString().split('T')[0];
+
+// 回程不能早於去程
+document.getElementById('departure').addEventListener('change', function () {
+  document.getElementById('ret-date').min = this.value;
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const origin  = document.getElementById('origin').value;
+  const destEl  = document.getElementById('destination');
+  const dest    = destEl.value;
+  const destName = destEl.options[destEl.selectedIndex].dataset.name;
+  const departure = document.getElementById('departure').value;
+  const retDate   = document.getElementById('ret-date').value;
+  const adults    = document.getElementById('adults').value;
+
+  if (!departure) { alert('請輸入出發日期'); return; }
+
+  setLoading();
+
+  const params = new URLSearchParams({ origin, destination: dest, dest_name: destName, departure, adults });
+  if (retDate) params.append('ret_date', retDate);
+
+  try {
+    const res  = await fetch(`/api/flight/search?${params}`);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    renderFlights(json.data, !!retDate);
+  } catch (err) {
+    setError(err.message);
+  }
+});
+
+function setLoading() {
+  resultsEl.innerHTML = `
+    <div class="text-center py-5">
+      <div class="spinner-border text-info" role="status">
+        <span class="visually-hidden">搜尋中...</span>
+      </div>
+      <p class="mt-3 text-muted">正在搜尋最低票價，請稍候…</p>
+    </div>`;
+}
+
+function setError(msg) {
+  resultsEl.innerHTML = `
+    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+      <i class="bi bi-exclamation-triangle-fill flex-shrink-0" aria-hidden="true"></i>
+      <div>搜尋失敗：${escHtml(msg)}</div>
+    </div>`;
+}
+
+function renderFlights(data, isRoundtrip) {
+  if (data.length === 0) {
+    resultsEl.innerHTML = `
+      <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-info-circle-fill flex-shrink-0" aria-hidden="true"></i>
+        <div>沒有找到符合條件的航班，請嘗試其他日期或目的地。</div>
+      </div>`;
+    return;
+  }
+
+  const rtHeader = isRoundtrip ? '<th scope="col">回程出發</th><th scope="col">回程抵達</th>' : '';
+  const rows = data.map(r => {
+    const stopsBadge = r.stops === 0
+      ? '<span class="badge bg-success">直飛</span>'
+      : `<span class="badge bg-warning text-dark">${r.stops} 轉</span>`;
+    const rtCells = isRoundtrip
+      ? `<td>${escHtml(r.ret_dep_time ?? '—')}</td><td>${escHtml(r.ret_arr_time ?? '—')}</td>`
+      : '';
+    return `
+      <tr>
+        <td><span class="badge bg-secondary small">${escHtml(r.source ?? '')}</span></td>
+        <td class="fw-semibold small">${escHtml(r.flights_str ?? '')}</td>
+        <td>${escHtml(r.dep_time ?? '—')}</td>
+        <td>${escHtml(r.arr_time ?? '—')}</td>
+        <td class="text-muted small">${escHtml(r.duration ?? '—')}</td>
+        <td>${stopsBadge}</td>
+        ${rtCells}
+        <td class="fw-bold text-danger">TWD&nbsp;${Number(r.price ?? 0).toLocaleString()}</td>
+      </tr>`;
+  }).join('');
+
+  resultsEl.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <h2 id="flight-results-heading" class="h5 mb-0 fw-bold">
+        搜尋結果
+        <span class="badge bg-info ms-1">${data.length} 筆</span>
+      </h2>
+      <p class="text-muted small mb-0">價格以 TWD 計，僅供參考，以航空公司官網為準。</p>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">來源</th>
+            <th scope="col">航班</th>
+            <th scope="col">去程出發</th>
+            <th scope="col">去程抵達</th>
+            <th scope="col">飛行時間</th>
+            <th scope="col">轉機</th>
+            ${rtHeader}
+            <th scope="col">票價</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+{% endblock %}

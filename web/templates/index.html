@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}SnowTrip Japan — 日本滑雪行程一站規劃{% endblock %}
+{% block description %}查詢日本 40+ 雪場早鳥票、一般票最新票價，搜尋台灣出發最便宜機票，北海道、長野、新潟、山形等地一站搞定。{% endblock %}
+{% block og_title %}SnowTrip Japan — 日本滑雪行程一站規劃{% endblock %}
+{% block og_description %}查詢 40+ 雪場票價・搜尋台灣出發機票・北海道長野新潟一站搞定{% endblock %}
+
+{% block extra_ld_json %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "SnowTrip Japan — 日本滑雪行程一站規劃",
+  "description": "查詢日本 40+ 雪場早鳥票價，搜尋台灣出發最便宜機票",
+  "url": "{{ canonical_url }}",
+  "inLanguage": "zh-TW"
+}
+</script>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero-section text-white text-center py-5" aria-labelledby="hero-title">
+  <div class="container py-4">
+    <h1 id="hero-title" class="display-4 fw-bold mb-3">
+      <i class="bi bi-snow2 me-2" aria-hidden="true"></i>SnowTrip Japan
+    </h1>
+    <p class="lead mb-4 opacity-90">
+      一站式日本滑雪行程規劃<br>
+      <span class="fw-semibold">查早鳥雪票 ・ 找最便宜機票</span>
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="/ski" class="btn btn-light btn-lg px-4 shadow-sm">
+        <i class="bi bi-tag me-2" aria-hidden="true"></i>查雪票
+      </a>
+      <a href="/flight" class="btn btn-outline-light btn-lg px-4">
+        <i class="bi bi-airplane me-2" aria-hidden="true"></i>找機票
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 數字亮點 -->
+<section class="bg-primary bg-gradient text-white py-3" aria-label="統計數字">
+  <div class="container">
+    <div class="row text-center g-0">
+      <div class="col-4 border-end border-white border-opacity-25">
+        <div class="fw-bold fs-4">40+</div>
+        <div class="small opacity-75">日本雪場</div>
+      </div>
+      <div class="col-4 border-end border-white border-opacity-25">
+        <div class="fw-bold fs-4">6</div>
+        <div class="small opacity-75">主要地區</div>
+      </div>
+      <div class="col-4">
+        <div class="fw-bold fs-4">每日</div>
+        <div class="small opacity-75">資料更新</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 功能卡片 -->
+<section class="container py-5" aria-labelledby="features-title">
+  <h2 id="features-title" class="text-center fw-bold mb-5">功能一覽</h2>
+  <div class="row g-4">
+
+    <div class="col-md-4">
+      <article class="card h-100 shadow-sm border-0 card-hover">
+        <div class="card-body text-center p-4">
+          <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3
+                      d-flex align-items-center justify-content-center"
+               style="width:64px;height:64px" aria-hidden="true">
+            <i class="bi bi-tag-fill fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold">雪票查詢</h3>
+          <p class="text-muted small mb-3">
+            即時查詢 40+ 日本雪場早鳥票、一般票價格，涵蓋北海道、長野、新潟等主要地區，支援依地區或雪場名稱篩選。
+          </p>
+          <a href="/ski" class="btn btn-primary btn-sm px-4">開始查詢</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-md-4">
+      <article class="card h-100 shadow-sm border-0 card-hover">
+        <div class="card-body text-center p-4">
+          <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3
+                      d-flex align-items-center justify-content-center"
+               style="width:64px;height:64px" aria-hidden="true">
+            <i class="bi bi-airplane-fill fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold">機票查詢</h3>
+          <p class="text-muted small mb-3">
+            搜尋台北桃園、松山、高雄、台中出發，飛往日本各大滑雪地區機場的最低票價，支援去回程。
+          </p>
+          <a href="/flight" class="btn btn-info btn-sm px-4 text-white">搜尋機票</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-md-4">
+      <article class="card h-100 shadow-sm border-0 opacity-65">
+        <div class="card-body text-center p-4">
+          <div class="feature-icon bg-secondary text-white rounded-circle mx-auto mb-3
+                      d-flex align-items-center justify-content-center"
+               style="width:64px;height:64px" aria-hidden="true">
+            <i class="bi bi-grid-fill fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold">
+            整合查詢
+            <span class="badge bg-warning text-dark ms-1" style="font-size:.7rem">即將推出</span>
+          </h3>
+          <p class="text-muted small mb-3">
+            輸入日期 + 預算 + 地區，一次回傳機票 + 雪票費用組合，輕鬆試算整趟行程總花費。
+          </p>
+          <button class="btn btn-secondary btn-sm px-4" disabled aria-disabled="true">敬請期待</button>
+        </div>
+      </article>
+    </div>
+
+  </div>
+</section>
+
+<!-- 使用步驟 -->
+<section class="bg-light py-5" aria-labelledby="steps-title">
+  <div class="container">
+    <h2 id="steps-title" class="text-center fw-bold mb-5">如何使用</h2>
+    <div class="row g-4 justify-content-center">
+      {% for step, icon, title, desc in [
+        ('1','bi-cursor-fill','選擇查詢類型','雪票或機票'),
+        ('2','bi-sliders','輸入條件','地區、日期、預算'),
+        ('3','bi-table','查看結果','即時顯示票價資訊'),
+        ('4','bi-download','下載 Excel','匯出完整資料表')
+      ] %}
+      <div class="col-6 col-md-3 text-center">
+        <div class="bg-primary text-white rounded-circle mx-auto mb-3
+                    d-flex align-items-center justify-content-center fw-bold fs-5"
+             style="width:48px;height:48px" aria-hidden="true">{{ step }}</div>
+        <i class="bi {{ icon }} fs-3 text-primary mb-2 d-block" aria-hidden="true"></i>
+        <h3 class="h6 fw-semibold">{{ title }}</h3>
+        <p class="text-muted small mb-0">{{ desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 熱門地區快捷 -->
+<section class="container py-5" aria-labelledby="regions-title">
+  <h2 id="regions-title" class="fw-bold mb-4 text-center">熱門地區</h2>
+  <div class="row g-3">
+    {% for region, emoji, desc in [
+      ('北海道','🏔️','富良野・二世谷・留壽都'),
+      ('長野','⛷️','白馬・志賀高原・野澤溫泉'),
+      ('新潟','🌨️','苗場・GALA湯澤・岩原'),
+      ('山形','❄️','藏王・天童高原'),
+      ('青森','🦌','八甲田・鰺澤'),
+      ('福島','🌲','Alts磐梯・貓魔岳')
+    ] %}
+    <div class="col-6 col-md-4">
+      <a href="/ski?region={{ region }}" class="card shadow-sm text-decoration-none card-hover h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="fs-2" aria-hidden="true">{{ emoji }}</span>
+          <div>
+            <div class="fw-semibold text-dark">{{ region }}</div>
+            <div class="text-muted small">{{ desc }}</div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}
