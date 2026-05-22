@@ -3,6 +3,7 @@ SnowTrip Japan — FastAPI Web Application
 執行: python main.py  或  uvicorn main:app --reload
 """
 import io
+import re
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -177,6 +178,164 @@ async def api_flight_search(
         return {"ok": True, "data": [asdict(r) for r in results]}
     except Exception as e:
         return {"ok": False, "error": str(e)}
+
+
+# ── 機票 Excel 下載 ───────────────────────────────────────────────────────────
+
+def _airline_name(flights_str: str) -> str:
+    """從 flights_str 擷取航空公司名稱，去除航班號與路線"""
+    legs = re.split(r'\s*→\s*', flights_str or "")
+    names = set()
+    for leg in legs:
+        m = re.match(r'^([A-Za-z][A-Za-z\s]*?)(?=\s*\d|\s*\()', leg.strip())
+        if m:
+            names.add(m.group(1).strip())
+    return " / ".join(sorted(names)) or flights_str[:25]
+
+
+def _generate_flight_excel(flights: list[dict], meta: dict) -> io.BytesIO:
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    is_rt = bool(meta.get("ret_date"))
+
+    # ── 顏色定義 ──────────────────────────────────────────────────────────────
+    FILL_BANNER   = PatternFill("solid", fgColor="D6E4F0")
+    FILL_HEADER   = PatternFill("solid", fgColor="1F4E79")
+    FILL_ROW_TOP  = PatternFill("solid", fgColor="C6EFCE")  # 前3名
+    FILL_ROW_REST = PatternFill("solid", fgColor="E2EFDA")  # 其餘
+    FILL_DEP_PRICE= PatternFill("solid", fgColor="BDD7EE")  # 去程票價欄
+    FILL_RET_PRICE= PatternFill("solid", fgColor="F9CBAD")  # 回程票價欄
+    FILL_TOTAL_1  = PatternFill("solid", fgColor="70AD47")  # 最低合計
+    FILL_TOTAL_N  = PatternFill("solid", fgColor="A9D18E")  # 其他合計
+
+    FONT_BANNER = Font(bold=True, size=10, color="1F4E79")
+    FONT_HEADER = Font(bold=True, size=11, color="FFFFFF")
+    FONT_DATA   = Font(size=12)
+    FONT_TOTAL1 = Font(bold=True, size=13, color="375623")
+    FONT_TOTALN = Font(bold=True, size=13, color="375623")
+    FONT_NOTE   = Font(size=9, color="595959")
+
+    CENTER = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    LEFT   = Alignment(horizontal="left",   vertical="center")
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "航班搜尋結果"
+
+    # ── Row 1：搜尋摘要 ────────────────────────────────────────────────────────
+    origin   = meta.get("origin", "")
+    dest     = meta.get("destination", "")
+    dep      = meta.get("departure", "")
+    ret      = meta.get("ret_date", "")
+    adults   = meta.get("adults", 1)
+    banner   = (f"✈  {origin} → {dest}   去程: {dep}"
+                + (f"   回程: {ret}" if is_rt else "")
+                + f"   乘客: {adults} 人   資料來源: Google Flights")
+    ws.merge_cells("A1:M1")
+    c = ws["A1"]
+    c.value = banner
+    c.fill  = FILL_BANNER
+    c.font  = FONT_BANNER
+    c.alignment = CENTER
+
+    # ── Row 2：免責聲明 ────────────────────────────────────────────────────────
+    ws.merge_cells("A2:M2")
+    c = ws["A2"]
+    c.value = "組合推薦（依合計票價排序）  |  資料來源: Google Flights  |  票價僅供參考，請至官網確認"
+    c.fill  = FILL_BANNER
+    c.font  = FONT_BANNER
+    c.alignment = CENTER
+
+    # ── Row 3：空白 ────────────────────────────────────────────────────────────
+    ws.row_dimensions[3].height = 8
+
+    # ── Row 4：欄位標題 ───────────────────────────────────────────────────────
+    HEADERS = ["排名","航空公司","去程出發","去程抵達","去程時長","去程轉機",
+               "去程票價(TWD)","回程出發","回程抵達","回程時長","回程轉機",
+               "回程票價(TWD)","合計票價(TWD)"]
+    for col, h in enumerate(HEADERS, 1):
+        c = ws.cell(row=4, column=col, value=h)
+        c.fill = FILL_HEADER
+        c.font = FONT_HEADER
+        c.alignment = CENTER
+
+    # ── 依合計票價排序 ─────────────────────────────────────────────────────────
+    sorted_flights = sorted(flights, key=lambda r: float(r.get("price") or 0))
+
+    for rank, r in enumerate(sorted_flights, 1):
+        row = rank + 4
+        row_fill = FILL_ROW_TOP if rank <= 3 else FILL_ROW_REST
+        stops_str = "直飛" if (r.get("stops") or 0) == 0 else f"{r.get('stops')}轉"
+        ret_stops = r.get("ret_stops")
+        ret_stops_str = ("直飛" if ret_stops == 0 else f"{ret_stops}轉") if ret_stops is not None else "—"
+
+        vals = [
+            rank,
+            _airline_name(r.get("flights_str", "")),
+            r.get("dep_time") or "—",
+            r.get("arr_time") or "—",
+            r.get("duration") or "—",
+            stops_str,
+            float(r.get("price") or 0) if not is_rt else "—",
+            r.get("ret_dep_time") or "—" if is_rt else "—",
+            r.get("ret_arr_time") or "—" if is_rt else "—",
+            r.get("ret_duration") or "—" if is_rt else "—",
+            ret_stops_str if is_rt else "—",
+            "—",
+            float(r.get("price") or 0),
+        ]
+        for col, val in enumerate(vals, 1):
+            c = ws.cell(row=row, column=col, value=val)
+            c.font = FONT_DATA
+            c.alignment = CENTER
+            # 去程票價欄（G=7）
+            if col == 7:
+                c.fill = FILL_DEP_PRICE
+            # 回程票價欄（L=12）
+            elif col == 12:
+                c.fill = FILL_RET_PRICE
+            # 合計票價欄（M=13）
+            elif col == 13:
+                c.fill = FILL_TOTAL_1 if rank == 1 else FILL_TOTAL_N
+                c.font = FONT_TOTAL1 if rank == 1 else FONT_TOTALN
+            else:
+                c.fill = row_fill
+
+    # ── 頁尾說明 ──────────────────────────────────────────────────────────────
+    footer_row = len(sorted_flights) + 6
+    ws.cell(row=footer_row, column=2, value="合計最低前3名").font = FONT_NOTE
+    ws.cell(row=footer_row, column=4, value="其餘組合").font = FONT_NOTE
+
+    # ── 欄寬 ──────────────────────────────────────────────────────────────────
+    col_widths = [6, 20, 18, 18, 12, 10, 16, 18, 18, 12, 10, 16, 16]
+    for i, w in enumerate(col_widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[4].height = 20
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
+
+@app.post("/api/flight/download")
+async def api_flight_download(request: Request):
+    body    = await request.json()
+    flights = body.get("flights", [])
+    meta    = body.get("meta", {})
+    buf     = _generate_flight_excel(flights, meta)
+    dep  = meta.get("departure", "unknown")
+    orig = meta.get("origin", "")
+    dest = meta.get("destination", "")
+    fname = f"flights_{orig}-{dest}_{dep}.xlsx"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={fname}"},
+    )
 
 
 # ── SEO ───────────────────────────────────────────────────────────────────────
