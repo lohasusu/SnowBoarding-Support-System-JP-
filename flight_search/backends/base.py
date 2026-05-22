@@ -25,6 +25,7 @@ class FlightResult:
     ret_flights_str: str | None = None
     ret_stops: int | None = None
 
+    airline_names: list[str] = field(default_factory=list)  # 航空公司名稱列表，供前端篩選
     note: str = ""         # 備注，如資料來源說明
 
 

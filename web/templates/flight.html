@@ -175,18 +175,32 @@ function sortFlights(data) {
   });
 }
 
-// ── 從 flights_str 取航空公司名稱 ────────────────────────────────────────────
-function extractAirline(flights_str) {
-  // "China Airlines, ANA (TPE→HND)" → "China Airlines, ANA"
-  return (flights_str || '').replace(/\s*\(.*\)/, '').trim() || flights_str || '未知';
+// ── 格式化時間（去掉日期前綴）────────────────────────────────────────────────
+function fmtTime(t) {
+  if (!t || t === '—') return '—';
+  // "2027-02-01 08:30" → "08:30"
+  return t.length > 10 ? t.slice(11, 16) : t;
+}
+
+// ── 從航班資料取航空公司名稱 ──────────────────────────────────────────────────
+function extractAirline(r) {
+  // 優先使用後端解析好的 airline_names
+  if (r.airline_names && r.airline_names.length > 0) {
+    return [...new Set(r.airline_names)].join(' / ');
+  }
+  // fallback: 從 flights_str 解析（移除航班號和路線括號）
+  return (r.flights_str || '')
+    .split(' → ')
+    .map(leg => leg.replace(/\s*\([A-Z]{3}→[A-Z]{3}\).*/, '').replace(/\s+[A-Z]{2}\s*\d+\s*$/, '').trim())
+    .filter(Boolean)
+    .join(' / ') || '未知';
 }
 
 // ── 取所有不重複航空公司 ─────────────────────────────────────────────────────
 function uniqueAirlines(data) {
   const names = new Set();
   data.forEach(r => {
-    // 可能有多家，用逗號切開各自加入
-    extractAirline(r.flights_str).split(',').forEach(n => names.add(n.trim()));
+    extractAirline(r).split(' / ').forEach(n => { if (n.trim()) names.add(n.trim()); });
   });
   return [...names].sort();
 }
@@ -202,34 +216,29 @@ function renderFlights() {
     return;
   }
 
-  // 篩選：有選航空公司時，只保留 flights_str 含該名稱的列
+  // 篩選：有選航空公司時，只保留對應航空的列
   const filtered = activeAirlines.size === 0
     ? allData
     : allData.filter(r => {
-        const name = extractAirline(r.flights_str);
+        const name = extractAirline(r);
         return [...activeAirlines].some(a => name.includes(a));
       });
 
   const airlines = uniqueAirlines(allData);
-  const rtHeader = isRoundtrip ? '<th>回程出發</th><th>回程抵達</th>' : '';
 
   const rows = filtered.map(r => {
     const stopsBadge = r.stops === 0
       ? '<span class="badge bg-success">直飛</span>'
       : `<span class="badge bg-warning text-dark">${r.stops}&nbsp;轉</span>`;
-    const rtCells = isRoundtrip
-      ? `<td>${escHtml(r.ret_dep_time ?? '—')}</td><td>${escHtml(r.ret_arr_time ?? '—')}</td>`
-      : '';
     const currency = r.currency && r.currency !== 'TWD' ? r.currency : 'TWD';
     return `
       <tr>
-        <td><span class="badge bg-dark small">GoogleFlights</span></td>
-        <td class="fw-semibold small">${escHtml(r.flights_str ?? '')}</td>
-        <td>${escHtml(r.dep_time ?? '—')}</td>
-        <td>${escHtml(r.arr_time ?? '—')}</td>
+        <td class="fw-semibold">${escHtml(extractAirline(r))}</td>
+        <td class="text-muted small" title="${escHtml(r.flights_str ?? '')}">${escHtml(r.flights_str ?? '')}</td>
+        <td class="fw-semibold">${fmtTime(r.dep_time)}</td>
+        <td>${fmtTime(r.arr_time)}</td>
         <td class="text-muted small">${escHtml(r.duration ?? '—')}</td>
         <td>${stopsBadge}</td>
-        ${rtCells}
         <td class="fw-bold text-danger">${currency}&nbsp;${Number(r.price ?? 0).toLocaleString()}</td>
       </tr>`;
   }).join('');
@@ -244,6 +253,12 @@ function renderFlights() {
   // 建立 Google Flights 驗證連結
   const gfUrl = `https://www.google.com/travel/flights?q=flights+from+${searchMeta.origin}+to+${searchMeta.destination}`
     + (searchMeta.departure ? `+on+${searchMeta.departure}` : '');
+
+  const rtNote = isRoundtrip ? `
+    <div class="alert alert-info py-2 small mb-3" role="note">
+      <i class="bi bi-info-circle me-1"></i>
+      票價為<strong>去回程合計</strong>，回程班次詳情請點右上角「Google Flights 驗證」查看
+    </div>` : '';
 
   resultsEl.innerHTML = `
     <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
@@ -262,11 +277,13 @@ function renderFlights() {
       </div>
     </div>
 
+    ${rtNote}
+
     <!-- 航班篩選（類 Excel 欄位篩選） -->
     <div class="card border-0 bg-light mb-3 p-3">
       <div class="d-flex align-items-center gap-2 flex-wrap">
         <span class="small fw-semibold text-muted me-1">
-          <i class="bi bi-funnel me-1"></i>航班篩選：
+          <i class="bi bi-funnel me-1"></i>篩選航空：
         </span>
         <button class="btn btn-sm ${activeAirlines.size === 0 ? 'btn-info text-white' : 'btn-outline-secondary'} airline-filter-btn"
                 data-airline="__all__">全部</button>
@@ -278,17 +295,16 @@ function renderFlights() {
       <table class="table table-hover align-middle mb-0">
         <thead class="table-dark">
           <tr>
-            <th>來源</th>
-            <th>航班 <i class="bi bi-funnel-fill text-info small" title="上方可篩選"></i></th>
-            <th>去程出發 <i class="bi bi-sort-up small text-warning" title="已依此排序"></i></th>
-            <th>去程抵達</th>
+            <th>航空公司 <i class="bi bi-funnel-fill text-info small" title="上方可篩選"></i></th>
+            <th>航班號</th>
+            <th>出發 <i class="bi bi-sort-up small text-warning" title="已依此排序"></i></th>
+            <th>抵達</th>
             <th>飛行時間</th>
             <th>轉機</th>
-            ${rtHeader}
             <th>票價 <i class="bi bi-sort-up small text-warning" title="同時間依票價排序"></i></th>
           </tr>
         </thead>
-        <tbody>${rows || '<tr><td colspan="8" class="text-center text-muted py-3">沒有符合篩選條件的航班</td></tr>'}</tbody>
+        <tbody>${rows || '<tr><td colspan="7" class="text-center text-muted py-3">沒有符合篩選條件的航班</td></tr>'}</tbody>
       </table>
     </div>`;
 

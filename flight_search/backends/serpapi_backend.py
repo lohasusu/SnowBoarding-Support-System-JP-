@@ -80,12 +80,24 @@ class SerpApiBackend(BackendBase):
         if price is None or not flights:
             return None
 
-        dep_time = flights[0].get("departure_airport", {}).get("time", "")
-        arr_time = flights[-1].get("arrival_airport", {}).get("time", "")
+        raw_dep = flights[0].get("departure_airport", {}).get("time", "")
+        raw_arr = flights[-1].get("arrival_airport", {}).get("time", "")
+        dep_time = raw_dep[11:16] if len(raw_dep) > 10 else raw_dep   # "HH:MM"
+        arr_time = raw_arr[11:16] if len(raw_arr) > 10 else raw_arr
         duration = _mins_to_str(fg.get("total_duration", 0))
         stops = len(flights) - 1
+
+        # 收集不重複航空公司名稱
+        seen: set[str] = set()
+        airline_names: list[str] = []
+        for f in flights:
+            name = f.get("airline", "")
+            if name and name not in seen:
+                airline_names.append(name)
+                seen.add(name)
+
         flights_str = " → ".join(
-            "{airline}{num}({dep}→{arr})".format(
+            "{airline} {num} ({dep}→{arr})".format(
                 airline=f.get("airline", ""),
                 num=f.get("flight_number", ""),
                 dep=f.get("departure_airport", {}).get("id", ""),
@@ -94,8 +106,7 @@ class SerpApiBackend(BackendBase):
             for f in flights
         )
 
-        # 去回程：price 已為兩程合計；回程明細需第二次 call，Phase 2 暫不實作
-        note = "價格為去回程合計；回程班次請至 Google Flights 查詢" if is_round_trip else ""
+        note = "票價為去回程合計，回程班次請至 Google Flights 查看" if is_round_trip else ""
 
         return FlightResult(
             source="SerpAPI",
@@ -109,5 +120,6 @@ class SerpApiBackend(BackendBase):
             duration=duration,
             flights_str=flights_str,
             stops=stops,
+            airline_names=airline_names,
             note=note,
         )
