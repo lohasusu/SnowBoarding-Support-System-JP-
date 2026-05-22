@@ -148,8 +148,23 @@ async def api_flight_search(
     if not departure:
         return {"ok": False, "error": "請輸入出發日期"}
     try:
-        from backends.fast_flights_backend import FastFlightsBackend
-        backend = FastFlightsBackend()
+        import os
+        from dotenv import load_dotenv
+        # 載入 flight_search/.env
+        env_path = ROOT / "flight_search" / ".env"
+        load_dotenv(dotenv_path=env_path)
+
+        serpapi_key = os.getenv("SERPAPI_API_KEY", "")
+        backend = None
+
+        if serpapi_key:
+            from backends.serpapi_backend import SerpApiBackend
+            backend = SerpApiBackend(api_key=serpapi_key)
+
+        if not backend or not backend.is_available():
+            from backends.fast_flights_backend import FastFlightsBackend
+            backend = FastFlightsBackend()
+
         results = backend.search(
             origin=origin,
             destination=destination,
