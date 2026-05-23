@@ -352,20 +352,22 @@ async def env_check():
     env_path = ROOT / "flight_search" / ".env"
     load_dotenv(dotenv_path=env_path)
 
-    candidates = [
-        "SERPAPI_API_KEY", "SERPAPI_KEY", "serpapi_api_key", "serpapi_key",
-        "SERP_API_KEY", "GOOGLE_FLIGHTS_KEY",
-    ]
-    found = {name: bool(os.getenv(name)) for name in candidates}
-
     key = os.getenv("SERPAPI_API_KEY", "")
+
+    # 找所有含 SERP / API / KEY 關鍵字的環境變數（不顯示值，只顯示名稱）
+    related_keys = [
+        k for k in os.environ
+        if any(w in k.upper() for w in ("SERP", "FLIGHT", "GOOGLE"))
+    ]
+
     return {
         "serpapi_key_set": bool(key),
         "serpapi_key_length": len(key),
         "serpapi_key_prefix": key[:6] + "..." if key else "(empty)",
         "env_file_exists": env_path.exists(),
         "ROOT": str(ROOT),
-        "all_candidates": found,
+        "related_env_keys_found": sorted(related_keys),
+        "total_env_vars": len(os.environ),
     }
 
 
