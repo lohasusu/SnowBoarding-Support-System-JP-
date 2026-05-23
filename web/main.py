@@ -343,6 +343,24 @@ async def api_flight_download(request: Request):
     )
 
 
+# ── 診斷 ─────────────────────────────────────────────────────────────────────
+
+@app.get("/api/env-check")
+async def env_check():
+    import os
+    from dotenv import load_dotenv
+    env_path = ROOT / "flight_search" / ".env"
+    load_dotenv(dotenv_path=env_path)
+    key = os.getenv("SERPAPI_API_KEY", "")
+    return {
+        "serpapi_key_set": bool(key),
+        "serpapi_key_length": len(key),
+        "serpapi_key_prefix": key[:6] + "..." if key else "(empty)",
+        "env_file_exists": env_path.exists(),
+        "ROOT": str(ROOT),
+    }
+
+
 # ── SEO ───────────────────────────────────────────────────────────────────────
 
 @app.get("/robots.txt", response_class=Response)
