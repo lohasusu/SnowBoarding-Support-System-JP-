@@ -351,6 +351,13 @@ async def env_check():
     from dotenv import load_dotenv
     env_path = ROOT / "flight_search" / ".env"
     load_dotenv(dotenv_path=env_path)
+
+    candidates = [
+        "SERPAPI_API_KEY", "SERPAPI_KEY", "serpapi_api_key", "serpapi_key",
+        "SERP_API_KEY", "GOOGLE_FLIGHTS_KEY",
+    ]
+    found = {name: bool(os.getenv(name)) for name in candidates}
+
     key = os.getenv("SERPAPI_API_KEY", "")
     return {
         "serpapi_key_set": bool(key),
@@ -358,6 +365,7 @@ async def env_check():
         "serpapi_key_prefix": key[:6] + "..." if key else "(empty)",
         "env_file_exists": env_path.exists(),
         "ROOT": str(ROOT),
+        "all_candidates": found,
     }
 
 
