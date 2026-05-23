@@ -1,22 +1,9 @@
 """
-SerpAPI (Google Flights) backend
-
-TODO: 尚未實測，取得 key 後需驗證：
-  [ ] best_flights / other_flights 欄位名稱正確
-  [ ] flights[].departure_airport.time 格式為 "YYYY-MM-DD HH:MM"
-  [ ] total_duration 單位確認為分鐘
-  [ ] 去回程時 price 為兩程合計總價
-  [ ] currency=TWD 是否被支援（若不支援改用 USD 再換算）
-  [ ] adults 參數型別（int or str）
+SerpAPI (Google Flights) backend — uses requests directly, no serpapi package needed
 """
 
+import requests
 from .base import BackendBase, FlightResult
-
-try:
-    from serpapi import GoogleSearch
-    _SERPAPI_OK = True
-except ImportError:
-    _SERPAPI_OK = False
 
 
 def _mins_to_str(mins: int) -> str:
@@ -24,11 +11,13 @@ def _mins_to_str(mins: int) -> str:
 
 
 class SerpApiBackend(BackendBase):
+    _BASE_URL = "https://serpapi.com/search"
+
     def __init__(self, api_key: str):
         self.api_key = api_key
 
     def is_available(self) -> bool:
-        return bool(self.api_key) and _SERPAPI_OK
+        return bool(self.api_key)
 
     def search(
         self,
@@ -47,14 +36,16 @@ class SerpApiBackend(BackendBase):
             "outbound_date": departure_date,
             "currency": currency,
             "adults": adults,
-            "type": "1" if return_date else "2",  # 1=去回程, 2=單程
+            "type": "1" if return_date else "2",
             "api_key": self.api_key,
         }
         if return_date:
             params["return_date"] = return_date
 
         try:
-            data = GoogleSearch(params).get_dict()
+            resp = requests.get(self._BASE_URL, params=params, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
         except Exception as e:
             print(f"  [SerpAPI 錯誤] {origin}→{destination}: {e}")
             return []
@@ -82,12 +73,11 @@ class SerpApiBackend(BackendBase):
 
         raw_dep = flights[0].get("departure_airport", {}).get("time", "")
         raw_arr = flights[-1].get("arrival_airport", {}).get("time", "")
-        dep_time = raw_dep[11:16] if len(raw_dep) > 10 else raw_dep   # "HH:MM"
+        dep_time = raw_dep[11:16] if len(raw_dep) > 10 else raw_dep
         arr_time = raw_arr[11:16] if len(raw_arr) > 10 else raw_arr
         duration = _mins_to_str(fg.get("total_duration", 0))
         stops = len(flights) - 1
 
-        # 收集不重複航空公司名稱
         seen: set[str] = set()
         airline_names: list[str] = []
         for f in flights:
