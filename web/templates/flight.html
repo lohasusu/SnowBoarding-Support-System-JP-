@@ -159,6 +159,7 @@ form.addEventListener('submit', async (e) => {
     const json = await res.json();
     if (!json.ok) throw new Error(json.error);
     allData = sortFlights(json.data);
+    searchMeta._backend = json.backend || '';
     renderFlights();
   } catch (err) {
     setError(err.message);
@@ -230,7 +231,6 @@ function renderFlights() {
     const stopsBadge = r.stops === 0
       ? '<span class="badge bg-success">直飛</span>'
       : `<span class="badge bg-warning text-dark">${r.stops}&nbsp;轉</span>`;
-    const currency = r.currency && r.currency !== 'TWD' ? r.currency : 'TWD';
     return `
       <tr>
         <td class="fw-semibold">${escHtml(extractAirline(r))}</td>
@@ -239,7 +239,7 @@ function renderFlights() {
         <td>${fmtTime(r.arr_time)}</td>
         <td class="text-muted small">${escHtml(r.duration ?? '—')}</td>
         <td>${stopsBadge}</td>
-        <td class="fw-bold text-danger">${currency}&nbsp;${Number(r.price ?? 0).toLocaleString()}</td>
+        <td class="fw-bold text-danger">NT$&nbsp;${Number(r.price ?? 0).toLocaleString()}</td>
       </tr>`;
   }).join('');
 
@@ -265,6 +265,11 @@ function renderFlights() {
       <h2 class="h5 mb-0 fw-bold">
         搜尋結果
         <span class="badge bg-info ms-1">${filtered.length} / ${allData.length} 筆</span>
+        ${searchMeta._backend === 'SerpAPI'
+          ? '<span class="badge bg-success ms-1 fw-normal small">SerpAPI ✓</span>'
+          : searchMeta._backend
+            ? `<span class="badge bg-warning text-dark ms-1 fw-normal small">${escHtml(searchMeta._backend)}</span>`
+            : ''}
       </h2>
       <div class="d-flex gap-2 flex-wrap">
         <a href="${gfUrl}" target="_blank" rel="noopener noreferrer"

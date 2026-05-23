@@ -157,14 +157,19 @@ async def api_flight_search(
 
         serpapi_key = os.getenv("SERPAPI_API_KEY", "")
         backend = None
+        backend_name = "unknown"
 
         if serpapi_key:
             from backends.serpapi_backend import SerpApiBackend
-            backend = SerpApiBackend(api_key=serpapi_key)
+            _b = SerpApiBackend(api_key=serpapi_key)
+            if _b.is_available():
+                backend = _b
+                backend_name = "SerpAPI"
 
-        if not backend or not backend.is_available():
+        if not backend:
             from backends.fast_flights_backend import FastFlightsBackend
             backend = FastFlightsBackend()
+            backend_name = "fast-flights (fallback)"
 
         results = backend.search(
             origin=origin,
@@ -172,10 +177,10 @@ async def api_flight_search(
             dest_name=dest_name,
             departure_date=departure,
             return_date=ret_date or None,
-            currency=currency,
+            currency="TWD",
             adults=adults,
         )
-        return {"ok": True, "data": [asdict(r) for r in results]}
+        return {"ok": True, "backend": backend_name, "data": [asdict(r) for r in results]}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
