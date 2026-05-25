@@ -2,6 +2,7 @@
 SnowTrip Japan — FastAPI Web Application
 執行: python main.py  或  uvicorn main:app --reload
 """
+import asyncio
 import io
 import re
 import sys
@@ -68,6 +69,9 @@ async def register_page(request: Request):
 
 # ── API：雪票 ─────────────────────────────────────────────────────────────────
 
+_ski_lock = asyncio.Lock()
+
+
 def _import_ski_async():
     try:
         from http_scraper import get_ticket_prices_async
@@ -78,10 +82,18 @@ def _import_ski_async():
 
 @app.get("/api/ski/search")
 async def api_ski_search(region: str = None, name: str = None):
+    if _ski_lock.locked():
+        return {"ok": False, "error": "查詢進行中，請稍後再試"}
     try:
-        get_ticket_prices_async = _import_ski_async()
-        results = await get_ticket_prices_async(region=region or None, name=name or None)
+        async with _ski_lock:
+            fn = _import_ski_async()
+            results = await asyncio.wait_for(
+                fn(region=region or None, name=name or None),
+                timeout=45.0,
+            )
         return {"ok": True, "data": [asdict(r) for r in results]}
+    except asyncio.TimeoutError:
+        return {"ok": False, "error": "查詢逾時（45 秒），請縮小範圍後重試"}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
@@ -91,9 +103,14 @@ async def api_ski_download(region: str = None, name: str = None):
     try:
         import openpyxl
         from openpyxl.styles import Font, PatternFill, Alignment
-        get_ticket_prices_async = _import_ski_async()
-
-        results = await get_ticket_prices_async(region=region or None, name=name or None)
+        if _ski_lock.locked():
+            return Response(content="查詢進行中，請稍後再試", status_code=429)
+        async with _ski_lock:
+            fn = _import_ski_async()
+            results = await asyncio.wait_for(
+                fn(region=region or None, name=name or None),
+                timeout=45.0,
+            )
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "雪票價格"

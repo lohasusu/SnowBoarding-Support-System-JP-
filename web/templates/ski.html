@@ -99,8 +99,12 @@ const resultsEl   = document.getElementById('results-container');
 const downloadBtn = document.getElementById('download-btn');
 let lastParams    = '';
 
+let isQuerying = false;
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (isQuerying) return;
+
   const region = document.getElementById('region').value;
   const name   = document.getElementById('ski-name').value.trim();
 
@@ -109,6 +113,8 @@ form.addEventListener('submit', async (e) => {
   if (name)   params.append('name', name);
   lastParams = params.toString();
 
+  isQuerying = true;
+  form.querySelector('[type=submit]').disabled = true;
   setLoading();
 
   try {
@@ -120,6 +126,9 @@ form.addEventListener('submit', async (e) => {
     downloadBtn.ariaDisabled = String(json.data.length === 0);
   } catch (err) {
     setError(err.message);
+  } finally {
+    isQuerying = false;
+    form.querySelector('[type=submit]').disabled = false;
   }
 });
 

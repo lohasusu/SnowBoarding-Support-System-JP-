@@ -10,13 +10,11 @@ from bs4 import BeautifulSoup
 
 try:
     from .ski_early_bird_scraper import (
-        TicketItem, extract_prices, is_ticket_related,
-        translate_ja_to_zh, load_targets,
+        TicketItem, extract_prices, is_ticket_related, load_targets,
     )
 except ImportError:
     from ski_early_bird_scraper import (  # type: ignore
-        TicketItem, extract_prices, is_ticket_related,
-        translate_ja_to_zh, load_targets,
+        TicketItem, extract_prices, is_ticket_related, load_targets,
     )
 
 _HEADERS = {
@@ -63,7 +61,7 @@ def _extract(soup: BeautifulSoup, resort: str, region: str,
                         seen.add(key)
                         items.append(TicketItem(
                             resort, region, url,
-                            dt_text, translate_ja_to_zh(dt_text), price,
+                            dt_text, dt_text, price,
                         ))
 
         elif sel_type == "card":
@@ -85,7 +83,7 @@ def _extract(soup: BeautifulSoup, resort: str, region: str,
                     seen.add(key)
                     items.append(TicketItem(
                         resort, region, url,
-                        ticket_type, translate_ja_to_zh(ticket_type), price,
+                        ticket_type, ticket_type, price,
                     ))
 
         else:  # table
@@ -107,7 +105,7 @@ def _extract(soup: BeautifulSoup, resort: str, region: str,
                         seen.add(key)
                         items.append(TicketItem(
                             resort, region, url,
-                            ticket_type, translate_ja_to_zh(ticket_type), price,
+                            ticket_type, ticket_type, price,
                         ))
 
     return items
