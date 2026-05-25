@@ -70,9 +70,9 @@ async def register_page(request: Request):
 
 def _import_ski_async():
     try:
-        from snowboarding_support.scraper import get_ticket_prices_async
+        from http_scraper import get_ticket_prices_async
     except ImportError:
-        from scraper import get_ticket_prices_async  # type: ignore  # 部署環境
+        from snowboarding_support.http_scraper import get_ticket_prices_async  # type: ignore
     return get_ticket_prices_async
 
 
