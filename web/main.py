@@ -68,19 +68,19 @@ async def register_page(request: Request):
 
 # ── API：雪票 ─────────────────────────────────────────────────────────────────
 
-def _import_ski():
+def _import_ski_async():
     try:
-        from snowboarding_support.scraper import get_ticket_prices
+        from snowboarding_support.scraper import get_ticket_prices_async
     except ImportError:
-        from scraper import get_ticket_prices  # 部署環境：ROOT 即 snowboarding_support/
-    return get_ticket_prices
+        from scraper import get_ticket_prices_async  # type: ignore  # 部署環境
+    return get_ticket_prices_async
 
 
 @app.get("/api/ski/search")
 async def api_ski_search(region: str = None, name: str = None):
     try:
-        get_ticket_prices = _import_ski()
-        results = get_ticket_prices(region=region or None, name=name or None)
+        get_ticket_prices_async = _import_ski_async()
+        results = await get_ticket_prices_async(region=region or None, name=name or None)
         return {"ok": True, "data": [asdict(r) for r in results]}
     except Exception as e:
         return {"ok": False, "error": str(e)}
@@ -91,9 +91,9 @@ async def api_ski_download(region: str = None, name: str = None):
     try:
         import openpyxl
         from openpyxl.styles import Font, PatternFill, Alignment
-        get_ticket_prices = _import_ski()
+        get_ticket_prices_async = _import_ski_async()
 
-        results = get_ticket_prices(region=region or None, name=name or None)
+        results = await get_ticket_prices_async(region=region or None, name=name or None)
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "雪票價格"

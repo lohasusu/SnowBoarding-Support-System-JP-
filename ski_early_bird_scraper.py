@@ -491,7 +491,7 @@ def save_to_database(items: list[TicketItem]) -> None:
 
 # ── 公開 API（供其他模組 import） ─────────────────────────────────────────────
 
-async def _run_scraper(region: str | None = None, name: str | None = None) -> list[TicketItem]:
+async def get_ticket_prices_async(region: str | None = None, name: str | None = None) -> list[TicketItem]:
     global _CURRENT_SEASON
     _CURRENT_SEASON = get_current_season()
 
@@ -520,7 +520,7 @@ def get_ticket_prices(region: str | None = None, name: str | None = None) -> lis
         from snowboarding_support.scraper import get_ticket_prices
         prices = get_ticket_prices(region="北海道")
     """
-    return asyncio.run(_run_scraper(region, name))
+    return asyncio.run(get_ticket_prices_async(region, name))
 
 
 # ── CLI 參數 ──────────────────────────────────────────────────────────────────
