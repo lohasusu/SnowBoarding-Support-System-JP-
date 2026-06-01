@@ -62,6 +62,17 @@
   vertical-align: middle;
 }
 
+/* ── 查詢結果內部卷軸 ─────────────────────────────────────────────────────────── */
+.results-table-wrap {
+  max-height: 60vh;
+  overflow: auto;
+}
+.results-table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 /* ── 頁尾連結 ────────────────────────────────────────────────────────────────── */
 .footer-link:hover {
   color: #fff !important;

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}我的帳號 — SnowTrip Japan{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="h2 fw-bold mb-1">我的帳號</h1>
+  <p class="text-muted mb-4">歡迎，{{ user.username }}（{{ user.email }}）</p>
+
+  <div class="d-flex justify-content-end mb-3">
+    <button id="logout-btn" class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-box-arrow-right me-1"></i>登出
+    </button>
+  </div>
+
+  <h2 class="h5 fw-bold mb-3"><i class="bi bi-heart me-2 text-danger"></i>收藏清單</h2>
+
+  {% if not favorites %}
+    <div class="alert alert-info">尚無收藏。在雪票或機票查詢結果中按下 ♡ 即可收藏。</div>
+  {% else %}
+    <div class="row g-3">
+      {% for fav in favorites %}
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="badge {% if fav.type == 'ski' %}bg-primary{% else %}bg-info{% endif %} me-2">
+                  {% if fav.type == 'ski' %}⛷ 雪票{% else %}✈ 機票{% endif %}
+                </span>
+                <strong>{{ fav.label or '未命名' }}</strong>
+              </div>
+              <button class="btn btn-sm btn-outline-danger del-fav-btn" data-id="{{ fav.id }}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+            <div class="mt-2 small text-muted">
+              {% if fav.type == 'ski' %}
+                {{ fav.data.resort }} ／ {{ fav.data.region }} ／ {{ fav.data.price }}
+              {% else %}
+                {{ fav.data.dep_time }} → {{ fav.data.arr_time }} ／ NT$ {{ fav.data.price }}
+              {% endif %}
+            </div>
+            <div class="mt-1 text-muted" style="font-size:.75rem">{{ fav.created_at }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('logout-btn')?.addEventListener('click', async () => {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  location.href = '/';
+});
+document.querySelectorAll('.del-fav-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!confirm('確定刪除此收藏？')) return;
+    const id = btn.dataset.id;
+    const res = await fetch(`/api/favorites/${id}`, { method: 'DELETE' });
+    if ((await res.json()).ok) btn.closest('.col-md-6').remove();
+  });
+});
+</script>
+{% endblock %}

@@ -4,6 +4,7 @@ SnowTrip Japan — FastAPI Web Application
 """
 import asyncio
 import io
+import json
 import re
 import sys
 from dataclasses import asdict
@@ -11,9 +12,11 @@ from pathlib import Path
 
 # 本地開發：web/ 在 D:\SideProject\web\，ROOT = D:\SideProject\
 # 部署環境：web/ 在 snowboarding_support\web\，ROOT = snowboarding_support\
-ROOT = Path(__file__).parent.parent
+ROOT     = Path(__file__).parent.parent
+WEB_DIR  = Path(__file__).parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "flight_search"))
+sys.path.insert(0, str(WEB_DIR))
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, Response, StreamingResponse
@@ -30,6 +33,11 @@ STATIC_DIR   = Path(__file__).parent / "static"
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
+
+from plan_routes import plan_router          # noqa: E402
+from auth.auth_router import auth_router     # noqa: E402
+app.include_router(plan_router)
+app.include_router(auth_router)
 
 
 def _ctx(request: Request, **kw) -> dict:
@@ -56,15 +64,6 @@ async def ski_page(request: Request):
 async def flight_page(request: Request):
     return templates.TemplateResponse(request, "flight.html", _ctx(request))
 
-
-@app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
-    return templates.TemplateResponse(request, "auth/login.html", _ctx(request))
-
-
-@app.get("/register", response_class=HTMLResponse)
-async def register_page(request: Request):
-    return templates.TemplateResponse(request, "auth/register.html", _ctx(request))
 
 
 # ── API：雪票 ─────────────────────────────────────────────────────────────────
@@ -96,6 +95,58 @@ async def api_ski_search(region: str = None, name: str = None):
         return {"ok": False, "error": "查詢逾時（45 秒），請縮小範圍後重試"}
     except Exception as e:
         return {"ok": False, "error": str(e)}
+
+
+def _import_ski_stream():
+    try:
+        from http_scraper import stream_ticket_prices_async
+    except ImportError:
+        from snowboarding_support.http_scraper import stream_ticket_prices_async  # type: ignore
+    return stream_ticket_prices_async
+
+
+@app.get("/api/ski/stream")
+async def api_ski_stream(region: str = None, name: str = None):
+    async def _locked_error():
+        yield 'event: error\ndata: {"message": "查詢進行中，請稍後再試"}\n\n'
+
+    if _ski_lock.locked():
+        return StreamingResponse(
+            _locked_error(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    async def _generate():
+        async with _ski_lock:
+            try:
+                fn = _import_ski_stream()
+                try:
+                    from http_scraper import load_targets
+                except ImportError:
+                    from snowboarding_support.http_scraper import load_targets  # type: ignore
+                targets = load_targets(region=region or None, name=name or None)
+                total = len([t for t in targets if t.get("ticket_url") and t.get("selectors")])
+                yield f'event: start\ndata: {json.dumps({"total": total})}\n\n'
+
+                total_count = 0
+                async for target, items in fn(region=region or None, name=name or None):
+                    for item in items:
+                        yield f'event: result\ndata: {json.dumps(asdict(item))}\n\n'
+                        total_count += 1
+                    yield f'event: resort_done\ndata: {json.dumps({"resort": target.get("name", ""), "count": len(items)})}\n\n'
+
+                yield f'event: done\ndata: {json.dumps({"total_count": total_count})}\n\n'
+            except asyncio.TimeoutError:
+                yield 'event: error\ndata: {"message": "查詢逾時，請縮小範圍後重試"}\n\n'
+            except Exception as e:
+                yield f'event: error\ndata: {json.dumps({"message": str(e)})}\n\n'
+
+    return StreamingResponse(
+        _generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+    )
 
 
 @app.get("/api/ski/download")

@@ -216,22 +216,127 @@ D:\SideProject\
 
 ---
 
-## 五、整合查詢規格（第三階段）
+## 五、整合查詢規格（Smart Trip Planner）
 
-### 5-1 使用流程（CLI）
+> 定位：從「查完機票再查雪票再自己心算」，升級為「輸入三個數字，系統幫你找最划算的組合並導向訂票」。
+
+### 5-1 Web 版 Smart Trip Planner（主要實作目標）
+
+**路由：** `/plan`（新頁面）
+
+**輸入表單欄位：**
+
+| 欄位 | 說明 |
+|------|------|
+| 出發機場 | TPE / TSA / KHH / RMQ（下拉選單） |
+| 滑雪地區 | 北海道 / 長野 / 新潟 / 山形 / 青森 / 福島 |
+| 出發日期 | 使用新日曆選擇器（見 9-1） |
+| 回程日期 | 使用新日曆選擇器（範圍模式，min = 出發日） |
+| 人數 | 1–9 人 |
+| 每人總預算（TWD） | 數字 input + 快捷按鈕（3萬 / 5萬 / 8萬） |
+
+**後端處理邏輯：**
 ```
-請選擇查詢模式：
-  1. 雪票查詢
-  2. 機票查詢
-  3. 整合查詢（機票 + 雪票）
+POST /api/plan/search
+  ↓
+asyncio.gather(
+  flight_search(origin, dest_airport[region], departure, return_date),
+  ski_ticket_fetch(region)
+)
+  ↓
+ski_days      = return_date - departure（天數）
+min_ski_price = min(早鳥票價) per person per day
+est_ski_total = ski_days × min_ski_price × adults
+budget_left   = budget_per_person × adults - est_ski_total
+affordable_flights = [f for f in flights if f.price ≤ budget_left]
+  ↓
+回傳 { flights, ski_tickets, summary }
+```
 
-[選 3 後]
-出發機場：TPE
-地區 / 雪場：北海道
-出發日期：2026-12-20
-回程日期：2026-12-27
-預算（每人，TWD）：50000
-人數：2
+**API 規格：**
+```json
+POST /api/plan/search
+{
+  "origin": "TPE",
+  "region": "北海道",
+  "departure": "2026-12-20",
+  "return_date": "2026-12-27",
+  "adults": 2,
+  "budget_per_person": 50000
+}
+
+Response: {
+  "ok": true,
+  "flights": [...],
+  "ski_tickets": [...],
+  "summary": {
+    "ski_days": 7,
+    "min_ski_price_per_day": 4500,
+    "est_ski_total": 63000,
+    "budget_for_flights": 37000,
+    "affordable_flights": 3
+  }
+}
+```
+
+**結果版面設計：**
+
+```
+┌─ 預算分配（橫向 progress bar）──────────────────────────────────┐
+│ [██████████████░░░░░░░░░░░░░░░░░░░]                           │
+│  機票 NT$18,000  ＋  雪票 NT$31,500  ＋  剩餘 NT$500  / 人    │
+└──────────────────────────────────────────────────────────────┘
+
+左欄：機票選項（卡片式）          右欄：雪票選項
+┌──────────────────────┐          ┌──────────────────────┐
+│ ✈ 長榮航空 BR116     │          │ 🎿 富良野滑雪場      │
+│ 08:30 → 12:45 (3h15) │          │  早鳥全日 ¥4,500     │
+│ 直飛  NT$8,900        │          │  [前往購票 ↗]       │
+│ [前往訂票 ↗]         │          ├──────────────────────┤
+└──────────────────────┘          │ 🎿 留壽都滑雪場      │
+┌──────────────────────┐          │  早鳥全日 ¥5,200     │
+│ ✈ 中華航空 CI...     │          │  [前往購票 ↗]       │
+│ ...                  │          └──────────────────────┘
+└──────────────────────┘
+```
+
+### 5-2 訂票深連結規格
+
+> 設計原則：Phase 1 只做深連結（引導官方/合作購票頁），不做 in-app 訂購。
+
+| 類型 | 連結目標 | 說明 |
+|------|---------|------|
+| 雪票 | `ticket_url`（urls.json 欄位） | 連至官方購票頁，`target="_blank"` |
+| 機票 | Google Flights 深連結 | 帶入 origin/dest/date 參數，新分頁 |
+| 未來住宿 | Booking.com 搜尋深連結 | 帶入地區/日期/人數，新分頁 |
+
+**Google Flights 深連結格式：**
+```
+https://www.google.com/travel/flights?q=Flights+from+{origin}+to+{dest}+on+{date}
+```
+
+**Booking.com 深連結格式（未來）：**
+```
+https://www.booking.com/searchresults.html?ss={地區}&checkin={departure}&checkout={return_date}&group_adults={adults}
+```
+
+**為何不做真實 in-app 訂購：**
+- 各雪場使用不同票務系統（Webket、e+、自建），無統一 API
+- 機票 GDS 整合成本極高且需要商業認證
+- 深連結已能滿足 80% 使用需求，使用者習慣在官網確認後再購
+- 先做深連結驗證流量，後續再評估是否接 Travelpayouts affiliate 或 Duffel API
+
+### 5-3 導覽更新（實作時同步修改）
+- Navbar 的「整合查詢」：disabled span → `<a href="/plan">` 可點擊連結
+- 首頁功能卡片第三格：解鎖，按鈕改為「開始規劃」連至 `/plan`
+- 首頁「如何使用」步驟：可調整為以 /plan 為主流程介紹
+
+### 5-4 CLI 整合（保留，低優先度）
+```
+python main.py plan \
+  --origin TPE --region 北海道 \
+  --departure 2026-12-20 --return 2026-12-27 \
+  --adults 2 --budget 50000
 
 → 輸出 Excel：
   Sheet 1: 機票選項（依價格排序）
@@ -239,19 +344,15 @@ D:\SideProject\
   Sheet 3: 費用摘要（機票 + 雪票 組合試算）
 ```
 
-### 5-2 模組介面（Python）
+### 5-5 Python 模組介面
 ```python
-# 雪票模組
 from snowboarding_support.scraper import get_ticket_prices
-prices = get_ticket_prices(region="北海道", name=None)
-
-# 機票模組
 from flight_search.search import find_flights
-flights = find_flights(origin="TPE", destination="CTS", date="2026-12-20")
-
-# 整合
 from main import plan_trip
-plan_trip(origin="TPE", region="北海道", date="2026-12-20", budget=50000)
+
+plan_trip(origin="TPE", region="北海道",
+          departure="2026-12-20", return_date="2026-12-27",
+          adults=2, budget_per_person=50000)
 ```
 
 ---
@@ -271,9 +372,16 @@ plan_trip(origin="TPE", region="北海道", date="2026-12-20", budget=50000)
 | **Phase 2** | 建立雙 API 架構 | ✅ 完成（backends/ 套件）|
 | **Phase 2** | 機票 Excel 輸出 | ✅ 完成（待實測驗證）|
 | **Phase 2** | 機票模組實測 | ✅ 完成（fast-flights，無需 API Key）|
-| **Phase 3** | 模組重構為可 import 套件 | 🔲 |
-| **Phase 3** | 建立 main.py 整合入口 | 🔲 |
-| **Phase 3** | 整合查詢 + 費用摘要 Excel | 🔲 |
+| **Phase 3a** | 自訂日曆選擇器（Calendar Picker） | 🔲 規格見 9-1 |
+| **Phase 3a** | Smart Trip Planner（/plan 頁） | 🔲 規格見第五節 |
+| **Phase 3a** | 訂票深連結（雪票 + 機票） | 🔲 規格見 5-2 |
+| **Phase 3a** | Navbar 整合查詢解鎖 + 首頁卡片更新 | 🔲 |
+| **Phase 3b** | 模組重構為可 import 套件 | 🔲 |
+| **Phase 3b** | 建立 main.py 整合入口（CLI） | 🔲 |
+| **Phase 3b** | 行動版雪票卡片佈局 | 🔲 規格見 9-3 |
+| **Phase 4** | Travelpayouts affiliate 連結 | 🔲 有 key 後啟用 |
+| **Phase 4** | 住宿查詢（Booking.com 深連結） | 🔲 |
+| **Phase 4** | 機票價格趨勢 / 歷史資料 | 🔲 |
 
 ---
 
@@ -310,6 +418,111 @@ python flight_search.py          # 真實 Google Flights 資料
 python flight_search.py --mock   # 假資料測試
 ```
 
+### Web UI 優化（新增，Phase 3a）
+優先順序：
+1. **自訂日曆選擇器**（見 9-1）— 影響現有 flight.html + 未來 plan.html，先做
+2. **Smart Trip Planner /plan 頁**（見第五節）— 核心新功能
+3. **Navbar + 首頁卡片解鎖** — 小改動，搭配 /plan 完成後一起做
+
 ---
 
-*最後更新：2026-05-22*
+## 九、UI/UX 設計規格
+
+### 9-1 自訂日曆選擇器（Calendar Picker）
+
+#### 問題
+原生 `<input type="date">` 在各瀏覽器顯示不一致（Chrome 顯示的下拉視窗尤其混亂），與 Bootstrap 設計語言格格不入。
+
+#### 設計目標
+- 純 JS + Bootstrap CSS，不引入額外 library（保持零依賴）
+- 單月視圖，整潔格線佈局，只顯示當月日期
+- 在 input field 下方浮動展開，點外側 / Escape 關閉
+- 同一元件支援兩種模式：單選（雪票日期）、範圍選取（機票去回程）
+
+#### 視覺規格
+```
+┌──────────────────────────────────┐
+│  ◀       2026 年 12 月      ▶    │
+│  一   二   三   四   五   六   日 │
+│                  1    2    3    4 │
+│  5    6    7    8    9   10   11  │
+│  12  13   14   15   16   17   18  │
+│  19  20   21   22   23   24   25  │
+│  26  27   28   29   30   31       │
+└──────────────────────────────────┘
+```
+
+#### 日期狀態樣式（CSS class 設計）
+
+| 狀態 | Class | 外觀 |
+|------|-------|------|
+| 普通日期 | `.cal-day` | 透明背景，hover 時 `bg-primary bg-opacity-10` |
+| 今天 | `.cal-day.today` | `border border-primary` 圓形框 |
+| 已選（單一） | `.cal-day.selected` | `bg-primary text-white` 實心圓 |
+| 範圍起點 | `.cal-day.range-start` | 實心圓 + 右半側 `bg-primary bg-opacity-15` |
+| 範圍終點 | `.cal-day.range-end` | 實心圓 + 左半側 `bg-primary bg-opacity-15` |
+| 範圍內 | `.cal-day.in-range` | `bg-primary bg-opacity-15` 矩形背景 |
+| 已過日期 | `.cal-day.disabled` | `text-muted opacity-50`，pointer-events: none |
+| 其他月空格 | — | 空白，不顯示數字 |
+
+#### 互動行為
+- 點 input field → 展開日曆 panel
+- **單選模式**：點日期 → 更新 input value → 關閉 panel
+- **範圍模式**：第一次點 = 起點，滑鼠移動時顯示 hover 範圍預覽；第二次點 = 終點 → 更新兩個 input value → 關閉 panel
+- 點 ◀ / ▶ → 切換月份（panel 不關閉）
+- 點 panel 外側 / 按 Escape → 關閉 panel
+- input 顯示格式：`YYYY-MM-DD`（與後端 API 一致）
+
+#### 適用頁面
+| 頁面 | 欄位 | 模式 |
+|------|------|------|
+| `flight.html` | 出發日期、回程日期 | 各自獨立單選（回程 min = 出發日） |
+| `plan.html`（新） | 出發 + 回程 | 範圍選取模式（一個日曆控制兩個欄位） |
+
+#### 實作位置
+- **JS**：`web/static/js/calendar-picker.js`（共用元件，export `CalendarPicker` class）
+- **CSS**：`web/static/css/custom.css` 的 `.calendar-picker { }` 區塊
+- **引入**：`base.html` `<head>` 內全局載入，或各頁 `extra_scripts` block 引入
+
+#### CalendarPicker API 草稿
+```javascript
+// 單選模式
+new CalendarPicker('#departure', { mode: 'single', min: today });
+
+// 範圍模式（兩個 input 共用一個日曆）
+new CalendarPicker('#departure', {
+  mode: 'range',
+  rangeEndInput: '#ret-date',
+  min: today
+});
+```
+
+---
+
+### 9-2 雪票查詢頁優化
+
+#### 行動版卡片佈局（sm 以下）
+目前 ski.html 結果用 `<table>`，在手機上需橫向捲動。改為：
+- `≥ md`：保留現有 table layout
+- `< md`：改為 Bootstrap card 堆疊，每張卡片顯示：雪場名稱（大）+ 地區 badge + 票種 + 票價（大紅字）+ 官網連結
+
+#### 「前往購票」按鈕
+在結果表格的「官網」欄，現有外連按鈕（`bi-box-arrow-up-right`）改為：
+- 若 `source_url` 存在且為 ticket_url（非首頁）：按鈕文字改為「前往購票」，樣式 `btn-outline-success`
+- 若為首頁 URL：維持「官網」標示，`btn-outline-secondary`
+
+---
+
+### 9-3 其他 UI 優化（低優先度，排 Phase 3b 後）
+
+| 項目 | 說明 | 影響範圍 |
+|------|------|---------|
+| Skeleton loading | 查詢中用骨架屏取代純 spinner，減少白屏感 | ski.html、flight.html、plan.html |
+| 預算滑桿 | 機票查詢加入最高票價滑桿，即時過濾結果 | flight.html |
+| Toast 通知 | 錯誤訊息改用 Bootstrap Toast，不蓋住結果 | 所有查詢頁 |
+| 深色模式 | Bootstrap `data-bs-theme="dark"` toggle，存 localStorage | base.html |
+| 雪場計數更新 | 首頁「40+」改為從 urls.json 動態讀取實際數量 | index.html + main.py |
+
+---
+
+*最後更新：2026-05-27*

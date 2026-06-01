@@ -150,3 +150,27 @@ async def get_ticket_prices_async(
         if isinstance(r, list):
             all_items.extend(r)
     return all_items
+
+
+async def stream_ticket_prices_async(
+    region: str | None = None,
+    name: str | None = None,
+):
+    """Async generator: yield (target_dict, list[TicketItem]) as each resort completes."""
+    targets = load_targets(region=region, name=name)
+    active  = [t for t in targets if t.get("ticket_url") and t.get("selectors")]
+    if not active:
+        return
+
+    queue: asyncio.Queue = asyncio.Queue()
+
+    async def _worker(client: httpx.AsyncClient, target: dict) -> None:
+        items = await _scrape_one(client, target)
+        await queue.put((target, items))
+
+    async with httpx.AsyncClient() as client:
+        tasks = [asyncio.create_task(_worker(client, t)) for t in active]
+        for _ in range(len(active)):
+            target, items = await queue.get()
+            yield target, items
+        await asyncio.gather(*tasks, return_exceptions=True)
