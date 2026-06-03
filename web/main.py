@@ -20,6 +20,7 @@ sys.path.insert(0, str(WEB_DIR))
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, Response, StreamingResponse
+from fastapi.responses import RedirectResponse as _PageRedirect
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -27,6 +28,37 @@ import uvicorn
 BASE_URL = "https://snowboarding-support-system-jp-production.up.railway.app"
 
 app = FastAPI(title="SnowTrip Japan", docs_url=None, redoc_url=None)
+
+# ── 受保護的路徑 ──────────────────────────────────────────────────────────────
+_PROTECTED_PAGES    = frozenset({"/ski", "/flight", "/plan", "/profile"})
+_PROTECTED_API_PFXS = ("/api/ski", "/api/flight", "/api/plan")
+
+
+@app.middleware("http")
+async def _require_auth(request: Request, call_next):
+    """強制登入 middleware。頁面路由 → 302 redirect；API 路由 → 401 JSON。"""
+    path = request.url.path
+    needs_auth = (
+        path in _PROTECTED_PAGES
+        or any(path.startswith(p) for p in _PROTECTED_API_PFXS)
+    )
+    if needs_auth:
+        try:
+            from auth.dependencies import get_optional_user as _opt
+            user = _opt(request.cookies.get("access_token"))
+        except Exception:
+            user = None
+        if not user:
+            if path in _PROTECTED_PAGES:
+                return _PageRedirect(url=f"/login?next={path}")
+            # API path → JSON 401
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                {"ok": False, "error": "請先登入", "redirect": "/login"},
+                status_code=401,
+            )
+    return await call_next(request)
+
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 STATIC_DIR   = Path(__file__).parent / "static"
@@ -40,6 +72,8 @@ from auth.oauth_router import oauth_router   # noqa: E402
 app.include_router(plan_router)
 app.include_router(auth_router)
 app.include_router(oauth_router)
+from auth.verify_client import verify_router   # noqa: E402
+app.include_router(verify_router)
 
 try:
     from airport_codes import airport_label, airline_label
