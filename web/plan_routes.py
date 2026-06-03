@@ -11,6 +11,15 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
+try:
+    from airport_codes import airport_label, airline_label
+except ImportError:
+    try:
+        from web.airport_codes import airport_label, airline_label
+    except ImportError:
+        def airport_label(code): return code
+        def airline_label(name): return name
+
 BASE_URL = "https://snowboarding-support-system-jp-production.up.railway.app"
 
 plan_router = APIRouter()
@@ -54,8 +63,8 @@ def _generate_plan_excel(flights: list[dict], ski: list[dict], meta: dict) -> io
     FILL_H = PatternFill("solid", fgColor="1F4E79")
     FONT_H = Font(bold=True, color="FFFFFF")
     summary = [
-        ("出發機場", meta.get("origin", "")),
-        ("目的地機場", meta.get("destination", "")),
+        ("出發機場", airport_label(meta.get("origin", ""))),
+        ("目的地機場", airport_label(meta.get("destination", ""))),
         ("雪場地區", meta.get("region", "") or "全部"),
         ("出發日期", meta.get("departure", "")),
         ("回程日期", meta.get("ret_date", "") or "單程"),
@@ -78,7 +87,7 @@ def _generate_plan_excel(flights: list[dict], ski: list[dict], meta: dict) -> io
         c.fill = FILL_H; c.font = FONT_H
     for row_i, r in enumerate(flights, 2):
         stops = r.get("stops", 0)
-        ws2.cell(row=row_i, column=1, value=_airline_name(r.get("flights_str", "")))
+        ws2.cell(row=row_i, column=1, value=airline_label(_airline_name(r.get("flights_str", ""))))
         ws2.cell(row=row_i, column=2, value=r.get("dep_time", ""))
         ws2.cell(row=row_i, column=3, value=r.get("arr_time", ""))
         ws2.cell(row=row_i, column=4, value=r.get("duration", ""))

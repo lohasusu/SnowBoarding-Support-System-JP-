@@ -39,6 +39,15 @@ from auth.auth_router import auth_router     # noqa: E402
 app.include_router(plan_router)
 app.include_router(auth_router)
 
+try:
+    from airport_codes import airport_label, airline_label
+except ImportError:
+    try:
+        from web.airport_codes import airport_label, airline_label
+    except ImportError:
+        def airport_label(code): return code
+        def airline_label(name): return name
+
 
 def _ctx(request: Request, **kw) -> dict:
     return {
@@ -303,7 +312,7 @@ def _generate_flight_excel(flights: list[dict], meta: dict) -> io.BytesIO:
     dep      = meta.get("departure", "")
     ret      = meta.get("ret_date", "")
     adults   = meta.get("adults", 1)
-    banner   = (f"✈  {origin} → {dest}   去程: {dep}"
+    banner   = (f"✈  {airport_label(origin)} → {airport_label(dest)}   去程: {dep}"
                 + (f"   回程: {ret}" if is_rt else "")
                 + f"   乘客: {adults} 人   資料來源: Google Flights")
     ws.merge_cells("A1:M1")
@@ -346,7 +355,7 @@ def _generate_flight_excel(flights: list[dict], meta: dict) -> io.BytesIO:
 
         vals = [
             rank,
-            _airline_name(r.get("flights_str", "")),
+            airline_label(_airline_name(r.get("flights_str", ""))),
             r.get("dep_time") or "—",
             r.get("arr_time") or "—",
             r.get("duration") or "—",
