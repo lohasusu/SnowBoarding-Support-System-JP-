@@ -1,0 +1,4 @@
+
+# SDLC Workflow append-only logs — auto-merge concurrent appends
+.sdlc/audit.log merge=union
+.sdlc/.abandoned-tasks.txt merge=union

@@ -1,0 +1,20 @@
+{
+  "_comment_schema": "deploy-env.json — 使用者於 I-2 回答後由 Deployer 寫入 .sdlc/tasks/{TASK-ID}/deploy/deploy-env.json。欄位語意見 deployer.md I-2.5。",
+  "scope": "local | local-staging | full",
+  "platform": "docker-compose | kubernetes | serverless | paas | docker-local | none",
+  "cicd": "github-actions | gitlab-ci | jenkins | github-actions-minimal | none",
+  "deployStrategy": "rolling | blue-green | canary | N/A",
+  "gitHosting": "github | gitlab | bitbucket | N/A",
+  "environments": ["list 由 scope 決定: local=['dev']; local-staging=['dev','staging']; full=['dev','staging','prod']"],
+  "secretsManagement": "cicd-native | aws-ssm | vault | doppler | N/A",
+  "containerRegistry": "ghcr | dockerhub | aws-ecr | gcp-artifact-registry | N/A",
+  "monitoring": "none | datadog | grafana-prometheus | cloud-native | N/A",
+  "prodApproval": {
+    "required": "boolean; local=false, local-staging=false, full=true",
+    "mechanism": "github-environment",
+    "environmentName": "production",
+    "requiredReviewers": [],
+    "waitTimerMinutes": 0
+  },
+  "confirmedAt": "ISO 8601 timestamp"
+}

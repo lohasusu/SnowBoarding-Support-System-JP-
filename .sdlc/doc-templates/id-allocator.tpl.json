@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "SDLC ID Allocator — assigns each TASK a non-overlapping ID range per prefix so multiple developers / parallel TASKs cannot collide on the same ENTITY-006 / COMP-005 / etc. Replaces the scan-based PM-centralized allocation (Rule 8.7) for multi-user contexts. Single-user keeps both: allocator is primary, scan is fallback.",
+
+  "version": "1.0",
+
+  "rangeSize": 100,
+  "_rangeSize_doc": "Each TASK gets {rangeSize} consecutive IDs per prefix. Default 100 means TASK-001 owns 1-100, TASK-002 owns 101-200, TASK-003 owns 201-300, etc. (visually aligned with the offset, easy to recognize at a glance). Adjust upward if a single TASK is expected to allocate more than 100 entities of a given prefix; adjust downward only if total TASK count would exhaust the 999-ID cap (a project-lifetime concern, not a daily one).",
+
+  "nextOffset": 1,
+  "_nextOffset_doc": "Counter for the next TASK's range. New TASK-NNN gets range [(nextOffset-1)*rangeSize + 1, nextOffset*rangeSize]. With rangeSize=100: offset 1 → [1,100], offset 2 → [101,200], offset 3 → [201,300]. Incremented atomically by sdlc-allocate-ids.sh. NEVER decrement — abandoned TASKs keep their range allocated forever (per Rule 8.4 永不重用 / no ID reuse, extended to ranges).",
+
+  "prefixes": [
+    "ENTITY",
+    "MOD",
+    "FUNC",
+    "PATTERN",
+    "API",
+    "TBL",
+    "COMP",
+    "PAGE",
+    "LAYOUT"
+  ],
+  "_prefixes_doc": "Globally-numbered ID prefixes covered by allocator (per-TASK namespace partitioning). NOT included by design: (1) TASK-internal prefixes (FR/NFR/BR/AC/LOGIC/TEST/CR/SEC/SUG) — they reset per TASK and don't need cross-TASK range reservation. (2) ERR — error codes use the format ERR-{DOMAIN}-{NNN} where DOMAIN is a global category label (AUTH/USER/PAYMENT/...) and NNN is a per-DOMAIN sequence shared across all TASKs. ERR has no per-TASK namespace because multiple TASKs can extend the same DOMAIN; multi-user safety on ERR comes from per-DOMAIN scan in shared/error-codes.md + git push --atomic, not allocator range reservation.",
+
+  "allocations": {},
+  "_allocations_doc": "Map of TASK-ID → {prefix: [start, end]} pairs. Populated by sdlc-allocate-ids.sh on /sdlc:start. Example: \"TASK-001\": {\"ENTITY\": [1, 99], \"MOD\": [1, 99], ...}. agents read their assigned range from PM dispatch prompt (PM grabs it from this file) and number sequentially within the range.",
+
+  "history": [],
+  "_history_doc": "Append-only log of allocation events. Each entry: {taskId, allocatedAt, offset, ranges, abandoned (optional, true after /sdlc:abandon)}. Provides audit trail for who got which range and when. Helpful when a future TASK looks up 'why does ENTITY-237 belong to TASK-003' or when the team retrospects on range exhaustion.",
+
+  "createdAt": "{ISO8601}",
+  "lastUpdate": "{ISO8601}"
+}

@@ -1,0 +1,116 @@
+{
+  "_comment": "Cross-TASK deploy coordination state — runtime SoT for parallel deployments. NOT committed to git (.gitignore). PR 18.6 will add the gitignore entry.",
+  "_status": "DOCS-ONLY (PR 18): schema only, not yet consumed. Integration deferred to PR 18.1-18.6.",
+  "_invariants": {
+    "V2.C4_dependency_source": "dependencies[] DERIVES from state.json.tasks[ID].git.dependsOn (canonical SoT). Sync via PR 18.1 helper.",
+    "V2.C5_bidirectional_invariant": "If A.dependents contains B, then B.dependencies MUST contain A. Validator in PR 18.1.",
+    "V2.C6_rule11_three_phase": "migrations.phase enum: expand | backfill | contract (Rule 11). NOT just 'expand' alone — DROP requires three-phase.",
+    "V2.W3_no_cycle_detection": "Schema does not detect dependency cycles (A→B→A). PR 18.1 cascade walker must DAG-validate.",
+    "V2.W4_stale_taskid": "dependents[] may contain abandoned TASK-IDs. PR 18.1 cascade walker must filter via Rule 10 (.abandoned-tasks.txt).",
+    "V2.W5_hotfix_namespace": "PR 18.1+ should support taskId='HOTFIX-NNN' alongside 'TASK-NNN' for hotfix-during-deploy scenarios.",
+    "V2.C3_param_format": "sharedParametersChanged[] entries are objects {paramName, from, to, registeredAt}, aligned with Rule 18 parameter registry."
+  },
+  "schemaVersion": "deploy-coord-v1",
+
+  "_supportedMigrationPhases": ["expand", "backfill", "contract"],
+
+  "activeDeployments": [
+    {
+      "_comment_example": "Active deployment 範例 — TASK 已部署但仍在 monitoring 期或未到 prod",
+      "taskId": "TASK-001",
+      "version": "v1.5.0",
+      "environment": "staging",
+      "deployedAt": "2026-05-07T10:00:00Z",
+      "deployedBy": "alice",
+      "status": "monitoring",
+      "monitorUntil": "2026-05-08T10:00:00Z",
+      "dependencies": [],
+      "dependents": ["TASK-002"],
+      "migrations": [
+        {
+          "id": "20260507_add_column_X",
+          "phase": "expand",
+          "rollbackable": true,
+          "description": "Add column X to TBL-USERS (Phase 1: expand, schema-compat)"
+        },
+        {
+          "id": "20260507_backfill_column_X",
+          "phase": "backfill",
+          "rollbackable": true,
+          "description": "Phase 2: backfill column X via dual-write"
+        }
+      ],
+      "sharedParametersChanged": [
+        {
+          "paramName": "MAX_CART_ITEMS",
+          "from": "5",
+          "to": "10",
+          "registeredAt": "2026-05-07T09:55:00Z",
+          "_comment": "Rule 18 parameter registry compatible structure"
+        }
+      ],
+      "smokeTestStatus": "pass",
+      "rollbackCount": 0
+    }
+  ],
+
+  "deployQueue": [
+    {
+      "_comment_example": "Queue 範例 — 等待 dependency 或 resource 解除阻擋",
+      "taskId": "TASK-003",
+      "blockedBy": "TASK-001",
+      "blockReason": "depends on TASK-001 staging soak",
+      "queuedAt": "2026-05-07T11:30:00Z",
+      "retryCount": 0,
+      "estimatedUnblockAt": "2026-05-08T10:00:00Z"
+    }
+  ],
+
+  "history": [
+    {
+      "_comment_example": "已完成的 deploy 歷史紀錄（rollback / success / failed 都記）",
+      "taskId": "TASK-000",
+      "version": "v1.4.0",
+      "environment": "prod",
+      "deployedAt": "2026-05-01T00:00:00Z",
+      "completedAt": "2026-05-01T00:15:00Z",
+      "outcome": "success",
+      "rollbackedAt": null,
+      "rollbackReason": null
+    },
+    {
+      "_comment_example_2": "Rollback 案例",
+      "taskId": "TASK-X",
+      "version": "v1.3.0",
+      "environment": "prod",
+      "deployedAt": "2026-04-15T08:00:00Z",
+      "completedAt": null,
+      "outcome": "rolled-back",
+      "rollbackedAt": "2026-04-15T08:12:00Z",
+      "rollbackReason": "5xx error rate > 1%"
+    }
+  ],
+
+  "_supportedEnvironments": ["dev", "staging", "prod"],
+
+  "_supportedStatuses": [
+    "pending",
+    "deploying",
+    "monitoring",
+    "completed",
+    "failed",
+    "rolled-back",
+    "queued",
+    "blocked"
+  ],
+
+  "_blockReasonExamples": [
+    "depends on dependency",
+    "shared parameter race",
+    "resource:cpu",
+    "resource:memory",
+    "resource:registry-quota",
+    "window:next-Sun-02:00",
+    "manual-hold"
+  ]
+}

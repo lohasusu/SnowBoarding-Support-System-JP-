@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Per-TASK event journal. Append-only log of new IDs / terms / error codes / i18n keys introduced by this TASK. Source-of-truth for shared/*.md rebuild — when CI (or sdlc-shared-rebuild.sh) regenerates shared/, it reads every TASK's journal.json and aggregates. Each TASK writes only to its OWN journal under .sdlc/tasks/{TASK-ID}/journal.json — there is no cross-TASK contention because each TASK has a different file path.",
+
+  "version": "1.0",
+
+  "taskId": "{TASK-ID}",
+  "_taskId_doc": "Owning TASK. Must equal the parent directory name (.sdlc/tasks/TASK-NNN/journal.json → taskId = TASK-NNN). Validated by sdlc-journal-write.sh.",
+
+  "createdAt": "{ISO8601}",
+  "lastUpdate": "{ISO8601}",
+
+  "entries": [],
+  "_entries_doc": "Append-only array of events. Each entry MUST have: type (string, see types below), phase (which SDLC phase produced this event: ba|sa|uiux|sd|fe|be|test|abandon|...), addedAt (ISO8601). Beyond those three required fields, the rest of the fields depend on type. Never mutate or remove existing entries — only append. Deprecation is itself an event ('id_deprecated' or 'error_code_deprecated'), not a mutation of the original 'id_added' entry.",
+
+  "_entry_types_doc": {
+    "id_added": "New global ID introduced (ENTITY/MOD/FUNC/PATTERN/API/TBL/COMP/PAGE/LAYOUT). Required: id, name, filePath. Optional: section.",
+    "id_deprecated": "Existing ID marked DEPRECATED (e.g. when TASK abandoned). Required: id, reason. Optional: deprecatedAt (defaults to addedAt).",
+    "term_added": "Business glossary term. Required: term, definition. Optional: filePath, section.",
+    "error_code_added": "Error code under shared/error-codes.md. Required: code (ERR-DOMAIN-NNN), alias, httpStatus, message. Optional: thrownByApis (string[]), domain (extracted from code if absent).",
+    "error_code_deprecated": "Error code marked DEPRECATED. Required: code, reason.",
+    "error_domain_added": "First-time DOMAIN registration (ERR-PAYMENT, ERR-NOTIFY, ...). Required: domain, description.",
+    "i18n_key_added": "i18n string key. Required: key, defaultText. Optional: compId, namespace.",
+    "external_binding": "Pencil node ↔ COMP/PAGE binding. Required: external (e.g. pencil:node:abc123), internal (e.g. COMP-005). Optional: kind (component|page|variant|variable).",
+    "convention_violation_waived": "Approved deviation from a convention. Required: convention (api|db|code|i18n|branch), reason, approvedBy.",
+    "parameter_added": "Operational parameter (env var / feature flag / config key / shared limit / API URL / secret ref) introduced by this TASK. Required: paramName, paramKind (env|flag|limit|url|secret), value (string|number|bool, or 'secret-ref:<path>' for secrets). Optional: paramType (string|number|boolean|secret|url) — note: NOT 'type' to avoid collision with the entry's outer type field — scope (dev|staging|prod|all), required (true|false), ownerService (fe|be|both), description, rollout (for flags: internal|beta|ga|deprecated), unit (for limits), prodUrl/stagingUrl/devUrl (for url kind), vaultPath (for secret kind).",
+    "parameter_modified": "Existing parameter changed (value, scope, default, etc.). Required: paramName, field, oldValue, newValue, reason. Modifying a param introduced by another TASK requires Rule 6 cross-TASK approval.",
+    "parameter_deprecated": "Parameter marked DEPRECATED. Required: paramName, reason. Optional: successor (new param name replacing this one)."
+  },
+
+  "_example_entries": [
+    {
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-01-15T10:30:00Z",
+      "id": "ENTITY-001",
+      "name": "User account",
+      "filePath": "tasks/TASK-001/sa/field-spec.md",
+      "section": "3"
+    },
+    {
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-01-15T09:12:00Z",
+      "term": "MFA",
+      "definition": "Multi-Factor Authentication",
+      "filePath": "tasks/TASK-001/ba/requirement-spec.md"
+    },
+    {
+      "type": "error_code_added",
+      "phase": "sd",
+      "addedAt": "2026-01-15T14:20:00Z",
+      "code": "ERR-AUTH-001",
+      "alias": "ERR_AUTH_TOKEN_EXPIRED",
+      "httpStatus": 401,
+      "message": "Token expired",
+      "thrownByApis": ["API-001"]
+    },
+    {
+      "type": "id_deprecated",
+      "phase": "abandon",
+      "addedAt": "2026-01-20T11:00:00Z",
+      "id": "ENTITY-007",
+      "reason": "TASK-003 abandoned: requirements changed"
+    }
+  ]
+}

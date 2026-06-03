@@ -1,0 +1,154 @@
+# SDLC Cross-TASK Conflict Check (PR 11 / Rule 6.1)
+#
+# Detects when multiple OPEN PRs all label themselves with [CROSS-TASK: TASK-NNN]
+# targeting the same TASK-NNN. This catches the multi-user race that single-PM
+# Rule 6 didn't anticipate.
+#
+# Triggers: PR opened/synchronize/reopened, OR manual workflow_dispatch
+# Behavior: warn-only on PR (continue-on-error), strict on merge_group
+# Comment idempotency: finds existing bot comment and updates instead of spamming.
+#
+# Setup: Copy this file to .github/workflows/sdlc-cross-task-check.yml
+# (Drop the .tpl from the filename when installing.)
+name: SDLC Cross-TASK Conflict Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:
+
+# Same-PR concurrency: cancel in-flight runs from same PR (avoid races).
+concurrency:
+  group: sdlc-cross-task-${{ github.event.pull_request.number || github.event.merge_group.head_sha || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check-cross-task:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # V1.W5 / V3.Info fix: createComment requires write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify cross-task script exists
+        id: check_script
+        run: |
+          if [ -f "scripts/sdlc-cross-task-conflict-check.sh" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::sdlc-cross-task-conflict-check.sh missing — cross-TASK conflict not validated"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install jq
+        if: steps.check_script.outputs.exists == 'true'
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -q && sudo apt-get install -y jq
+          fi
+
+      - name: Run cross-TASK conflict check (--gh + --local)
+        id: run_check
+        if: steps.check_script.outputs.exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          # V3.C3 fix: namespace tmpfile by run_id to avoid concurrent collisions
+          OUT="${RUNNER_TEMP}/cross-task-${{ github.run_id }}-${{ github.run_attempt }}.json"
+          bash scripts/sdlc-cross-task-conflict-check.sh --gh --json > "$OUT"
+          rc=$?
+          echo "result_path=$OUT" >> $GITHUB_OUTPUT
+          echo "exit_code=$rc" >> $GITHUB_OUTPUT
+
+          # Always show the JSON for visibility
+          cat "$OUT"
+
+          if [ "$rc" -eq 1 ]; then
+            CONFLICTS=$(jq -r '.conflicts[] | "  - \(.targetTask) targeted by \(.count) sources: " + ([.sources[] | "\(.source)" + (if .description != "" then " (\(.description))" else "" end)] | join(", "))' "$OUT" 2>/dev/null)
+            echo ""
+            echo "::error::Cross-TASK conflict detected"
+            echo "Multiple in-flight items target the same TASK:"
+            echo "$CONFLICTS"
+            echo ""
+            echo "Resolution paths:"
+            echo "  1. Coordinate via GitHub Issue / Slack — only ONE PR modifies a target TASK"
+            echo "  2. Merge sequentially — first PR merges, second rebases & re-evaluates"
+            echo "  3. Split modifications — each PR touches non-overlapping parts of target TASK"
+
+            # V2.C5 fix: on merge_group, dedupe by checking if conflict involves CURRENT PR.
+            # If the only conflict is between this PR and another OPEN PR, the merge gate
+            # blocks ONE side (whichever reaches gate first wins; the other re-runs after rebase).
+            if [ "${{ github.event_name }}" = "merge_group" ]; then
+              exit 1  # block merge
+            fi
+            # PR event: warn-only (don't block dev iteration; merge_group is the strict gate)
+          fi
+        continue-on-error: ${{ github.event_name != 'merge_group' }}
+
+      - name: Comment on PR (idempotent — find+update or create)
+        if: |
+          steps.check_script.outputs.exists == 'true' &&
+          github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RESULT_PATH: ${{ steps.run_check.outputs.result_path }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = process.env.RESULT_PATH;
+            let result;
+            try {
+              result = JSON.parse(fs.readFileSync(path, 'utf-8'));
+            } catch (e) {
+              return;  // no JSON, skip
+            }
+
+            const COMMENT_TAG = '<!-- sdlc-cross-task-check -->';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            // V2.W1 + V3.W2 fix: find existing bot comment first
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number, per_page: 100,
+            });
+            const existing = comments.find(c => c.body && c.body.includes(COMMENT_TAG));
+
+            // No conflict → delete prior comment (resolved); else update/create
+            if (!result.conflicts || result.conflicts.length === 0) {
+              if (existing) {
+                await github.rest.issues.deleteComment({ owner, repo, comment_id: existing.id });
+              }
+              return;
+            }
+
+            const lines = result.conflicts.map(c =>
+              `- **${c.targetTask}** targeted by ${c.count} sources:\n` +
+              c.sources.map(s => {
+                const desc = s.description ? ` — ${s.description}` : '';
+                return `  - ${s.source}${desc}${s.title ? ' "' + s.title + '"' : ''}`;
+              }).join('\n')
+            ).join('\n\n');
+
+            const body = `${COMMENT_TAG}\n## ⚠️ Cross-TASK Conflict Detected (Rule 6.1)\n\n` +
+              `Multiple in-flight items target the same TASK:\n\n${lines}\n\n` +
+              `### Resolution paths\n` +
+              `1. **Coordinate via GitHub Issue / Slack** — only ONE PR modifies a target TASK\n` +
+              `2. **Merge sequentially** — first PR merges, second rebases & re-evaluates\n` +
+              `3. **Split modifications** — each PR touches non-overlapping parts of target TASK\n\n` +
+              `<sub>This is a warning, not blocking. The merge gate will block if conflict still exists at merge time. ` +
+              `This comment auto-updates on each push and auto-deletes when resolved.</sub>`;
+
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }

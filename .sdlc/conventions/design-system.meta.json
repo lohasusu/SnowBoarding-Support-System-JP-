@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "design-system-meta-v1",
+  "version": "0.1.0",
+  "lockedAt": "2026-06-03T07:57:02Z",
+  "createdAt": "2026-06-03T07:57:02Z",
+  "lastUpdate": "2026-06-03T07:57:02Z",
+  "rfcHistory": [
+    {
+      "version": "0.1.0",
+      "at": "2026-06-03T07:57:02Z",
+      "summary": "init: empty shell + default tokens (Pencil MCP not yet installed)",
+      "approvedBy": ["PM"]
+    }
+  ],
+  "componentInventory": []
+}

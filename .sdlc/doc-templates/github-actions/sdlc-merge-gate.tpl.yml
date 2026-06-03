@@ -1,0 +1,108 @@
+# .github/workflows/sdlc-merge-gate.yml
+#
+# SDLC Merge Gate — Strict validation before merging to main (Rule 19 / PR 8)
+#
+# Runs in GitHub merge queue context. Unlike sdlc-ci-pr.yml (which is
+# fail-open for some checks), this workflow is STRICT — any SDLC
+# violation blocks the merge.
+#
+# Triggers:
+#   merge_group — when a PR enters the merge queue
+#
+# Setup required (one-time per repo):
+#   1. Repo Settings → Branch Protection Rule for `main`
+#      → Require merge queue
+#      → Required status checks: "SDLC Merge Gate / sdlc-strict-validate"
+#   2. Repo Settings → General → Pull Requests → "Allow merge queues"
+
+name: SDLC Merge Gate
+
+on:
+  merge_group:
+    types: [checks_requested]
+
+# V1-W1 + V3-#1: pin sdlc-workflow source for supply-chain safety.
+env:
+  SDLC_BOOTSTRAP_REPO: ${{ vars.SDLC_BOOTSTRAP_REPO || 'https://github.com/Sunyuezu0229/sdlc-workflow.git' }}
+  SDLC_BOOTSTRAP_REF: ${{ vars.SDLC_BOOTSTRAP_REF || 'main' }}
+
+jobs:
+  sdlc-strict-validate:
+    runs-on: ubuntu-latest
+    name: SDLC strict validation (blocking)
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.merge_group.head_sha }}
+
+      - name: Install jq
+        run: which jq || sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Bootstrap SDLC scripts (vendored or pinned clone)
+        run: |
+          if [ -f "scripts/sdlc-sync.sh" ]; then
+            export SDLC_SCRIPTS=./scripts
+          else
+            git clone --depth=1 --branch "$SDLC_BOOTSTRAP_REF" \
+              "$SDLC_BOOTSTRAP_REPO" /tmp/sdlc-tools
+            export SDLC_SCRIPTS=/tmp/sdlc-tools/scripts
+          fi
+          echo "SDLC_SCRIPTS=$SDLC_SCRIPTS" >> $GITHUB_ENV
+
+      - name: id-guard (BLOCKING)
+        run: bash $SDLC_SCRIPTS/sdlc-id-guard.sh
+
+      - name: sync --check --strict-fetch (BLOCKING)
+        run: bash $SDLC_SCRIPTS/sdlc-sync.sh --check --strict-fetch
+
+      - name: parameter-check (BLOCKING)
+        run: bash $SDLC_SCRIPTS/sdlc-parameter-check.sh
+
+      - name: shared-rebuild drift detection (BLOCKING)
+        run: |
+          # V1-C1: GH Actions runs run-blocks with `bash -eo pipefail`.
+          # `bash $SCRIPT --check` exiting 2 would terminate immediately,
+          # never reaching `rc=$?`. Use `|| rc=$?` to capture exit code.
+          bash $SDLC_SCRIPTS/sdlc-shared-rebuild.sh --check || rc=$?
+          rc=${rc:-0}
+          if [ "$rc" -eq 2 ]; then
+            echo "::error::shared/ has drift from journals — run sdlc-shared-rebuild.sh and re-push"
+            exit 1
+          elif [ "$rc" -ne 0 ]; then
+            echo "::error::shared-rebuild --check failed unexpectedly (exit $rc)"
+            exit 1
+          fi
+
+      - name: pencil-sync (BLOCKING when DS exists)
+        if: hashFiles('.sdlc/conventions/design-system.pen') != ''
+        run: |
+          # V1-C1: same || pattern as above
+          bash $SDLC_SCRIPTS/sdlc-pencil-sync.sh --check || rc=$?
+          rc=${rc:-0}
+          if [ "$rc" -eq 2 ]; then
+            echo "::error::Pencil DS drift detected — propagate before merge"
+            exit 1
+          elif [ "$rc" -ne 0 ]; then
+            echo "::error::pencil-sync --check failed unexpectedly (exit $rc)"
+            exit 1
+          fi
+
+      # PR 12 V3.C1 fix: trigger-matrix-check is BLOCKING in merge-gate
+      # V1-redo D1 fix: name string MUST be quoted because it contains "on:" (YAML keyword collision)
+      - name: "trigger-matrix-check (BLOCKING — matrix vs workflows on-block)"
+        if: hashFiles('.sdlc/conventions/cicd-trigger-matrix.md') != '' || hashFiles('.sdlc/cicd-trigger-matrix.md') != '' || hashFiles('doc-templates/cicd-trigger-matrix.tpl.md') != ''
+        run: |
+          bash $SDLC_SCRIPTS/sdlc-trigger-matrix-check.sh || rc=$?
+          rc=${rc:-0}
+          if [ "$rc" -eq 1 ]; then
+            echo "::error::Trigger matrix and workflows are inconsistent — sync before merge"
+            exit 1
+          elif [ "$rc" -ne 0 ] && [ "$rc" -ne 0 ]; then
+            echo "::error::trigger-matrix-check failed unexpectedly (exit $rc)"
+            exit 1
+          fi
+
+      - name: All checks passed
+        run: echo "✅ SDLC merge gate passed; PR can merge to main"
