@@ -36,8 +36,10 @@ templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 from plan_routes import plan_router          # noqa: E402
 from auth.auth_router import auth_router     # noqa: E402
+from auth.oauth_router import oauth_router   # noqa: E402
 app.include_router(plan_router)
 app.include_router(auth_router)
+app.include_router(oauth_router)
 
 try:
     from airport_codes import airport_label, airline_label

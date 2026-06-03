@@ -22,3 +22,4 @@ requests>=2.31.0
 # 會員認證
 bcrypt>=4.0.0
 python-jose[cryptography]>=3.3.0
+# 沒有新增套件：resend 用 httpx 直接呼叫 API，Google OAuth 用 httpx + 手動實作
