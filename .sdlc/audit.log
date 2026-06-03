@@ -1,0 +1,5 @@
+[2026-06-03T13:20:11Z] alloc | TASK-001 | id_alloc      | offset=1 range=[1,100]
+[2026-06-03T13:26:00Z] PM     | TASK-001 | created      | brownfield-document
+[2026-06-03T13:26:00Z] PM     | TASK-001 | git_branch   | branch=sdlc/TASK-001/brownfield-document base=sdlc/init
+[2026-06-03T13:26:00Z] PM     | TASK-001 | id_allocated | ENTITY/MOD/FUNC/PATTERN/API/TBL/COMP/PAGE/LAYOUT = 1-100
+[2026-06-03T13:26:00Z] PM     | TASK-001 | dispatched   | ba

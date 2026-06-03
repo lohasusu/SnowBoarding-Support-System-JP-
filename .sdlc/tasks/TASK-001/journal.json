@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Per-TASK event journal. Append-only log of new IDs / terms / error codes / i18n keys introduced by this TASK. Source-of-truth for shared/*.md rebuild — when CI (or sdlc-shared-rebuild.sh) regenerates shared/, it reads every TASK's journal.json and aggregates. Each TASK writes only to its OWN journal under .sdlc/tasks/{TASK-ID}/journal.json — there is no cross-TASK contention because each TASK has a different file path.",
+  "version": "1.0",
+  "taskId": "TASK-001",
+  "createdAt": "2026-06-03T13:22:59Z",
+  "lastUpdate": "2026-06-03T13:22:59Z",
+  "entries": []
+}
