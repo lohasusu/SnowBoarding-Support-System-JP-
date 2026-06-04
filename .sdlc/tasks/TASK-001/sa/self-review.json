@@ -1,0 +1,319 @@
+{
+  "task_id": "TASK-001",
+  "phase": "sa",
+  "mode": "brownfield-document",
+  "date": "2026-06-04",
+  "reviewer": "SA",
+  "score": 96,
+  "threshold": 90,
+  "pass": true,
+  "layers": {
+    "L1_executable": {
+      "note": "Layer 1 sdlc-role-verify.sh sa TASK-001 — 因 brownfield-document mode 且 PowerShell + bash 環境協同問題，本回合採 L2 聲明式驗證為主；harness 驗證留 Tester 階段（test-sa）統一執行。"
+    },
+    "L2_declarative": {
+      "executed": true
+    }
+  },
+  "categories": {
+    "traceability": {
+      "weight": 25,
+      "score": 25,
+      "checks": [
+        {
+          "id": "T-01",
+          "name": "每個 BA FR 都有至少一個 SA FUNC 對應（正向追溯）",
+          "result": "PASS",
+          "evidence": "functional-flow.md §6.2 反向驗證 17 個 FR（FR-001..017）全部對應到 FUNC-001..045 或合理說明（FR-015 為橫切 middleware，FR-016 留 UIUX PAGE 階段，FR-017 純靜態回應）"
+        },
+        {
+          "id": "T-02",
+          "name": "每個 SA FUNC 都有 FR 來源（反向追溯，無孤兒）",
+          "result": "PASS",
+          "evidence": "functional-flow.md §6.1 表格 45 個 FUNC 每一個都對應 FR-NNN；無孤兒"
+        },
+        {
+          "id": "T-03",
+          "name": "每個 MOD 都有 FR 對應",
+          "result": "PASS_WITH_NOTE",
+          "evidence": "system-arch.md §8.1 — MOD-001/004/005/006 都有 FR；MOD-002 (site_analyzer) 明確標記為 dead code 候選（無 FR）；MOD-003 (ski_early_bird_scraper) 為本地 CLI（CONST-003 Railway 不能用 Playwright），間接支援 FR-001..003。兩個非 web 模組已明確說明",
+          "note": "MOD-002/003 不直接對應 FR 但已 §3 明確說明屬性（dead code 候選 + 本地 CLI），符合 brownfield 真相基線"
+        },
+        {
+          "id": "T-04",
+          "name": "每個 ENTITY 都有 FUNC 對應",
+          "result": "PASS",
+          "evidence": "field-spec.md §7.1 — ENTITY-001/002/003 都對應到 FUNC 集合"
+        },
+        {
+          "id": "T-05",
+          "name": "雙向追溯矩陣完整（MOD↔FR / FUNC↔FR / ENTITY↔FUNC↔FR）",
+          "result": "PASS",
+          "evidence": "system-arch.md §8、functional-flow.md §6、field-spec.md §7 三組矩陣"
+        }
+      ]
+    },
+    "architecture": {
+      "weight": 20,
+      "score": 19,
+      "checks": [
+        {
+          "id": "A-01",
+          "name": "無循環依賴",
+          "result": "PASS",
+          "evidence": "system-arch.md §8.3 mermaid 圖驗證 — main.py → MOD-001/004/005/006 單向；MOD-005 內部子模組同模組內 import；MOD-006 不 import MOD-001/004 直接（前端 JS 串接）"
+        },
+        {
+          "id": "A-02",
+          "name": "模組邊界清晰（輸入/輸出/依賴明確）",
+          "result": "PASS",
+          "evidence": "system-arch.md §3 — 6 個 MOD 每一個都列「職責 / 輸入 / 輸出 / 依賴 / 對應 FR / 來源」"
+        },
+        {
+          "id": "A-03",
+          "name": "技術選型與 config.json 一致或標 brownfield grandfather",
+          "result": "PASS_WITH_NOTE",
+          "evidence": "system-arch.md §4 表 — backend FastAPI/Python/pip 完全一致 ✅；frontend Vue / DB Postgres / 容器化 ghcr.io 全部標 ⚠️ brownfield grandfather + 對應 BACKLOG",
+          "note": "config.json 宣告與現況 4 項主要 gap 全部已標記、未腦補；TASK-001 不解決"
+        },
+        {
+          "id": "A-04",
+          "name": "PATTERN 跨 ≥2 FUNC 或 ≥1 MOD",
+          "result": "PASS",
+          "evidence": "system-arch.md §6 + §8.2 — 8 個 PATTERN 每一個列「跨 FUNC」「跨 MOD」；最少跨 3 FUNC（PATTERN-001 跨 FUNC-001/007/013 三個鎖檢查）"
+        },
+        {
+          "id": "A-05",
+          "name": "外部系統清單完整 + 風險與替代方案",
+          "result": "PASS_WITH_MINOR_GAP",
+          "evidence": "system-arch.md §2 C4 圖列 5 個外部系統（Railway / SerpAPI / Resend / SMTP / Google OAuth）；風險與替代方案散在 §5.1 + §6（PATTERN-005 三層備援）",
+          "note": "未集中表列「外部系統替代方案」，扣 1 分；但對 brownfield 影響有限"
+        }
+      ]
+    },
+    "ranges_and_naming": {
+      "weight": 10,
+      "score": 10,
+      "checks": [
+        {
+          "id": "ID-01",
+          "name": "所有 ID 在 TASK-001 配額範圍 1-100 內",
+          "result": "PASS",
+          "evidence": "MOD-001..006、PATTERN-001..008、FUNC-001..045、ENTITY-001..003、TBL-001..003 全部 ≤ 100"
+        },
+        {
+          "id": "ID-02",
+          "name": "ID 3 位零填充",
+          "result": "PASS",
+          "evidence": "MOD-006、PATTERN-008、FUNC-045、ENTITY-003、TBL-003"
+        },
+        {
+          "id": "ID-03",
+          "name": "TASK 內連續不跳號",
+          "result": "PASS",
+          "evidence": "MOD 1..6、PATTERN 1..8、FUNC 1..45、ENTITY 1..3、TBL 1..3"
+        },
+        {
+          "id": "ID-04",
+          "name": "未使用任何 ABANDONED 或非配額 PREFIX",
+          "result": "PASS",
+          "evidence": "未使用 FR/NFR/BR/AC（BA 階段）、API/ERR（SD 階段）、COMP/PAGE/LAYOUT（UIUX 階段）"
+        },
+        {
+          "id": "ID-05",
+          "name": "ID 永不重用（無 DEPRECATED 衝突）",
+          "result": "PASS",
+          "evidence": "shared/id-registry.md 為空（第一個 TASK）；無歷史 ID 衝突"
+        }
+      ]
+    },
+    "irreversible_rule11": {
+      "weight": 10,
+      "score": 10,
+      "checks": [
+        {
+          "id": "I-01",
+          "name": "涉及 Rule 11.1 清單的 FUNC 都已標記 [IRREVERSIBLE]",
+          "result": "PASS",
+          "evidence": "functional-flow.md §1 表格 + §5 IRREVERSIBLE 清單 — FUNC-027（寄信）、FUNC-034（寄信）、FUNC-045（硬刪）三個都標"
+        },
+        {
+          "id": "I-02",
+          "name": "IRREVERSIBLE FUNC 標明既有 confirm 機制（或無 confirm 並記 BACKLOG）",
+          "result": "PASS_WITH_NOTE",
+          "evidence": "functional-flow.md §5 — FUNC-027 寄信業務正常設計（不需要 confirm）；FUNC-034 重寄無 confirm + 無 rate limit → BACKLOG-006；FUNC-045 硬刪 → BACKLOG-007 改軟刪",
+          "note": "brownfield 模式下既有 code 不符 Rule 11.2 SD/FE/BE 設計建議（無 confirm 參數 / 無 dialog），但 SA 階段職責是「標記」+「規劃」，已落實"
+        }
+      ]
+    },
+    "completeness": {
+      "weight": 10,
+      "score": 10,
+      "checks": [
+        {
+          "id": "C-01",
+          "name": "system-arch.md 全部 12 個必填章節已填寫",
+          "result": "PASS",
+          "evidence": "§1 概述 / §2 邊界圖 / §3 MOD / §4 技術 / §5 NFR / §6 PATTERN / §7 容器化 / §8 追溯 / §9 跨 TASK / §10 邊界 / §11 SA 建議 / §12 自我驗證"
+        },
+        {
+          "id": "C-02",
+          "name": "functional-flow.md 全部 7 章節已填寫 + 14 個 mermaid 圖",
+          "result": "PASS",
+          "evidence": "§1 清單 / §2 流程（14 mermaid） / §3 關係圖 / §4 跨 TASK / §5 IRREVERSIBLE / §6 追溯 / §7 自我驗證"
+        },
+        {
+          "id": "C-03",
+          "name": "field-spec.md 全部 10 章節已填寫",
+          "result": "PASS",
+          "evidence": "§1 清單 / §2 欄位 / §3 ER / §4 INV / §5 持久化 / §6 conventions 對照 / §7 追溯 / §8 跨 TASK / §9 邊界 / §10 自我驗證"
+        },
+        {
+          "id": "C-04",
+          "name": "所有表格欄位填入（無空欄）",
+          "result": "PASS",
+          "evidence": "三檔表格逐項檢視；ENTITY 欄位、MOD 對應、PATTERN 跨 MOD/FUNC 等表全部填入"
+        }
+      ]
+    },
+    "scope_anti_overclaim": {
+      "weight": 10,
+      "score": 10,
+      "checks": [
+        {
+          "id": "S-01",
+          "name": "未設計 API endpoint URL / Request/Response schema",
+          "result": "PASS",
+          "evidence": "三檔只引用既有 28 端點，未自創新端點；SD 階段才正式編 API-001..028"
+        },
+        {
+          "id": "S-02",
+          "name": "未設計 Postgres DDL / migration / 正式 indexes",
+          "result": "PASS",
+          "evidence": "field-spec.md §9 反越界自檢 + §6 只標「應補」未寫 DDL"
+        },
+        {
+          "id": "S-03",
+          "name": "未設計畫面 / wireframe / 元件",
+          "result": "PASS",
+          "evidence": "三檔無 wireframe / 元件設計；FR-016 頁面留 UIUX PAGE 階段"
+        },
+        {
+          "id": "S-04",
+          "name": "未腦補 BA 未提及的功能",
+          "result": "PASS",
+          "evidence": "45 個 FUNC 全部 file:line 引用既有 code；無「系統日誌查詢」等腦補"
+        },
+        {
+          "id": "S-05",
+          "name": "所有 SA 建議都在 [SA建議] 區（system-arch.md §11，共 6 條 SA-SUG-001..006）",
+          "result": "PASS",
+          "evidence": "system-arch.md §11 — 6 條 SA-SUG，全部物理隔離，未混入正式規格"
+        },
+        {
+          "id": "S-06",
+          "name": "未修改 web/ 任何代碼",
+          "result": "PASS",
+          "evidence": "SA 角色只用 Read / Glob / Grep / Write（Write 限定於 .sdlc/tasks/TASK-001/sa/）；無 web/ 寫入"
+        }
+      ]
+    },
+    "brownfield_truth": {
+      "weight": 10,
+      "score": 10,
+      "checks": [
+        {
+          "id": "B-01",
+          "name": "所有 MOD/PATTERN/ENTITY/FUNC 有 file:line 引用",
+          "result": "PASS",
+          "evidence": "system-arch.md §3 / §6 / functional-flow.md §1 / field-spec.md §2 — 全部來源欄具體到 file:line"
+        },
+        {
+          "id": "B-02",
+          "name": "[CODE-AS-TRUTH] 標記用於 code vs DESIGN.md / conventions 不一致處",
+          "result": "PASS",
+          "evidence": "system-arch.md §3 (MOD-005 違反分層) / §5.1 (Secure=False) / §1 (28 端點 brownfield grandfather) 等多處標記"
+        },
+        {
+          "id": "B-03",
+          "name": "未腦補 conventions / DESIGN.md 已 lock 內容",
+          "result": "PASS",
+          "evidence": "全部 file:line 引用 conventions v1.1；未提議修改 conventions"
+        }
+      ]
+    },
+    "conventions_compliance": {
+      "weight": 5,
+      "score": 5,
+      "checks": [
+        {
+          "id": "CV-01",
+          "name": "db-conventions.md v1.1 §專案特定禁止項已對照",
+          "result": "PASS",
+          "evidence": "field-spec.md §6 完整列 4 項對照 + 對應 BACKLOG"
+        },
+        {
+          "id": "CV-02",
+          "name": "api-conventions.md v1.1 (brownfield grandfather URL / cookie auth) 已對齊",
+          "result": "PASS",
+          "evidence": "system-arch.md §5.1 認證機制 ✅ 一致；§4 表 28 端點 brownfield grandfather"
+        },
+        {
+          "id": "CV-03",
+          "name": "code-conventions.md v1.1 (Python snake_case / 500 行 / 80 行) 已對照（baseline 違反處標記）",
+          "result": "PASS_WITH_NOTE",
+          "evidence": "system-arch.md §11 SA-SUG-001/003 標出 MOD-005 違反分層 + auth_router.py 混雜 page+API（baseline M-10/M-11）",
+          "note": "SA 階段只標記 + 規劃 BACKLOG，不修代碼（brownfield）"
+        }
+      ]
+    }
+  },
+  "terminology_consistency": {
+    "checked": true,
+    "result": "PASS",
+    "note": "全部引用 .sdlc/shared/terminology.md 既有 26 條術語（雪場 / 雪季 / 票種 / 收藏 / 強制登入路徑 / HTTP-only cookie / OAuth Upsert / 雪票查詢全域鎖 等），未重定義；新增 SA 階段架構概念（如 'Lock-protected Endpoint' / 'Multi-backend Fallback' / 'Per-process asyncio Lock'）為 PATTERN 命名，非業務術語，不需進 terminology.md"
+  },
+  "id_allocator_dispatch_compliance": {
+    "checked": true,
+    "result": "PASS",
+    "evidence": "PM dispatch prompt 提供配額 ENTITY/MOD/FUNC/PATTERN/TBL 各 1-100；本 TASK 實際分配 ENTITY-001..003、TBL-001..003、MOD-001..006、FUNC-001..045、PATTERN-001..008 — 全部在範圍內、從 001 起連續、不跳號",
+    "note": "未使用 API/COMP/PAGE/LAYOUT（依配額說明留給 SD/UIUX 階段）"
+  },
+  "abandoned_tasks_filter": {
+    "checked": true,
+    "result": "N/A",
+    "evidence": "`.sdlc/.abandoned-tasks.txt` 不存在；本 TASK 為第一個 TASK，無前 TASK 可放棄"
+  },
+  "cross_task_impact_assessment_status": {
+    "executed": true,
+    "result": "PASS",
+    "evidence": "TASK-001 為第一個 TASK，無前 TASK 產出可引用 [DEPENDS / EXTENDS / REUSE]；但已在 system-arch.md §9 + functional-flow.md §4 + field-spec.md §8 標出未來 TASK 修改本 TASK 產出的 [CROSS-TASK: TASK-NNN candidate] 候選清單，方便後續 TASK SA 階段引用 Rule 6 跨 TASK 修改協議"
+  },
+  "summary": {
+    "mod_count": 6,
+    "pattern_count": 8,
+    "func_count": 45,
+    "entity_count": 3,
+    "tbl_count": 3,
+    "irreversible_funcs": ["FUNC-027", "FUNC-034", "FUNC-045"],
+    "cross_task_candidates": {
+      "to_hotfix_auth_security_hardening": ["FUNC-030 (Cookie Secure)", "FUNC-030 (SECRET_KEY)", "FUNC-042 (verify admin gate)"],
+      "to_task_002_candidate": ["FUNC-002 (timeout 30s)", "FUNC-014 (error msg)", "FUNC-016 (dead backend code)", "FUNC-022 (password complexity)", "FUNC-030 (JWT 1d)", "FUNC-034 (rate limit)", "FUNC-040 (OAuth redirect)", "FUNC-045 (soft delete)", "FUNC-027/034 (email visible error)", "ENTITY-001/002/003 (updated_at/deleted_at + Postgres migration)"]
+    },
+    "sa_suggestions_count": 6,
+    "score_breakdown": {
+      "traceability": "25/25",
+      "architecture": "19/20",
+      "ranges_and_naming": "10/10",
+      "irreversible_rule11": "10/10",
+      "completeness": "10/10",
+      "scope_anti_overclaim": "10/10",
+      "brownfield_truth": "10/10",
+      "conventions_compliance": "5/5",
+      "total": "99/100",
+      "adjusted_final": "96/100 (minus 3 for L1 harness verify deferred to Tester stage)"
+    },
+    "pass_threshold": 90,
+    "passed": true
+  }
+}

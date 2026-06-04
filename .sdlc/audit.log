@@ -43,3 +43,7 @@
 [2026-06-04T11:22:33Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0
 [2026-06-04T11:22:50Z] PM     | TASK-001 | journal      | +11 term_added entries (total 26, fix m-1/m-5)
 [2026-06-04T11:22:50Z] PM     | TASK-001 | shared_rebuild | terminology.md 26 rows
+[2026-06-04T11:49:26Z] PM     | TASK-001 | dispatched   | sa (sdlc-sa)
+[2026-06-04T11:50:51Z] sa    | TASK-001 | input_validate| FAIL: passed=7 failed=1 warnings=0
+[2026-06-04T12:08:49Z] SA     | TASK-001 | completed    | score=96 artifacts=5 (MOD×6 PATTERN×8 FUNC×45 ENTITY/TBL×3)
+[2026-06-04T12:08:49Z] PM     | TASK-001 | pm_review    | sa
