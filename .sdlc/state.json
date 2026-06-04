@@ -8,27 +8,87 @@
       "app": "snowboarding_support",
       "mode": "brownfield-document",
       "createdAt": "2026-06-03T13:15:15Z",
-      "currentPhase": "ba",
-      "phaseOrder": ["ba","test-ba","sa","test-sa","uiux","deploy-init","test-uiux","test-deploy-init","sd","test-sd","fe","be","test-fe","test-be","build-gate","code-review","deploy","test"],
+      "currentPhase": "test-ba",
+      "phaseOrder": [
+        "ba",
+        "test-ba",
+        "sa",
+        "test-sa",
+        "uiux",
+        "deploy-init",
+        "test-uiux",
+        "test-deploy-init",
+        "sd",
+        "test-sd",
+        "fe",
+        "be",
+        "test-fe",
+        "test-be",
+        "build-gate",
+        "code-review",
+        "deploy",
+        "test"
+      ],
       "phases": {
-        "ba": { "status": "in_progress", "startedAt": "2026-06-03T13:15:15Z" },
-        "test-ba": { "status": "pending" },
-        "sa": { "status": "pending" },
-        "test-sa": { "status": "pending" },
-        "uiux": { "status": "pending" },
-        "deploy-init": { "status": "pending" },
-        "test-uiux": { "status": "pending" },
-        "test-deploy-init": { "status": "pending" },
-        "sd": { "status": "pending" },
-        "test-sd": { "status": "pending" },
-        "fe": { "status": "pending" },
-        "be": { "status": "pending" },
-        "test-fe": { "status": "pending" },
-        "test-be": { "status": "pending" },
-        "build-gate": { "status": "pending" },
-        "code-review": { "status": "pending" },
-        "deploy": { "status": "pending" },
-        "test": { "status": "pending" }
+        "ba": {
+          "status": "approved",
+          "startedAt": "2026-06-03T13:15:15Z",
+          "completedAt": "2026-06-03T13:44:00Z",
+          "score": 95,
+          "approvedAt": "2026-06-04T09:08:24Z"
+        },
+        "test-ba": {
+          "status": "in_progress",
+          "startedAt": "2026-06-04T09:08:24Z"
+        },
+        "sa": {
+          "status": "pending"
+        },
+        "test-sa": {
+          "status": "pending"
+        },
+        "uiux": {
+          "status": "pending"
+        },
+        "deploy-init": {
+          "status": "pending"
+        },
+        "test-uiux": {
+          "status": "pending"
+        },
+        "test-deploy-init": {
+          "status": "pending"
+        },
+        "sd": {
+          "status": "pending"
+        },
+        "test-sd": {
+          "status": "pending"
+        },
+        "fe": {
+          "status": "pending"
+        },
+        "be": {
+          "status": "pending"
+        },
+        "test-fe": {
+          "status": "pending"
+        },
+        "test-be": {
+          "status": "pending"
+        },
+        "build-gate": {
+          "status": "pending"
+        },
+        "code-review": {
+          "status": "pending"
+        },
+        "deploy": {
+          "status": "pending"
+        },
+        "test": {
+          "status": "pending"
+        }
       },
       "git": {
         "slug": "brownfield-document",
@@ -37,18 +97,49 @@
         "dependsOn": [],
         "createdAt": "2026-06-03T13:15:15Z",
         "commits": [],
-        "subBranches": { "enabled": false, "branches": {}, "worktrees": {} }
+        "subBranches": {
+          "enabled": false,
+          "branches": {},
+          "worktrees": {}
+        }
       },
       "idAllocations": {
-        "ENTITY": [1, 100],
-        "MOD": [1, 100],
-        "FUNC": [1, 100],
-        "PATTERN": [1, 100],
-        "API": [1, 100],
-        "TBL": [1, 100],
-        "COMP": [1, 100],
-        "PAGE": [1, 100],
-        "LAYOUT": [1, 100]
+        "ENTITY": [
+          1,
+          100
+        ],
+        "MOD": [
+          1,
+          100
+        ],
+        "FUNC": [
+          1,
+          100
+        ],
+        "PATTERN": [
+          1,
+          100
+        ],
+        "API": [
+          1,
+          100
+        ],
+        "TBL": [
+          1,
+          100
+        ],
+        "COMP": [
+          1,
+          100
+        ],
+        "PAGE": [
+          1,
+          100
+        ],
+        "LAYOUT": [
+          1,
+          100
+        ]
       }
     }
   }

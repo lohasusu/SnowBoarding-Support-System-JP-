@@ -4,6 +4,127 @@
   "version": "1.0",
   "taskId": "TASK-001",
   "createdAt": "2026-06-03T13:22:59Z",
-  "lastUpdate": "2026-06-03T13:22:59Z",
-  "entries": []
+  "lastUpdate": "2026-06-04T09:03:03Z",
+  "entries": [
+    {
+      "term": "雪場",
+      "english": "resort",
+      "definition": "日本滑雪場單位",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:50Z"
+    },
+    {
+      "term": "雪季",
+      "english": "season",
+      "definition": "滑雪營業期間，系統依日期自動判斷",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:51Z"
+    },
+    {
+      "term": "票種",
+      "english": "ticket_type",
+      "definition": "雪場票價分類，含日文與中文翻譯",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:52Z"
+    },
+    {
+      "term": "早鳥票",
+      "english": "early_bird",
+      "definition": "雪季開始前提早購買的優惠票",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:53Z"
+    },
+    {
+      "term": "收藏",
+      "english": "favorite",
+      "definition": "用戶儲存的雪票或機票查詢結果",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:54Z"
+    },
+    {
+      "term": "行程規劃",
+      "english": "trip_plan",
+      "definition": "/plan 頁面同時查機票+雪票並下載 3-sheet Excel",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:55Z"
+    },
+    {
+      "term": "強制登入路徑",
+      "english": "protected_route",
+      "definition": "middleware 攔截的 4 頁面 + 3 API 前綴",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:56Z"
+    },
+    {
+      "term": "Resend",
+      "english": "Resend",
+      "definition": "第三方寄信服務 API，主要寄信來源",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:57Z"
+    },
+    {
+      "term": "SMTP fallback",
+      "english": "smtp_fallback",
+      "definition": "Resend 失敗時的備援寄信路徑",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:58Z"
+    },
+    {
+      "term": "Email 驗證 token",
+      "english": "verification_token",
+      "definition": "24h 過期、單次使用的 token",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:02:59Z"
+    },
+    {
+      "term": "HTTP-only cookie",
+      "english": "httponly_cookie",
+      "definition": "JWT 載體，JS 讀不到，防 XSS",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:03:00Z"
+    },
+    {
+      "term": "Google OAuth state",
+      "english": "oauth_state",
+      "definition": "防 CSRF 的 16-byte 隨機字串",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:03:01Z"
+    },
+    {
+      "term": "OAuth Upsert",
+      "english": "oauth_upsert",
+      "definition": "callback 流程的 3 段決策邏輯",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:03:02Z"
+    },
+    {
+      "term": "雪票查詢全域鎖",
+      "english": "ski_lock",
+      "definition": "asyncio.Lock 序列化 /api/ski/*",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:03:02Z"
+    },
+    {
+      "term": "維運 API",
+      "english": "ops_api",
+      "definition": "/api/auth/verify，無權限隔離供 admin/CLI 使用",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T09:03:03Z"
+    }
+  ]
 }

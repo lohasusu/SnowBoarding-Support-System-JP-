@@ -3,3 +3,26 @@
 [2026-06-03T13:26:00Z] PM     | TASK-001 | git_branch   | branch=sdlc/TASK-001/brownfield-document base=sdlc/init
 [2026-06-03T13:26:00Z] PM     | TASK-001 | id_allocated | ENTITY/MOD/FUNC/PATTERN/API/TBL/COMP/PAGE/LAYOUT = 1-100
 [2026-06-03T13:26:00Z] PM     | TASK-001 | dispatched   | ba
+[2026-06-03T13:44:53Z] BA     | TASK-001 | completed    | score=95 artifacts=5
+[2026-06-03T13:44:53Z] PM     | TASK-001 | pm_review    | ba
+[2026-06-04T09:02:51Z] ba    | TASK-001 | journal_term_added| term=雪場 english=resort definition=日本滑雪場單位
+[2026-06-04T09:02:52Z] ba    | TASK-001 | journal_term_added| term=雪季 english=season definition=滑雪營業期間，系統依日期自動判斷
+[2026-06-04T09:02:53Z] ba    | TASK-001 | journal_term_added| term=票種 english=ticket_type definition=雪場票價分類，含日文與中文翻譯
+[2026-06-04T09:02:54Z] ba    | TASK-001 | journal_term_added| term=早鳥票 english=early_bird definition=雪季開始前提早購買的優惠票
+[2026-06-04T09:02:55Z] ba    | TASK-001 | journal_term_added| term=收藏 english=favorite definition=用戶儲存的雪票或機票查詢結果
+[2026-06-04T09:02:55Z] ba    | TASK-001 | journal_term_added| term=行程規劃 english=trip_plan definition=C:/Program Files/Git/plan 頁面同時查機票+雪票並下載 3-sheet Excel
+[2026-06-04T09:02:56Z] ba    | TASK-001 | journal_term_added| term=強制登入路徑 english=protected_route definition=middleware 攔截的 4 頁面 + 3 API 前綴
+[2026-06-04T09:02:57Z] ba    | TASK-001 | journal_term_added| term=Resend english=Resend definition=第三方寄信服務 API，主要寄信來源
+[2026-06-04T09:02:58Z] ba    | TASK-001 | journal_term_added| term=SMTP fallback english=smtp_fallback definition=Resend 失敗時的備援寄信路徑
+[2026-06-04T09:02:59Z] ba    | TASK-001 | journal_term_added| term=Email 驗證 token english=verification_token definition=24h 過期、單次使用的 token
+[2026-06-04T09:03:00Z] ba    | TASK-001 | journal_term_added| term=HTTP-only cookie english=httponly_cookie definition=JWT 載體，JS 讀不到，防 XSS
+[2026-06-04T09:03:01Z] ba    | TASK-001 | journal_term_added| term=Google OAuth state english=oauth_state definition=防 CSRF 的 16-byte 隨機字串
+[2026-06-04T09:03:02Z] ba    | TASK-001 | journal_term_added| term=OAuth Upsert english=oauth_upsert definition=callback 流程的 3 段決策邏輯
+[2026-06-04T09:03:03Z] ba    | TASK-001 | journal_term_added| term=雪票查詢全域鎖 english=ski_lock definition=asyncio.Lock 序列化 /api/ski/*
+[2026-06-04T09:03:04Z] ba    | TASK-001 | journal_term_added| term=維運 API english=ops_api definition=C:/Program Files/Git/api/auth/verify，無權限隔離供 admin/CLI 使用
+[2026-06-04T09:06:57Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0
+[2026-06-04T09:07:55Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0
+[2026-06-04T09:08:24Z] PM     | TASK-001 | approved     | ba score=95
+[2026-06-04T09:08:24Z] PM     | TASK-001 | journal      | 15 term_added entries
+[2026-06-04T09:08:24Z] PM     | TASK-001 | shared_rebuild | ok
+[2026-06-04T09:08:24Z] PM     | TASK-001 | dispatched   | test-ba (sdlc-tester)
