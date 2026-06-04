@@ -8,7 +8,7 @@
       "app": "snowboarding_support",
       "mode": "brownfield-document",
       "createdAt": "2026-06-03T13:15:15Z",
-      "currentPhase": "sa",
+      "currentPhase": "test-sa",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -45,10 +45,11 @@
           "notes": "3 Major fixed inline (NFR-007->NFR-006 / NFR-011->BR-009 / NFR-016 split -> NFR-019 + CONST-010)"
         },
         "sa": {
-          "status": "pm_review",
+          "status": "approved",
           "startedAt": "2026-06-04T11:49:26Z",
           "completedAt": "2026-06-04T12:08:49Z",
-          "score": 96
+          "score": 96,
+          "approvedAt": "2026-06-04T12:52:26Z"
         },
         "test-sa": {
           "status": "pending"

@@ -4,7 +4,7 @@
   "version": "1.0",
   "taskId": "TASK-001",
   "createdAt": "2026-06-03T13:22:59Z",
-  "lastUpdate": "2026-06-04T11:22:29Z",
+  "lastUpdate": "2026-06-04T12:41:36Z",
   "entries": [
     {
       "term": "雪場",
@@ -213,6 +213,591 @@
       "type": "term_added",
       "phase": "ba",
       "addedAt": "2026-06-04T11:22:29Z"
+    },
+    {
+      "id": "ENTITY-001",
+      "name": "users",
+      "location": "web/auth/database.py:18-27",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:43Z"
+    },
+    {
+      "id": "ENTITY-002",
+      "name": "favorites",
+      "location": "web/auth/database.py:28-35",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:44Z"
+    },
+    {
+      "id": "ENTITY-003",
+      "name": "email_verification_tokens",
+      "location": "web/auth/database.py:36-42",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:45Z"
+    },
+    {
+      "id": "TBL-001",
+      "name": "users",
+      "location": "web/auth/database.py:18-27",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:46Z"
+    },
+    {
+      "id": "TBL-002",
+      "name": "favorites",
+      "location": "web/auth/database.py:28-35",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:47Z"
+    },
+    {
+      "id": "TBL-003",
+      "name": "email_verification_tokens",
+      "location": "web/auth/database.py:36-42",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:48Z"
+    },
+    {
+      "id": "MOD-001",
+      "name": "http_scraper",
+      "location": "http_scraper.py",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:48Z"
+    },
+    {
+      "id": "MOD-002",
+      "name": "site_analyzer",
+      "location": "site_analyzer.py",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:49Z"
+    },
+    {
+      "id": "MOD-003",
+      "name": "ski_early_bird_scraper",
+      "location": "ski_early_bird_scraper.py",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:50Z"
+    },
+    {
+      "id": "MOD-004",
+      "name": "flight_search",
+      "location": "flight_search/",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:50Z"
+    },
+    {
+      "id": "MOD-005",
+      "name": "auth",
+      "location": "web/auth/",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:51Z"
+    },
+    {
+      "id": "MOD-006",
+      "name": "plan_routes",
+      "location": "web/plan_routes.py",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:52Z"
+    },
+    {
+      "id": "PATTERN-001",
+      "name": "Lock-protected Endpoint",
+      "location": "web/main.py:116",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:53Z"
+    },
+    {
+      "id": "PATTERN-002",
+      "name": "Middleware-protected Route",
+      "location": "web/main.py:37-60",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:54Z"
+    },
+    {
+      "id": "PATTERN-003",
+      "name": "SSE Streaming Pattern",
+      "location": "web/main.py:153-194",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:55Z"
+    },
+    {
+      "id": "PATTERN-004",
+      "name": "Multi-backend Fallback Pattern",
+      "location": "web/main.py:275-285",
+      "mod": "MOD-004",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:55Z"
+    },
+    {
+      "id": "PATTERN-005",
+      "name": "3-tier Email Delivery Pattern",
+      "location": "web/auth/email_service.py:48-98",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:56Z"
+    },
+    {
+      "id": "PATTERN-006",
+      "name": "OAuth Upsert Decision Tree",
+      "location": "web/auth/oauth_router.py:85-109",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:57Z"
+    },
+    {
+      "id": "PATTERN-007",
+      "name": "HTTP-only Cookie Auth Pattern",
+      "location": "web/auth/auth_router.py:130-134",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:58Z"
+    },
+    {
+      "id": "PATTERN-008",
+      "name": "Per-process asyncio Lock Pattern",
+      "location": "web/main.py:116",
+      "mod": "",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:40:59Z"
+    },
+    {
+      "id": "FUNC-001",
+      "name": "雪票批次—鎖檢查",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:00Z"
+    },
+    {
+      "id": "FUNC-002",
+      "name": "雪票批次—並行查詢",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:00Z"
+    },
+    {
+      "id": "FUNC-003",
+      "name": "雪票批次—JSON 序列化",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:01Z"
+    },
+    {
+      "id": "FUNC-004",
+      "name": "雪票批次—逾時處理",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:02Z"
+    },
+    {
+      "id": "FUNC-005",
+      "name": "雪票批次—例外處理",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:03Z"
+    },
+    {
+      "id": "FUNC-006",
+      "name": "雪票串流—鎖檢查 SSE 變體",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:04Z"
+    },
+    {
+      "id": "FUNC-007",
+      "name": "雪票串流—載入 targets",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:05Z"
+    },
+    {
+      "id": "FUNC-008",
+      "name": "雪票串流—逐雪場 yield",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:05Z"
+    },
+    {
+      "id": "FUNC-009",
+      "name": "雪票串流—完成事件",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:06Z"
+    },
+    {
+      "id": "FUNC-010",
+      "name": "雪票串流—例外處理",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:07Z"
+    },
+    {
+      "id": "FUNC-011",
+      "name": "雪票 Excel—鎖檢查 HTTP 429",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:08Z"
+    },
+    {
+      "id": "FUNC-012",
+      "name": "雪票 Excel—並行查詢",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:09Z"
+    },
+    {
+      "id": "FUNC-013",
+      "name": "雪票 Excel—openpyxl 生成",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:09Z"
+    },
+    {
+      "id": "FUNC-014",
+      "name": "雪票 Excel—例外處理",
+      "location": "",
+      "mod": "MOD-001",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:10Z"
+    },
+    {
+      "id": "FUNC-015",
+      "name": "機票查詢—departure 必填驗證",
+      "location": "",
+      "mod": "MOD-004",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:11Z"
+    },
+    {
+      "id": "FUNC-016",
+      "name": "機票查詢—backend 選擇",
+      "location": "",
+      "mod": "MOD-004",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:12Z"
+    },
+    {
+      "id": "FUNC-017",
+      "name": "機票查詢—呼叫 backend.search",
+      "location": "",
+      "mod": "MOD-004",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:13Z"
+    },
+    {
+      "id": "FUNC-018",
+      "name": "機票查詢—JSON 序列化 + 例外",
+      "location": "",
+      "mod": "MOD-004",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:14Z"
+    },
+    {
+      "id": "FUNC-019",
+      "name": "機票 Excel—生成 + 美化",
+      "location": "",
+      "mod": "MOD-004",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:14Z"
+    },
+    {
+      "id": "FUNC-020",
+      "name": "整合查詢頁渲染",
+      "location": "",
+      "mod": "MOD-006",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:15Z"
+    },
+    {
+      "id": "FUNC-021",
+      "name": "整合查詢—3-sheet Excel 生成",
+      "location": "",
+      "mod": "MOD-006",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:16Z"
+    },
+    {
+      "id": "FUNC-022",
+      "name": "註冊—密碼長度驗證",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:17Z"
+    },
+    {
+      "id": "FUNC-023",
+      "name": "註冊—Email 格式驗證",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:18Z"
+    },
+    {
+      "id": "FUNC-024",
+      "name": "註冊—bcrypt 雜湊",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:18Z"
+    },
+    {
+      "id": "FUNC-025",
+      "name": "註冊—INSERT users",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:19Z"
+    },
+    {
+      "id": "FUNC-026",
+      "name": "註冊—token 產生 + INSERT verification_tokens",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:20Z"
+    },
+    {
+      "id": "FUNC-027",
+      "name": "註冊—觸發寄信 IRREVERSIBLE",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:21Z"
+    },
+    {
+      "id": "FUNC-028",
+      "name": "登入—密碼驗證",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:22Z"
+    },
+    {
+      "id": "FUNC-029",
+      "name": "登入—is_verified 檢查",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:23Z"
+    },
+    {
+      "id": "FUNC-030",
+      "name": "登入—JWT 簽發 + cookie 設定",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:23Z"
+    },
+    {
+      "id": "FUNC-031",
+      "name": "登出—清除 cookie",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:24Z"
+    },
+    {
+      "id": "FUNC-032",
+      "name": "Email 驗證—token 查詢",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:25Z"
+    },
+    {
+      "id": "FUNC-033",
+      "name": "Email 驗證—token 狀態判斷",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:26Z"
+    },
+    {
+      "id": "FUNC-034",
+      "name": "重寄驗證信—廢舊產新 IRREVERSIBLE",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:27Z"
+    },
+    {
+      "id": "FUNC-035",
+      "name": "OAuth Upsert 決策",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:27Z"
+    },
+    {
+      "id": "FUNC-036",
+      "name": "OAuth login—config 檢查",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:28Z"
+    },
+    {
+      "id": "FUNC-037",
+      "name": "OAuth login—state cookie + Google redirect",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:29Z"
+    },
+    {
+      "id": "FUNC-038",
+      "name": "OAuth callback—state 比對",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:30Z"
+    },
+    {
+      "id": "FUNC-039",
+      "name": "OAuth callback—換 token + userinfo",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:31Z"
+    },
+    {
+      "id": "FUNC-040",
+      "name": "OAuth callback—JWT + redirect plan",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:32Z"
+    },
+    {
+      "id": "FUNC-041",
+      "name": "api auth me 取得當前用戶",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:33Z"
+    },
+    {
+      "id": "FUNC-042",
+      "name": "api auth verify 維運查詢",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:33Z"
+    },
+    {
+      "id": "FUNC-043",
+      "name": "收藏新增",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:34Z"
+    },
+    {
+      "id": "FUNC-044",
+      "name": "收藏列表",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:35Z"
+    },
+    {
+      "id": "FUNC-045",
+      "name": "收藏刪除 IRREVERSIBLE",
+      "location": "",
+      "mod": "MOD-005",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-04T12:41:36Z"
     }
   ]
 }
