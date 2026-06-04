@@ -4,7 +4,7 @@
   "version": "1.0",
   "taskId": "TASK-001",
   "createdAt": "2026-06-03T13:22:59Z",
-  "lastUpdate": "2026-06-04T09:03:03Z",
+  "lastUpdate": "2026-06-04T11:22:29Z",
   "entries": [
     {
       "term": "雪場",
@@ -125,6 +125,94 @@
       "type": "term_added",
       "phase": "ba",
       "addedAt": "2026-06-04T09:03:03Z"
+    },
+    {
+      "term": "票價頁連結",
+      "english": "source_url",
+      "definition": "雪場官方公布票價的 URL，使用者用以驗證價格出處",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:21Z"
+    },
+    {
+      "term": "行程摘要",
+      "english": "trip_summary",
+      "definition": "3-sheet Excel 第 1 個 sheet 名稱，含機場/雪場地區/日期/人數/結果數",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:22Z"
+    },
+    {
+      "term": "機票合計票價",
+      "english": "total_fare",
+      "definition": "機票 Excel 去程+回程合計欄，用於排序與前 3 名高亮",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:23Z"
+    },
+    {
+      "term": "dev stderr log fallback",
+      "english": "dev_stderr_log_fallback",
+      "definition": "Resend + SMTP 都失敗時把驗證 URL 印到 stderr，不擋帳號建立",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:24Z"
+    },
+    {
+      "term": "SerpAPI backend",
+      "english": "SerpApiBackend",
+      "definition": "機票查詢主要後端，依 SERPAPI_API_KEY env，走 Google Flights",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:24Z"
+    },
+    {
+      "term": "fast-flights backend",
+      "english": "FastFlightsBackend",
+      "definition": "機票查詢 fallback 後端，無 API key 需求",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:25Z"
+    },
+    {
+      "term": "CLI 驗證工具",
+      "english": "verify_client_cli",
+      "definition": "python verify_client.py --token / --email 本地維運用",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:26Z"
+    },
+    {
+      "term": "ephemeral storage",
+      "english": "ephemeral_storage",
+      "definition": "Railway 容器層暫存，每次重啟即清空，不適合 SQLite",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:27Z"
+    },
+    {
+      "term": "brownfield 真相基線",
+      "english": "brownfield_truth_baseline",
+      "definition": "反向萃取既有 production code 形成的 SDLC 規格基線；當 DESIGN.md 與 code 不一致以 code 為真相",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:28Z"
+    },
+    {
+      "term": "CODE-AS-TRUTH 標記",
+      "english": "code_as_truth_marker",
+      "definition": "規格文件中標示此處以既有 code 為真相、DESIGN.md/baseline 可能落後的標籤",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:28Z"
+    },
+    {
+      "term": "BA 建議",
+      "english": "ba_recommendation",
+      "definition": "BA 專業判斷的改善建議，必須與正式規格物理分離；用戶未確認前不採納",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-04T11:22:29Z"
     }
   ]
 }

@@ -29,3 +29,17 @@
 [2026-06-04T09:20:42Z] Tester | TASK-001 | completed    | test-ba score=89 (3 Major / 5 Minor / 0 Critical)
 [2026-06-04T09:20:42Z] PM     | TASK-001 | revised      | ba §9.1 NFR IDs fixed (M-1/M-2/M-3 inline)
 [2026-06-04T09:20:42Z] PM     | TASK-001 | approved     | test-ba
+[2026-06-04T11:22:21Z] ba    | TASK-001 | journal_term_added| term=票價頁連結 english=source_url definition=雪場官方公布票價的 URL，使用者用以驗證價格出處
+[2026-06-04T11:22:22Z] ba    | TASK-001 | journal_term_added| term=行程摘要 english=trip_summary definition=3-sheet Excel 第 1 個 sheet 名稱，含機場/雪場地區/日期/人數/結果數
+[2026-06-04T11:22:23Z] ba    | TASK-001 | journal_term_added| term=機票合計票價 english=total_fare definition=機票 Excel 去程+回程合計欄，用於排序與前 3 名高亮
+[2026-06-04T11:22:24Z] ba    | TASK-001 | journal_term_added| term=dev stderr log fallback english=dev_stderr_log_fallback definition=Resend + SMTP 都失敗時把驗證 URL 印到 stderr，不擋帳號建立
+[2026-06-04T11:22:25Z] ba    | TASK-001 | journal_term_added| term=SerpAPI backend english=SerpApiBackend definition=機票查詢主要後端，依 SERPAPI_API_KEY env，走 Google Flights
+[2026-06-04T11:22:25Z] ba    | TASK-001 | journal_term_added| term=fast-flights backend english=FastFlightsBackend definition=機票查詢 fallback 後端，無 API key 需求
+[2026-06-04T11:22:26Z] ba    | TASK-001 | journal_term_added| term=CLI 驗證工具 english=verify_client_cli definition=python verify_client.py --token / --email 本地維運用
+[2026-06-04T11:22:27Z] ba    | TASK-001 | journal_term_added| term=ephemeral storage english=ephemeral_storage definition=Railway 容器層暫存，每次重啟即清空，不適合 SQLite
+[2026-06-04T11:22:28Z] ba    | TASK-001 | journal_term_added| term=brownfield 真相基線 english=brownfield_truth_baseline definition=反向萃取既有 production code 形成的 SDLC 規格基線；當 DESIGN.md 與 code 不一致以 code 為真相
+[2026-06-04T11:22:29Z] ba    | TASK-001 | journal_term_added| term=CODE-AS-TRUTH 標記 english=code_as_truth_marker definition=規格文件中標示此處以既有 code 為真相、DESIGN.md/baseline 可能落後的標籤
+[2026-06-04T11:22:30Z] ba    | TASK-001 | journal_term_added| term=BA 建議 english=ba_recommendation definition=BA 專業判斷的改善建議，必須與正式規格物理分離；用戶未確認前不採納
+[2026-06-04T11:22:33Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0
+[2026-06-04T11:22:50Z] PM     | TASK-001 | journal      | +11 term_added entries (total 26, fix m-1/m-5)
+[2026-06-04T11:22:50Z] PM     | TASK-001 | shared_rebuild | terminology.md 26 rows
