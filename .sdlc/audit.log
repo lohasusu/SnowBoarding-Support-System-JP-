@@ -26,3 +26,6 @@
 [2026-06-04T09:08:24Z] PM     | TASK-001 | journal      | 15 term_added entries
 [2026-06-04T09:08:24Z] PM     | TASK-001 | shared_rebuild | ok
 [2026-06-04T09:08:24Z] PM     | TASK-001 | dispatched   | test-ba (sdlc-tester)
+[2026-06-04T09:20:42Z] Tester | TASK-001 | completed    | test-ba score=89 (3 Major / 5 Minor / 0 Critical)
+[2026-06-04T09:20:42Z] PM     | TASK-001 | revised      | ba §9.1 NFR IDs fixed (M-1/M-2/M-3 inline)
+[2026-06-04T09:20:42Z] PM     | TASK-001 | approved     | test-ba

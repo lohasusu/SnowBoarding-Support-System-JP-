@@ -38,8 +38,11 @@
           "approvedAt": "2026-06-04T09:08:24Z"
         },
         "test-ba": {
-          "status": "in_progress",
-          "startedAt": "2026-06-04T09:08:24Z"
+          "status": "approved",
+          "startedAt": "2026-06-04T09:08:24Z",
+          "score": 89,
+          "completedAt": "2026-06-04T09:20:42Z",
+          "notes": "3 Major fixed inline (NFR-007->NFR-006 / NFR-011->BR-009 / NFR-016 split -> NFR-019 + CONST-010)"
         },
         "sa": {
           "status": "pending"

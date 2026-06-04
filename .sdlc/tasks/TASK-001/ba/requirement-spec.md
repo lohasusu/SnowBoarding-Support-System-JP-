@@ -904,10 +904,10 @@ snowboarding_support 是一個已部署於 Railway 的日本雪場/雪票/機票
 |------|------|---------------|---------|
 | Q-001 | 雪票查詢 timeout 設為 45 秒是否符合期望？ | 45 秒（`web/main.py:137`） | ✅ **改 30 秒**（NFR-001 目標值更新；TASK-001 不改 code，TASK-002+ 改 timeout=30）|
 | Q-002 | JWT 有效期設為 7 天是否符合期望？ | 7 天（`web/auth/security.py:10`） | ✅ **改 1 天**（NFR-003 目標值更新；TASK-002+ 改 timedelta(days=1)）|
-| Q-003 | 密碼複雜度僅要求 ≥ 8 字元是否足夠？ | ≥ 8（`auth_router.py:87`） | ✅ **強化為 ≥ 12 + 數字 + 字母**（NFR-007 目標值更新；TASK-002+ 加 regex 驗證）|
+| Q-003 | 密碼複雜度僅要求 ≥ 8 字元是否足夠？ | ≥ 8（`auth_router.py:87`） | ✅ **強化為 ≥ 12 + 數字 + 字母**（**NFR-006** 目標值更新；TASK-002+ 加 regex 驗證）|
 | Q-004 | Resend + SMTP 都失敗時 silent 只 log 是否符合預期？ | silent fallback（`email_service.py:64-68`） | ✅ **改：直接告知用戶「信件未送出」+ 提供重寄鈕**（NFR-010 目標值更新；TASK-002+ 改 register flow 回傳明確錯誤 + UI 加重寄鈕）|
-| Q-005 | Google OAuth 登入成功永遠 redirect 到 `/plan` 是否符合預期？ | 寫死 `/plan`（`oauth_router.py:112`） | ✅ **改丟首頁 `/`**（NFR-011 目標值更新；TASK-002+ 改 redirect target）|
-| Q-006 | `/api/auth/verify?email=<x>` 對所有人開放是否視為維運內部工具？ | 無權限（`verify_client.py:130-151`） | ✅ **加 admin token / API key 保護**（NFR-016 + 新 BR；TASK-002+ 加 admin gate；可考慮和 Q-009/Q-010 hotfix bundle）|
+| Q-005 | Google OAuth 登入成功永遠 redirect 到 `/plan` 是否符合預期？ | 寫死 `/plan`（`oauth_router.py:112`） | ✅ **改丟首頁 `/`**（**BR-009** 規則更新；TASK-002+ 改 redirect target）|
+| Q-006 | `/api/auth/verify?email=<x>` 對所有人開放是否視為維運內部工具？ | 無權限（`verify_client.py:130-151`） | ✅ **加 admin token / API key 保護**（**新增 NFR-019**「verify endpoint 權限保護」；TASK-002+ 加 admin gate；可考慮和 Q-009/Q-010 hotfix bundle）|
 | Q-007 | 重寄驗證信無 rate limit 是否同意 TASK-001 不修？ | 無限制（`auth_router.py:170-194`） | ✅ **TASK-002 主軸中一併處理**（跟 Postgres / Redis rate limit 同 TASK）|
 | Q-008 | 收藏 DELETE 採硬刪是否同意 TASK-001 不修？ | 硬刪（`auth_router.py:249`） | ✅ **TASK-002 跟 Postgres 遷移同 TASK 處理**（一併加 deleted_at + 軟刪）|
 | Q-009 | Cookie `Secure=False` 寫死是否暫接受？ | 寫死 False（`auth_router.py:134`） | ✅ **「最佳解」= 立即拆 hotfix 修**（規劃: `hotfix/auth-security-hardening` bundle Q-009 + Q-010；prod Secure=True，需 env-aware）|
@@ -917,22 +917,24 @@ snowboarding_support 是一個已部署於 Railway 的日本雪場/雪票/機票
 | Q-013 | brownfield 28 端點單數 URL + 回應格式三種混用，TASK-001 不重寫是否同意？ | 單數 URL + 混用 | ✅ **TASK-002+ 加 v2 端點、舊 v1 逐步 deprecated**（NFR/BR 新增 v2 路徑規劃；TASK-001 不動 v1）|
 | Q-014 | 三張表都缺 `updated_at`/`deleted_at`，TASK-001 不補是否同意？ | 缺欄位（`database.py:18-42`） | ✅ **TASK-002 主軸中計畫補齊**（Postgres migration 一併上 updated_at + deleted_at）|
 | Q-015 | `/api/env-check` 留 hotfix 不在 TASK-001 範圍是否同意？ | 在 prod 可達（`main.py:461`） | ✅ **同意，hotfix 關**（`hotfix/remove-env-check` commit 132e0bb 已存在）|
-| Q-016 | TASK-001 不順手清理 DESIGN.md 是否同意？ | DESIGN.md 過時 | ✅ **DESIGN.md 未來不再維護，重計畫「`.sdlc/` 取代」**（重要決定：`.sdlc/shared/` 成為唯一真相，TASK-001 結束後 DESIGN.md 加廢棄聲明，CLAUDE.md 改指向 .sdlc/）|
+| Q-016 | TASK-001 不順手清理 DESIGN.md 是否同意？ | DESIGN.md 過時 | ✅ **DESIGN.md 未來不再維護，重計畫「`.sdlc/` 取代」**（新增 **CONST-010** 「`.sdlc/shared/` 為唯一真相」；TASK-001 結束後 DESIGN.md 加廢棄聲明，CLAUDE.md 改指向 .sdlc/）|
 
 ---
 
 ## 9.1 用戶答案的影響與後續行動（PM Step 2.8 萃取依據）
 
-### NFR 目標值更新（TASK-001 寫進規格，但 code 待 TASK-002+ 改）
+### 規格目標值更新（TASK-001 寫進規格，但 code 待 TASK-002+ 改）
 
-| NFR | 現況值 | 目標值（用戶答案）| 處理 TASK |
-|-----|--------|------------------|----------|
+> 註：此表涵蓋 NFR + BR 規則更新（不限於 NFR）。
+
+| 編號 | 現況值 | 目標值（用戶答案）| 處理 TASK |
+|------|--------|------------------|----------|
 | NFR-001 雪票 timeout | 45s | **30s** | TASK-002+ |
 | NFR-003 JWT 有效期 | 7 天 | **1 天** | TASK-002+ |
-| NFR-007 密碼複雜度 | ≥ 8 字元 | **≥ 12 + 數字 + 字母** | TASK-002+ |
+| NFR-006 密碼複雜度 | ≥ 8 字元 | **≥ 12 + 數字 + 字母** | TASK-002+ |
 | NFR-010 寄信全敗行為 | silent + log | **用戶可見錯誤 + 重寄鈕** | TASK-002+ |
-| NFR-011 OAuth redirect | /plan | **/** | TASK-002+ |
-| NFR-016 verify endpoint 權限 | 無 | **admin token / API key** | TASK-002+（可與 Q-009/010 hotfix 合併）|
+| BR-009 OAuth redirect | /plan | **/** | TASK-002+ |
+| NFR-019（新增）verify endpoint 權限 | 無（既有 verify_client.py:130-151）| **admin token / API key** | TASK-002+（可與 Q-009/010 hotfix 合併）|
 
 ### 新增 hotfix 規劃（用戶選「立即修」的）
 
@@ -952,7 +954,7 @@ TASK-001 結束後 PM 安排此 hotfix 與 `hotfix/remove-env-check` 同批 ship
 2. `CLAUDE.md` 修改：「每次對話開始前必須先讀此文件」→ 改為「先讀 `.sdlc/shared/MASTER-INDEX.md` + 進行中 TASK 的 enhanced-input.md」
 3. 不刪 DESIGN.md（保留歷史快照），但加 `archive/` 移動建議
 
-**對 BA 階段的影響**: NFR-016 新增「`.sdlc/shared/` 為唯一規格真相來源」原則。後續所有 TASK 不再 sync DESIGN.md。
+**對 BA 階段的影響**: 新增 **CONST-010**「`.sdlc/shared/` 為唯一規格真相來源（DESIGN.md 廢棄）」 — 屬於文件治理約束，非 NFR。後續所有 TASK 不再 sync DESIGN.md。
 
 ### TASK-002 backlog（從本次答案累積）
 
