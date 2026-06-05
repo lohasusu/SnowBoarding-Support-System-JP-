@@ -192,7 +192,7 @@ flowchart TB
 - **路徑**: `web/auth/` 目錄
 - **職責**: 認證、會員管理、收藏 CRUD、Google OAuth、Email 驗證、CLI/API verify 工具的**單一整合模組**
 - **內部結構（**腦補違反 — 以下對應 file 都實際存在**）**:
-  - `web/auth/auth_router.py` — 11 個端點（page route 3 + API 8）
+  - `web/auth/auth_router.py` — **12** 個端點（page route 3 + API **9**：register / login / logout / verify-email / resend-verification / me / favorites GET / favorites POST / favorites DELETE）
   - `web/auth/oauth_router.py` — Google OAuth login + callback
   - `web/auth/verify_client.py` — `/api/auth/verify` API + CLI `verify_client.py` 雙身分
   - `web/auth/email_service.py` — 3-tier 寄信（Resend → SMTP → stderr）
@@ -374,10 +374,11 @@ flowchart TB
 
 ### PATTERN-004: Multi-backend Fallback Pattern（多後端降級策略）
 
-- **描述**: 同一個服務（機票查詢）有多個 backend 實作；運行時依 env / availability 選擇 primary，failure 時 fallback 到 secondary；統一介面（duck typing，無正式 ABC）
+- **描述**: 同一個服務（機票查詢）有多個 backend 實作；運行時依 env / availability 選擇 primary，failure 時 fallback 到 secondary；統一介面定義在 `flight_search/backends/base.py:32` 的 `BackendBase(ABC)` + `@abstractmethod is_available()` + `@abstractmethod search(...)`
 - **適用情境**: 第三方 API 可能配額耗盡或服務中斷，需要備援
 - **實作元素**:
-  - 各 backend class（`SerpApiBackend` / `FastFlightsBackend`）實作 `is_available()` + `search(...)`
+  - ABC base class：`flight_search/backends/base.py:32` `class BackendBase(ABC)`
+  - 5 個 concrete backends 全部繼承（serpapi / fast_flights / amadeus / mock / travelpayouts）；其中 **Amadeus + Travelpayouts 雖繼承 ABC 但已 dead code（BACKLOG-010 處理）**，實際運行只用 SerpApi + FastFlights
   - Selection logic in main code: check env → try primary → fallback
   - **注意**: 當前實作**只在「選 backend」階段 fallback**，**已選定後不會再 retry 另一個 backend**（`[CODE-AS-TRUTH: web/main.py:287-298]`）
 - **既有實作**: `web/main.py:271-298`（`/api/flight/search`）
@@ -435,18 +436,24 @@ flowchart TB
 - **對應 NFR**: NFR-005（cookie 屬性）、NFR-016（認證載體）
 - **限制（[CODE-AS-TRUTH]）**: `Secure=False` 寫死（SUG-006、HOTFIX-A 處理）
 
-### PATTERN-008: Per-process asyncio Lock Pattern（per-process 鎖模式）
+### PATTERN-008: Lock Scope Constraint（鎖作用域限制 — PATTERN-001 的部署層補充說明）
 
-- **描述**: 使用 Python `asyncio.Lock()` 作為「全域」鎖，**只在單一 Python process 內生效**；多 worker / 多 instance 部署時退化為 per-process（兩個 worker 各自有 lock）
-- **適用情境**: 單 worker 部署的應用，希望避免並發查詢同一資源；不是分散式鎖
-- **既有實作**: `web/main.py:116` `_ski_lock = asyncio.Lock()`
-- **跨 FUNC**: 同 PATTERN-001
+> **test-sa M-3 修正**: PATTERN-008 原本與 PATTERN-001 完全重疊（同 file:line、同跨 FUNC）。重新定位為 PATTERN-001 的「部署層作用域限制」說明 — 重點不是「鎖機制本身」（那是 PATTERN-001），而是「鎖在多 worker / 多 instance 部署架構下退化的限制」。ID 保留（Rule 8.4 永不重用）。
+
+- **描述**: PATTERN-001 採用 Python `asyncio.Lock()` 實現的 lock 機制，**作用域限定於單一 Python process**。當部署架構從「單 worker」轉為「多 worker / 多 instance」時，每個 process 各持自己的 `_ski_lock` instance，**PATTERN-001 退化為 per-process 鎖，失去跨 process 序列化保證**。
+- **與 PATTERN-001 的關係**: 此 pattern **不是新機制**，而是 PATTERN-001 的**部署層作用域限制**。SA 階段識別為獨立 PATTERN 是為了：
+  - 明確標示「鎖機制」（PATTERN-001）與「鎖作用域」（PATTERN-008）是兩個維度的設計決策
+  - 後續 TASK 升級分散式鎖時，需要明確替換的是「PATTERN-008 的作用域擴展」而非「PATTERN-001 的鎖介面」
+- **觸發情境**: Railway 升級多 worker（uvicorn `--workers N`）/ 水平擴展多 instance / 多 Railway service replica
+- **既有實作**: 同 PATTERN-001 (`web/main.py:116`)
+- **跨 FUNC**: 同 PATTERN-001（FUNC-001/007/013）— 受作用域限制影響的同一組 FUNC
 - **跨 MOD**: 同 PATTERN-001
-- **對應 FR**: FR-001/002/003
-- **限制（已知技術債）**:
-  - 多 worker 部署（uvicorn `--workers N`）下兩個 worker 各持自己的 `_ski_lock` instance，彼此不感知 → 失去序列化效果
-  - 當前 Railway 部署為單 worker（CLAUDE.md 未明示 `--workers` 參數），所以 lock 有效；未來水平擴展時必須改用 Redis 分散式鎖
-- **遷移路徑 [SA建議]**: 引入 Redis SETNX / Redlock；BACKLOG / 後續 TASK 規劃
+- **對應 FR**: FR-001/002/003（受限制影響）
+- **當前狀態**: ✅ 限制不觸發（Railway 部署為單 worker，CLAUDE.md 未明示 `--workers`）
+- **失效情境（已知技術債）**:
+  - 多 worker 啟動 → 兩個 worker 各持自己的 `_ski_lock` → 同時並發 SSE / batch 查詢可能擊穿雪場 site 觸發 IP 封鎖
+  - 多 Railway instance 部署 → 同上但跨 instance
+- **遷移路徑 [SA建議]**: 配合 PATTERN-001 升級為 Redis SETNX / Redlock 分散式鎖；見 SA-SUG-005
 
 ---
 
@@ -600,7 +607,7 @@ flowchart LR
 
 ### SA-SUG-003（架構）: MOD-005 page route 與 API 混在 auth_router.py
 
-- **建議**: `web/auth/auth_router.py` 同時包含 `/login` `/register` `/profile` 三個 page route 與 8 個 API route（baseline M-11）
+- **建議**: `web/auth/auth_router.py` 同時包含 `/login` `/register` `/profile` 三個 page route 與 **9** 個 API route（baseline M-11）
 - **理由**: 隨功能增長混雜難維護；page 與 API 通常有不同 middleware / 例外處理需求
 - **替代方案**: 拆 `auth_page_router.py`（HTMLResponse 用）+ `auth_api_router.py`（JSON 用）
 - **優先順序**: P3
@@ -620,12 +627,12 @@ flowchart LR
 - **優先順序**: P2（單 worker 部署下不阻塞）
 - **不採納於 TASK-001 理由**: 同上；待擴展時啟用
 
-### SA-SUG-006（架構）: MOD-004 多 backend 統一 ABC 介面
+### SA-SUG-006（架構）: ~~MOD-004 多 backend 統一 ABC 介面~~ **[WITHDRAWN — 經 test-sa M-1 修正]**
 
-- **建議**: 引入 `flight_search/backends/base.py` 定義 ABC `Backend` 介面（`is_available()` + `search(...)`），所有 backend 繼承；避免 duck typing 帶來的潛在錯誤
-- **理由**: type hint + IDE 補全 + 強制契約
-- **優先順序**: P3
-- **不採納於 TASK-001 理由**: 同上
+- ~~**建議**: 引入 ABC 介面~~ — **撤回理由**: `flight_search/backends/base.py:32` 已存在 `BackendBase(ABC)` + `@abstractmethod is_available()` + `@abstractmethod search(...)`，5 個 backend 全部繼承。SA 初稿誤判為「duck typing 無 ABC」（M-1）。
+- **保留 SUG-006 編號（Rule 8.4 永不重用）**，但描述改為「無實質改善建議；Amadeus / Travelpayouts 雖繼承 ABC 但屬 dead code，由 BACKLOG-010 處理移除」
+- **優先順序**: 不適用
+- **狀態**: WITHDRAWN（test-sa M-1 修正）
 
 ---
 

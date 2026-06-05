@@ -117,3 +117,7 @@
 [2026-06-04T12:52:26Z] PM     | TASK-001 | journal      | 65 id_added (ENTITY×3 TBL×3 MOD×6 PATTERN×8 FUNC×45)
 [2026-06-04T12:52:26Z] PM     | TASK-001 | shared_rebuild | id-registry 65 rows
 [2026-06-04T12:52:26Z] PM     | TASK-001 | session_pause | EOS, next session resumes test-sa
+[2026-06-05T16:05:06Z] PM     | TASK-001 | dispatched   | test-sa (sdlc-tester)
+[2026-06-05T16:55:37Z] Tester | TASK-001 | completed    | test-sa score=88 (0 Critical / 3 Major / 6 Minor / 3 Info)
+[2026-06-05T16:55:37Z] PM     | TASK-001 | revised      | sa M-1/M-2/M-3 inline fix
+[2026-06-05T16:55:37Z] PM     | TASK-001 | approved     | test-sa

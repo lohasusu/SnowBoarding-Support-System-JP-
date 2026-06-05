@@ -8,7 +8,7 @@
       "app": "snowboarding_support",
       "mode": "brownfield-document",
       "createdAt": "2026-06-03T13:15:15Z",
-      "currentPhase": "test-sa",
+      "currentPhase": "uiux",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -52,7 +52,11 @@
           "approvedAt": "2026-06-04T12:52:26Z"
         },
         "test-sa": {
-          "status": "pending"
+          "status": "approved",
+          "startedAt": "2026-06-05T16:05:06Z",
+          "score": 88,
+          "completedAt": "2026-06-05T16:55:37Z",
+          "notes": "3 Major fixed inline by PM (M-1 PATTERN-004 ABC / M-2 MOD-005 endpoint count 11->12 / M-3 PATTERN-008 reframed as PATTERN-001 scope constraint)"
         },
         "uiux": {
           "status": "pending"
