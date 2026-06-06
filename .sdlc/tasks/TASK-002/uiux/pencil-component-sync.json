@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Per-TASK Pencil component sync registry. Tracks the provenance of each COMP (and its variants) inside the TASK's .pen file: was it copied from the canonical .sdlc/conventions/design-system.pen, or created locally for this TASK? Used by sdlc-pencil-sync.sh to (a) detect drift between TASK copies and DS source, (b) propagate DS changes into all TASKs that copied a given component. Pencil MCP does NOT support cross-file component reference (per Pencil schema docs: 'You cannot reference components across files. If you want to use a component from a different file you must copy it over'), so we maintain this provenance manifest to enable explicit, auditable propagation.",
+  "version": "1.0",
+  "schemaVersion": "pencil-sync-v1",
+  "taskId": "TASK-002",
+  "createdAt": "2026-06-06T15:52:28Z",
+  "lastUpdate": "2026-06-06T15:52:28Z",
+  "designSystemRef": {
+    "path": ".sdlc/conventions/design-system.pen",
+    "lockedVersion": "0.1.0",
+    "lockedAt": "2026-06-06T15:52:28Z"
+  },
+  "components": {},
+  "promotedToDS": [],
+  "drift": {
+    "lastChecked": null,
+    "outdated": [],
+    "missing": [],
+    "extra": []
+  }
+}

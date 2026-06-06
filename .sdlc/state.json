@@ -152,6 +152,108 @@
           100
         ]
       }
+    },
+    "TASK-002": {
+      "name": "sqlite-to-postgres",
+      "requirement": "SQLite → Postgres 遷移",
+      "app": "snowboarding_support",
+      "createdAt": "2026-06-06T14:02:17Z",
+      "currentPhase": "ba",
+      "phaseOrder": [
+        "ba",
+        "test-ba",
+        "sa",
+        "test-sa",
+        "uiux",
+        "deploy-init",
+        "test-uiux",
+        "test-deploy-init",
+        "sd",
+        "test-sd",
+        "fe",
+        "be",
+        "test-fe",
+        "test-be",
+        "build-gate",
+        "code-review",
+        "deploy",
+        "test"
+      ],
+      "phases": {
+        "ba": {
+          "status": "in_progress",
+          "startedAt": "2026-06-06T14:02:17Z"
+        },
+        "test-ba": { "status": "pending" },
+        "sa": { "status": "pending" },
+        "test-sa": { "status": "pending" },
+        "uiux": { "status": "pending" },
+        "deploy-init": { "status": "pending" },
+        "test-uiux": { "status": "pending" },
+        "test-deploy-init": { "status": "pending" },
+        "sd": { "status": "pending" },
+        "test-sd": { "status": "pending" },
+        "fe": { "status": "pending" },
+        "be": { "status": "pending" },
+        "test-fe": { "status": "pending" },
+        "test-be": { "status": "pending" },
+        "build-gate": { "status": "pending" },
+        "code-review": { "status": "pending" },
+        "deploy": { "status": "pending" },
+        "test": { "status": "pending" }
+      },
+      "git": {
+        "slug": "sqlite-to-postgres",
+        "branch": "sdlc/TASK-002/sqlite-to-postgres",
+        "baseBranch": "sdlc/TASK-001/brownfield-document",
+        "baseBranchRationale": "TASK-001 not merged; allocator/state visibility requires its HEAD as fork point. Scope is independent (dependsOn=[]); rebase onto main after TASK-001 merges.",
+        "dependsOn": [],
+        "createdAt": "2026-06-06T14:02:17Z",
+        "commits": [],
+        "subBranches": {
+          "enabled": false,
+          "branches": {},
+          "worktrees": {}
+        }
+      },
+      "idAllocations": {
+        "ENTITY": [
+          101,
+          200
+        ],
+        "MOD": [
+          101,
+          200
+        ],
+        "FUNC": [
+          101,
+          200
+        ],
+        "PATTERN": [
+          101,
+          200
+        ],
+        "API": [
+          101,
+          200
+        ],
+        "TBL": [
+          101,
+          200
+        ],
+        "COMP": [
+          101,
+          200
+        ],
+        "PAGE": [
+          101,
+          200
+        ],
+        "LAYOUT": [
+          101,
+          200
+        ]
+      }
     }
   }
 }

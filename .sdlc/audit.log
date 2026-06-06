@@ -121,3 +121,8 @@
 [2026-06-05T16:55:37Z] Tester | TASK-001 | completed    | test-sa score=88 (0 Critical / 3 Major / 6 Minor / 3 Info)
 [2026-06-05T16:55:37Z] PM     | TASK-001 | revised      | sa M-1/M-2/M-3 inline fix
 [2026-06-05T16:55:37Z] PM     | TASK-001 | approved     | test-sa
+[2026-06-06T14:24:25Z] alloc | TASK-002 | id_alloc      | offset=2 range=[101,200]
+[2026-06-06T16:33:52Z] PM     | TASK-002 | created      | sqlite-to-postgres
+[2026-06-06T16:33:52Z] PM     | TASK-002 | git_branch   | branch=sdlc/TASK-002/sqlite-to-postgres base=sdlc/TASK-001/brownfield-document (parallel — dependsOn=[] — rebase onto main after TASK-001 merge)
+[2026-06-06T16:33:52Z] PM     | TASK-002 | id_allocated | ENTITY/MOD/FUNC/PATTERN/API/TBL/COMP/PAGE/LAYOUT = 101-200
+[2026-06-06T16:33:52Z] PM     | TASK-002 | dispatched   | ba
