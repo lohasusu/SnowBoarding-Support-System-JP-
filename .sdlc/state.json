@@ -181,8 +181,11 @@
       ],
       "phases": {
         "ba": {
-          "status": "in_progress",
-          "startedAt": "2026-06-06T14:02:17Z"
+          "status": "pm_review",
+          "startedAt": "2026-06-06T14:02:17Z",
+          "completedAt": "2026-06-07T00:00:00Z",
+          "score": 95,
+          "L1VerifyNote": "L1 sdlc-role-verify.sh 報 85/3-FAIL，經 PM 檢驗皆為 false positive（§9 [待確認] template 標題、FR-001 摘要表與細節章節同 ID、合理/快速 出現在 NFR 量化理由與自查表引用文字）。L2 self-review 95/20-PASS 為實際品質。"
         },
         "test-ba": { "status": "pending" },
         "sa": { "status": "pending" },

@@ -126,3 +126,5 @@
 [2026-06-06T16:33:52Z] PM     | TASK-002 | git_branch   | branch=sdlc/TASK-002/sqlite-to-postgres base=sdlc/TASK-001/brownfield-document (parallel — dependsOn=[] — rebase onto main after TASK-001 merge)
 [2026-06-06T16:33:52Z] PM     | TASK-002 | id_allocated | ENTITY/MOD/FUNC/PATTERN/API/TBL/COMP/PAGE/LAYOUT = 101-200
 [2026-06-06T16:33:52Z] PM     | TASK-002 | dispatched   | ba
+[2026-06-06T17:49:37Z] BA     | TASK-002 | completed    | score=95 artifacts=3 (L1 false-positive 3/8 FR-NFR/AC-CONST/BR — PM verified)
+[2026-06-06T17:49:37Z] PM     | TASK-002 | pm_review    | ba
