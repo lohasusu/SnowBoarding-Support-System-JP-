@@ -1,0 +1,305 @@
+{
+  "task_id": "TASK-002",
+  "phase": "sa",
+  "agent": "sa",
+  "score": 93,
+  "passed": true,
+  "verification_layer": "L2_declarative_only",
+  "verification_layer_note": "SA agent 無 Bash 工具，Layer 1 sdlc-role-verify.sh 未執行；以 Layer 2 聲明式檢查清單為準（20 項 × 5 分 = 100 分制）。建議 PM 在 approve 前手動執行 `bash $HOME/.claude/skills/sdlc/scripts/sdlc-role-verify.sh sa TASK-002` 補 Layer 1 驗證；test-sa 階段 Tester 將執行完整 verify。",
+  "checklist": {
+    "traceability": {
+      "items": 4,
+      "passed": 4,
+      "details": [
+        "✅ 每個 BA FR 都有 MOD 對應（8 FR → MOD-101..104 + MOD-005 替換 — system-arch.md §8.1）",
+        "✅ 每個 FR 都有 FUNC 對應（8 FR → FUNC-101..107 + [REUSE: FUNC-022..045] — functional-flow.md §4.2）",
+        "✅ 每個 ENTITY 都有 FUNC 對應（ENTITY-001..003 → FUNC-103/104/105/106 — field-spec.md §8.1）",
+        "✅ 雙向追溯完整：FR → MOD / FUNC / ENTITY 正向；MOD / FUNC / ENTITY → FR 反向（各 SA 文件追溯矩陣）"
+      ]
+    },
+    "no_orphan_functions": {
+      "items": 2,
+      "passed": 2,
+      "details": [
+        "✅ 7 個新 FUNC 全部追溯到 FR-001/002/003/004/005/006/007/008 — 無孤兒",
+        "✅ 4 個新 MOD + 1 個新 PATTERN 全部追溯到 FR — MOD-101→FR-001/005/008；MOD-102→FR-003/004；MOD-103→FR-001；MOD-104→FR-001/003/006；PATTERN-101→FR-003/004"
+      ]
+    },
+    "tech_alignment": {
+      "items": 3,
+      "passed": 3,
+      "details": [
+        "✅ 技術選型與 config.json 一致（PostgreSQL 16 / postgres:16-alpine / port 5432 / envPrefix POSTGRES_）— system-arch.md §4",
+        "✅ 4 個 [BLOCKED_ON_SD] 委派明確（driver / migration tool / pool lib / 觸發策略）— 不腦補實作 lib",
+        "✅ 2 個 [BLOCKED_ON_DEPLOYER] 委派明確（Railway addon vs 外部託管 / SSL 模式）— 不腦補部署決策"
+      ]
+    },
+    "scope": {
+      "items": 4,
+      "passed": 4,
+      "details": [
+        "✅ 不越界設計 API endpoint（system-arch.md §10 + functional-flow.md §5 反越界自檢）",
+        "✅ 不越界設計完整 DB DDL（field-spec.md §2 標「規範性語意 — 待 SD 補完整 DDL」；§9 反越界）",
+        "✅ 不越界設計畫面（system-arch.md §10）",
+        "✅ 不腦補 BA 未提及功能（每 MOD / FUNC / PATTERN 對應到 FR-001..008；所有建議在 [SA建議] 區）"
+      ]
+    },
+    "cross_task_modify_compliance": {
+      "items": 4,
+      "passed": 4,
+      "details": [
+        "✅ 4 個 [CROSS-TASK: TASK-001] 標記齊全（BA 預警全部落實）— system-arch.md §9 + functional-flow.md §4.4 + field-spec.md §8.3 + impact-assessment.md §1.1/§1.2",
+        "✅ TBL-001/002/003 補 updated_at + deleted_at 三個 CROSS-TASK 標記在 FUNC-103/104 + ENTITY-001/002/003 一致出現",
+        "✅ MOD-005 storage engine 替換的 CROSS-TASK 標記在 MOD-005 §3 + FUNC-105 + ENTITY-001/002/003 質詢層一致",
+        "✅ 補充 TBL-003 created_at（補 TASK-001 baseline gap）— field-spec.md §2 ENTITY-003 + §8.3 標記"
+      ]
+    },
+    "irreversible_marking": {
+      "items": 2,
+      "passed": 2,
+      "details": [
+        "✅ FUNC-107 (production cutover) 標 [IRREVERSIBLE: 部署切換瞬間可能丟失少於 N 分鐘 SQLite 殘留資料；事前已知 ephemeral 性質 — Rule 11.1 資料層 hard-delete 變體] + mitigation 完整（14 天 SQLite emergency path / rollback plan 必填）— functional-flow.md FUNC-107 + §4.5",
+        "✅ FUNC-045 [REUSE: from TASK-001] 仍標 [IRREVERSIBLE: 硬刪]（SUG-004 + CONST-005 明示邊界 — 補 deleted_at 欄位但不啟動軟刪邏輯）— functional-flow.md §1.2"
+      ]
+    },
+    "id_compliance": {
+      "items": 3,
+      "passed": 3,
+      "details": [
+        "✅ ID 在範圍 101-200 內（Rule 13）：MOD-101..104 / FUNC-101..107 / PATTERN-101",
+        "✅ TASK 內 ID 連續（Rule 8.2）：MOD 101→102→103→104；FUNC 101→102→103→104→105→106→107；PATTERN 101（單一）",
+        "✅ 3 位零填充（Rule 8.1）：所有 ID 三位字串如 MOD-101 / FUNC-107 / PATTERN-101"
+      ]
+    },
+    "reuse_marking": {
+      "items": 2,
+      "passed": 2,
+      "details": [
+        "✅ 80 個物件 [REUSE: from TASK-001] 標記彙整於 impact-assessment.md §1.3：6 MOD + 8 PATTERN + 3 ENTITY + 3 TBL + 45 FUNC + 3 ROLE + 12 INV",
+        "✅ MOD-005 為「邊界不變、實作替換」標記在 system-arch.md §3 + functional-flow.md §1.2，明確區分於完全 [REUSE]"
+      ]
+    },
+    "architecture_validity": {
+      "items": 3,
+      "passed": 3,
+      "details": [
+        "✅ 無循環依賴（system-arch.md §8.3 mermaid 圖：main → MOD-104 → MOD-101/102；MOD-005 → MOD-103 → MOD-101；MOD-102 → MOD-101；全部單向）",
+        "✅ 模組邊界清晰（每個新 MOD 有「職責 / 輸入 / 輸出 / 依賴 / 介面契約」 — system-arch.md §3）",
+        "✅ 介面契約明確（MOD-101 `get_conn()` 語意與既有 SQLite 版本一致 — system-arch.md §3 MOD-101）"
+      ]
+    },
+    "pattern_quality": {
+      "items": 2,
+      "passed": 2,
+      "details": [
+        "✅ PATTERN-101 跨 ≥2 FUNC（FUNC-103 + FUNC-104）+ 跨 ≥1 MOD（MOD-102 + MOD-104） — pattern-spec.md §2.1",
+        "✅ PATTERN-101 規範性範本完整（建表 + 補欄位 + 三段式刪欄三個範本）— pattern-spec.md §2.4"
+      ]
+    },
+    "completeness": {
+      "items": 5,
+      "passed": 5,
+      "details": [
+        "✅ 所有必填章節已填寫（5 個產出文件無 TODO / TBD 殘留 — 4 個 [BLOCKED_ON_SD] 為合法委派標記，不算 TODO）",
+        "✅ 所有表格欄位已填入（追溯矩陣 / 型別對映 / 影響矩陣 / 跨階段交付清單）",
+        "✅ 文件頭 metadata 完整（document_id / version / date / source_documents / change_history — 5 個檔案全套）",
+        "✅ Mermaid 圖表完整且語法正確（system-arch.md §2 系統邊界 + §8.3 依賴矩陣；functional-flow.md FUNC-101/103/106/107 4 個圖 + §3 關係圖；field-spec.md §3 ER 圖；全 8 個 mermaid 圖）",
+        "✅ 5 個產出檔案齊備（system-arch.md / functional-flow.md / field-spec.md / pattern-spec.md / impact-assessment.md + self-review.json）"
+      ]
+    },
+    "scope_validation": {
+      "items": 4,
+      "passed": 4,
+      "details": [
+        "✅ 不擴大範圍：FR-004 補欄位但不啟動軟刪邏輯（SUG-004 + CONST-005）— field-spec §2 ENTITY-002/003 + functional-flow §1.2 + INV-103",
+        "✅ 不擴大範圍：MOD-103 只做最小封裝，完整 Repository Pattern refactor 留 SA-SUG-102 後續 TASK — system-arch §3 MOD-103",
+        "✅ 不擴大範圍：OAuth Upsert race condition (PATTERN-006) 不修正 — SA-SUG-103 留後續 TASK",
+        "✅ 不擴大範圍：MOD-005 內部分層 refactor 不執行（NFR-002 行為不變優先）— SA-SUG-102 留後續 TASK"
+      ]
+    },
+    "format": {
+      "items": 2,
+      "passed": 2,
+      "details": [
+        "✅ 嚴格遵循 doc-templates/{system-arch,functional-flow,field-spec}.tpl.md 章節結構（雖然有依需求增加 [SA建議] / [CROSS-TASK] / 範圍邊界等補充章節，但所有 template 必填章節都齊全）",
+        "✅ 引用格式正確（FR-NNN / AC-NNN / [REUSE: from TASK-NNN] / [CROSS-TASK: ...] / [IRREVERSIBLE: ...] / [BLOCKED_ON_SD] / [SA建議]）"
+      ]
+    }
+  },
+  "score_deduction_reasons": [
+    "扣 3 分：FUNC-103 與 FUNC-104 在「選項 A」（合併入單一 migration）下 FUNC-104 變成 [DEFERRED]，存在邊界模糊風險。雖然在 functional-flow.md §1.1 FUNC-104 行 + §2 FUNC-104 章節說明標明「[SA建議] 分拆策略」，但這種「視 SD 決策決定是否實際存在」的 FUNC 設計可能被 Tester 標 Minor。已加充分的對應 AC 落實在 FUNC-103 兜底（AC-050/051 在合併版本下 FUNC-103 即完成）。",
+    "扣 2 分：MOD-103（auth_repositories）標明「最小封裝、若 SD 判斷不必要可標 [DEFERRED]」— 屬 ID 預留行為。Rule 8.4 永不重用允許此操作，但 Tester 可能要求 SA 在 MOD-101..104 中至少 100% 採用，未來再因不採用導致 MOD-103 變 [DEFERRED] 屬於 SA 不夠果斷。本 TASK 之所以這樣設計是因 SA 不應越界選定 dialect 適配策略（FUNC-105），故保留 MOD-103 作為彈性。已在 system-arch §3 MOD-103 + §11 SA-SUG-102 充分說明邏輯。",
+    "扣 2 分：本 TASK ENTITY/TBL 範圍 101-200 完全未使用（全部 [REUSE]）— 屬於正常設計，但若 Tester 期待 SA 從 101 起取號（如為 timestamp 欄位包裝層新增獨立 ENTITY），則屬於設計選擇被質疑風險。已在 field-spec.md §1 末段說明「ENTITY-101..200 / TBL-101..200 全部未使用（範圍保留作未來擴充）」+ impact-assessment.md §2 共享層讀取狀態"
+  ],
+  "sa_specific_checks": {
+    "anti_fabrication": "PASS — 7 個 FUNC + 4 個 MOD + 1 個 PATTERN + 0 個 ENTITY 新增全部直接對應 FR-001..008；no 新 ENTITY 新 PATTERN BA 未授權",
+    "scope_boundary": "PASS — 4 個 [BLOCKED_ON_SD] + 2 個 [BLOCKED_ON_DEPLOYER] 明確委派；不選具體 driver / migration tool / pool lib / Railway addon vs 外部",
+    "cross_task_modify_protocol_compliance": "PASS — BA self-review.json `cross_task_modify_warnings` 4 項 100% 落實在 functional-flow.md §4.4 + system-arch.md §9 + field-spec.md §8.3 + impact-assessment.md §1.1/1.2",
+    "irreversible_protocol_compliance": "PASS — FUNC-107 [IRREVERSIBLE] 含理由 + 緩解措施（14 天 SQLite emergency path / rollback plan）+ Rule 11.2 下游角色責任清晰；FUNC-045 [REUSE IRREVERSIBLE] 嚴格邊界 (SUG-004 + CONST-005)",
+    "ba_minor_info_handling": "PASS — test-ba MINOR-1 (NFR-004 baseline 取得方法) 落實在 system-arch.md §5.2 + functional-flow.md FUNC-107 對應；MINOR-2 同上；INFO-1 (docker-compose 30s) 落實在 system-arch.md §7.2；INFO-2 (production SLA dashboard) 落實在 system-arch.md §5.5；INFO-3 (Migration 觸發策略) 落實在 system-arch.md MOD-104 §3 + pattern-spec.md §2.3 [BLOCKED_ON_SD]",
+    "rule_13_id_allocator_compliance": "PASS — MOD-101..104 / FUNC-101..107 / PATTERN-101 全部在 101-200 範圍內；TASK 內連續無跳號；3 位零填充",
+    "rule_18_parameter_registry_impact": "PASS — impact-assessment.md §4 列 5 個 POSTGRES_* + 1 個 DATABASE_URL 候選 + SD 階段 sdlc-journal-write.sh 命令範本",
+    "no_orphan_suggestions": "PASS — 4 個 [SA建議] (SA-SUG-101/102/103/104) + 3 個 [SA建議] (SA-SUG-FS-101/102/103) 全部在獨立 [SA建議] 區塊；未混入正式 MOD / FUNC / PATTERN 規格"
+  },
+  "id_allocations_used": {
+    "MOD": ["MOD-101 (postgres_db)", "MOD-102 (migrations)", "MOD-103 (auth_repositories — 最小封裝)", "MOD-104 (db_bootstrap)"],
+    "MOD_reused": ["MOD-001 [REUSE]", "MOD-002 [REUSE]", "MOD-003 [REUSE]", "MOD-004 [REUSE]", "MOD-005 [REUSE — 邊界不變實作替換]", "MOD-006 [REUSE]"],
+    "FUNC": ["FUNC-101 (連線池初始化)", "FUNC-102 (連線池釋放)", "FUNC-103 (Schema migration)", "FUNC-104 (補軟刪欄位 migration — 選項 B)", "FUNC-105 (SQL query 適配層)", "FUNC-106 (SQLite 匯入腳本)", "FUNC-107 (Production 切換 IRREVERSIBLE)"],
+    "FUNC_reused": ["FUNC-001..045 [REUSE: from TASK-001] — 共 45 個（行為不變；FUNC-022..045 底層 query 適配 PG）"],
+    "PATTERN": ["PATTERN-101 (Migration Versioning + Reversibility + Expand-Contract)"],
+    "PATTERN_reused": ["PATTERN-001 [REUSE]", "PATTERN-002 [REUSE]", "PATTERN-003 [REUSE]", "PATTERN-004 [REUSE]", "PATTERN-005 [REUSE]", "PATTERN-006 [REUSE — race condition 留 SA-SUG-103]", "PATTERN-007 [REUSE]", "PATTERN-008 [REUSE]"],
+    "ENTITY": [],
+    "ENTITY_reused": ["ENTITY-001 [REUSE]", "ENTITY-002 [REUSE]", "ENTITY-003 [REUSE]"],
+    "TBL": [],
+    "TBL_reused": ["TBL-001 [REUSE]", "TBL-002 [REUSE]", "TBL-003 [REUSE]"],
+    "range_usage": {
+      "MOD": "101-104 (4/100 = 4%)",
+      "FUNC": "101-107 (7/100 = 7%)",
+      "PATTERN": "101 (1/100 = 1%)",
+      "ENTITY": "0/100 = 0% (全部 [REUSE])",
+      "TBL": "0/100 = 0% (全部 [REUSE])"
+    }
+  },
+  "cross_task_modify_markers": {
+    "count": 4,
+    "items": [
+      {
+        "marker": "[CROSS-TASK: TASK-001 / TBL-001 (users) 補 updated_at + deleted_at 欄位 / 觸發 FR-004]",
+        "落實位置": ["functional-flow.md §1.1 FUNC-104 + §4.4", "field-spec.md §2 ENTITY-001 + §8.3", "system-arch.md §9", "impact-assessment.md §1.1/1.2"]
+      },
+      {
+        "marker": "[CROSS-TASK: TASK-001 / TBL-002 (favorites) 補 updated_at + deleted_at 欄位 / 觸發 FR-004]",
+        "落實位置": ["functional-flow.md §1.1 FUNC-104 + §4.4", "field-spec.md §2 ENTITY-002 + §8.3", "system-arch.md §9", "impact-assessment.md §1.1/1.2"]
+      },
+      {
+        "marker": "[CROSS-TASK: TASK-001 / TBL-003 (email_verification_tokens) 補 updated_at + deleted_at 欄位（+ created_at 補 baseline gap）/ 觸發 FR-004]",
+        "落實位置": ["functional-flow.md §1.1 FUNC-104 + §4.4", "field-spec.md §2 ENTITY-003 + §8.3", "system-arch.md §9", "impact-assessment.md §1.1/1.2"]
+      },
+      {
+        "marker": "[CROSS-TASK: TASK-001 / MOD-005 auth.database storage engine 替換 (sqlite3 → Postgres driver) / 觸發 FR-001]",
+        "落實位置": ["system-arch.md §3 MOD-005 + §9", "functional-flow.md §1.1 FUNC-105 + §4.4", "impact-assessment.md §1.1/1.2"]
+      }
+    ]
+  },
+  "irreversible_markers": {
+    "count_new": 1,
+    "count_reused": 3,
+    "items": [
+      {
+        "id": "FUNC-107",
+        "status": "NEW (本 TASK)",
+        "marker": "[IRREVERSIBLE: 部署切換瞬間可能丟失少於 N 分鐘 SQLite 殘留資料；事前已知 ephemeral 性質 — Rule 11.1 資料層 hard-delete 變體]",
+        "mitigation": "14 天 SQLite emergency path 保留（SUG-006）+ deploy/service-contract.yaml rollback plan 必填（CONST-009）+ BF-003 緊急回滾流程"
+      },
+      {
+        "id": "FUNC-027 [REUSE]",
+        "status": "REUSE from TASK-001",
+        "marker": "[IRREVERSIBLE: 寄送 email — Rule 11.1 業務層]"
+      },
+      {
+        "id": "FUNC-034 [REUSE]",
+        "status": "REUSE from TASK-001",
+        "marker": "[IRREVERSIBLE: 寄送 email]"
+      },
+      {
+        "id": "FUNC-045 [REUSE 嚴格邊界]",
+        "status": "REUSE from TASK-001 — 本 TASK 補 deleted_at 欄位但不啟動軟刪",
+        "marker": "[IRREVERSIBLE: 硬刪 — Rule 11.1 資料層；BACKLOG-007 改軟刪]",
+        "rationale": "SUG-004 + CONST-005 明示界線：本 TASK schema 補欄位範疇限定；改寫為 soft-delete 是另一個 logical refactor 留後續 TASK"
+      }
+    ]
+  },
+  "reuse_markers_count": {
+    "MOD": 6,
+    "PATTERN": 8,
+    "ENTITY": 3,
+    "TBL": 3,
+    "FUNC": 45,
+    "ROLE": 3,
+    "INV": 12,
+    "total_objects": 80,
+    "note": "標記出現次數（across SA 5 個檔案）約 30+，因同物件可能在多處被引用"
+  },
+  "blocked_items": {
+    "BLOCKED_ON_SD": [
+      "Postgres driver 選型（psycopg / asyncpg / SQLAlchemy）— system-arch.md §3 MOD-101 / §4",
+      "Migration 工具選型（Alembic / yoyo-migrations / 手寫 SQL runner）— system-arch.md §3 MOD-102 / pattern-spec.md §2.3",
+      "Connection pool library + 具體 min/max（NFR-005 給範圍 min=2/max=10）— system-arch.md §3 MOD-101 / §5.2",
+      "Migration 觸發策略（A: startup auto / B: CI/CD 預先）— system-arch.md §3 MOD-104",
+      "FUNC-103 / FUNC-104 是否分拆兩個 migration（選項 A vs B）— functional-flow.md FUNC-104 / pattern-spec.md §2.4 範本 B",
+      "`updated_at` 刷新策略（應用層 SET vs DB trigger）— field-spec.md §4.2 INV-101",
+      "SQL placeholder dialect 適配策略（`?` → `%s` 全替換 vs 適配層 helper）— functional-flow.md FUNC-105",
+      "`lastrowid` 替換策略（`RETURNING id` 或 driver-specific）— functional-flow.md FUNC-105"
+    ],
+    "BLOCKED_ON_DEPLOYER": [
+      "Railway PG addon vs 外部託管（Supabase / Neon）— system-arch.md §4 / BA FR-006 ASSUME-001",
+      "SSL 模式（sslmode=require）— system-arch.md §5.4 + BA SUG-005",
+      "Backup 策略 — system-arch.md §5.1",
+      "Production SLA dashboard 監控（5xx / connection error / migration log）— system-arch.md §5.5 + test-ba INFO-2",
+      "docker-compose volume 命名 / 路徑 — system-arch.md §7.2"
+    ],
+    "count_BLOCKED_ON_SD": 8,
+    "count_BLOCKED_ON_DEPLOYER": 5,
+    "note": "所有 [BLOCKED_ON_X] 為合法委派標記，不算「未完成的待補項目」；遵循 Rule 1 來源引用制 + Rule 2 建議隔離"
+  },
+  "ba_minor_info_handling": {
+    "MINOR-1_NFR-004_PG_SQLite_types": {
+      "status": "✅ 已處理",
+      "落實位置": "field-spec.md §5 SQLite → PostgreSQL 型別對映表（完整對照表 — 從 INTEGER PRIMARY KEY AUTOINCREMENT 到 BIGINT GENERATED ALWAYS AS IDENTITY 等）"
+    },
+    "MINOR-2_baseline_acquisition_method": {
+      "status": "✅ 已處理",
+      "落實位置": "system-arch.md §5.2 效能架構表 Baseline 取得方法欄位（1) 8 pytest 平均 2) 5 個關鍵 auth endpoint `ab -n 100 -c 1` 取 P95）"
+    },
+    "INFO-1_docker_compose_30s": {
+      "status": "✅ 已處理",
+      "落實位置": "system-arch.md §7.2 Docker Compose 策略表「Onboarding 啟動時間（test-ba INFO-1 補充）」行"
+    },
+    "INFO-2_production_SLA_dashboard": {
+      "status": "✅ 已處理",
+      "落實位置": "system-arch.md §5.5 可觀測性表「Production 監控（test-ba INFO-2 補充）」行 — 標 [SA建議] [BLOCKED_ON_DEPLOYER] 並列 3 項建議指標"
+    },
+    "INFO-3_migration_trigger_strategy": {
+      "status": "✅ 已處理",
+      "落實位置": "system-arch.md §3 MOD-104 第 2 點 + pattern-spec.md §2.3 元素「觸發方式」標 [BLOCKED_ON_SD] — 列出選項 A vs B 利弊"
+    }
+  },
+  "sa_suggestions": {
+    "system_arch_md_section_11": [
+      "SA-SUG-101 (P2): 引入 healthz endpoint — 不在 BA FR 範圍，CONST-006 保守解讀",
+      "SA-SUG-102 (P2): Repository Pattern 完整 refactor — 範圍擴大風險，留 TASK-003 auth-layering-refactor",
+      "SA-SUG-103 (P3): OAuth Upsert race condition 修正（PG `INSERT ON CONFLICT`） — 行為微調，留後續 TASK",
+      "SA-SUG-104 (P3): Migration log 結構化 — 屬 SA-SUG-008 大專案的一部分"
+    ],
+    "field_spec_md_section_10": [
+      "SA-SUG-FS-101 (P3): `favorites.data` 改 JSONB — BR-001 schema 邏輯不變優先",
+      "SA-SUG-FS-102 (P2): `updated_at` AUTO UPDATE trigger — [BLOCKED_ON_SD] 應用層 vs trigger",
+      "SA-SUG-FS-103 (P3): `users.email` Citext — 需 Railway addon 確認"
+    ],
+    "total_count": 7,
+    "isolation": "PASS — 全部 7 個 SUG 在獨立 [SA建議] 區塊，未混入正式 MOD / FUNC / PATTERN / ENTITY 規格"
+  },
+  "summary": {
+    "total_new_MOD": 4,
+    "total_new_FUNC": 7,
+    "total_new_PATTERN": 1,
+    "total_new_ENTITY": 0,
+    "total_new_TBL": 0,
+    "total_reused_objects": 80,
+    "total_cross_task_markers": 4,
+    "total_irreversible_markers_new": 1,
+    "total_irreversible_markers_reused": 3,
+    "total_BLOCKED_ON_SD": 8,
+    "total_BLOCKED_ON_DEPLOYER": 5,
+    "total_SA_suggestions": 7,
+    "total_pending_items": 0,
+    "range_usage_in_TASK002": {
+      "MOD": "MOD-101..104 (4%)",
+      "FUNC": "FUNC-101..107 (7%)",
+      "PATTERN": "PATTERN-101 (1%)",
+      "ENTITY": "0 used (100% [REUSE])",
+      "TBL": "0 used (100% [REUSE])"
+    }
+  },
+  "timestamp": "2026-06-08T08:00:00Z"
+}

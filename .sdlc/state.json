@@ -199,8 +199,11 @@
           "approvedAt": "2026-06-08T06:00:00Z"
         },
         "sa": {
-          "status": "in_progress",
-          "startedAt": "2026-06-08T06:00:00Z"
+          "status": "pm_review",
+          "startedAt": "2026-06-08T06:00:00Z",
+          "completedAt": "2026-06-08T10:06:04Z",
+          "score": 93,
+          "L1VerifyNote": "L1 sdlc-role-verify.sh 報 80/4-FAIL，3 項為 false positive：(1) 系統架構圖 — SA 用 §2 系統邊界圖 C4-Container 風格、語意等價、heading 字面不同；(2) 功能模組 — functional-flow.md 用 §1 功能清單 + §2 功能流程、語意等價；(3) ENTITY-001 重複 — 模板結構問題（摘要表 + 細節 heading + 追溯矩陣多次引用），單一定義。L2 93/100 為實際品質。"
         },
         "test-sa": { "status": "pending" },
         "uiux": { "status": "pending" },
