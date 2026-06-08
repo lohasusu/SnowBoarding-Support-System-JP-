@@ -144,3 +144,5 @@
 [2026-06-08T05:37:56Z] PM     | TASK-002 | git_push     | ba | role=spec → origin/sdlc/TASK-002/sqlite-to-postgres
 [2026-06-08T06:50:30Z] Tester | TASK-002 | completed    | test-ba score=94 verdict=PASS (0 Critical / 0 Major / 2 Minor / 3 Info)
 [2026-06-08T06:50:30Z] PM     | TASK-002 | pm_review    | test-ba
+[2026-06-08T09:43:54Z] User   | TASK-002 | approved     | test-ba
+[2026-06-08T09:43:54Z] PM     | TASK-002 | dispatched   | sa
