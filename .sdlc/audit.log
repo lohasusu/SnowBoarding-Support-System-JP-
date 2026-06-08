@@ -128,3 +128,16 @@
 [2026-06-06T16:33:52Z] PM     | TASK-002 | dispatched   | ba
 [2026-06-06T17:49:37Z] BA     | TASK-002 | completed    | score=95 artifacts=3 (L1 false-positive 3/8 FR-NFR/AC-CONST/BR — PM verified)
 [2026-06-06T17:49:37Z] PM     | TASK-002 | pm_review    | ba
+[2026-06-08T05:36:49Z] ba    | TASK-002 | journal_term_added| term=PostgreSQL 16 english=postgres-16 definition=本 TASK 目標 DB engine，對應 config.json techStack.database.image=postgres:16-alpine
+[2026-06-08T05:36:50Z] ba    | TASK-002 | journal_term_added| term=Railway Postgres addon english=railway-postgres-addon definition=Railway 平台提供的 managed PostgreSQL 服務（待 deploy 階段確認可用性）
+[2026-06-08T05:36:51Z] ba    | TASK-002 | journal_term_added| term=DATABASE_URL english=database-url definition=PostgreSQL 標準連線字串格式 postgresql://user:pass@host:port/db?sslmode=...，可單一變數取代 5 個 POSTGRES_*
+[2026-06-08T05:36:52Z] ba    | TASK-002 | journal_term_added| term=Migration（資料庫遷移） english=db-migration definition=reversible 的 schema 變更腳本，由 migration 工具（如 Alembic）追蹤已套用版本
+[2026-06-08T05:36:52Z] ba    | TASK-002 | journal_term_added| term=Expand-Contract english=expand-contract definition=三段式刪欄協議（db-conventions §5.3）：先 nullable 加新欄、再切換應用、最後 DROP 舊欄
+[2026-06-08T05:36:53Z] ba    | TASK-002 | journal_term_added| term=軟刪除 english=soft-delete definition=用 deleted_at 標記取代 DELETE FROM；查詢時加 WHERE deleted_at IS NULL
+[2026-06-08T05:36:54Z] ba    | TASK-002 | journal_term_added| term=Connection pool english=connection-pool definition=應用層維護的 DB 連線重用池，避免每次 query 開新連線
+[2026-06-08T05:36:55Z] ba    | TASK-002 | journal_term_added| term=ALTER TABLE try/except hack english=alter-table-hack definition=既有 web/auth/database.py:44-52 用 try: ALTER TABLE; except: pass 寬鬆吞例外的 brownfield 技術債（baseline-audit C-1）
+[2026-06-08T05:36:59Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0
+[2026-06-08T05:37:25Z] User   | TASK-002 | approved     | ba
+[2026-06-08T05:37:25Z] PM     | TASK-002 | journal_term_added | 8 entries (PostgreSQL 16 / Railway Postgres addon / DATABASE_URL / Migration / Expand-Contract / 軟刪除 / Connection pool / ALTER TABLE try/except hack)
+[2026-06-08T05:37:25Z] PM     | TASK-002 | shared_rebuild | id-registry / terminology / error-codes / i18n-registry / parameter-registry
+[2026-06-08T05:37:25Z] PM     | TASK-002 | dispatched   | test-ba

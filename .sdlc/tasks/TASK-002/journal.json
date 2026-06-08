@@ -4,6 +4,71 @@
   "version": "1.0",
   "taskId": "TASK-002",
   "createdAt": "2026-06-06T14:34:04Z",
-  "lastUpdate": "2026-06-06T14:34:04Z",
-  "entries": []
+  "lastUpdate": "2026-06-08T05:36:55Z",
+  "entries": [
+    {
+      "term": "PostgreSQL 16",
+      "english": "postgres-16",
+      "definition": "本 TASK 目標 DB engine，對應 config.json techStack.database.image=postgres:16-alpine",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:48Z"
+    },
+    {
+      "term": "Railway Postgres addon",
+      "english": "railway-postgres-addon",
+      "definition": "Railway 平台提供的 managed PostgreSQL 服務（待 deploy 階段確認可用性）",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:50Z"
+    },
+    {
+      "term": "DATABASE_URL",
+      "english": "database-url",
+      "definition": "PostgreSQL 標準連線字串格式 postgresql://user:pass@host:port/db?sslmode=...，可單一變數取代 5 個 POSTGRES_*",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:50Z"
+    },
+    {
+      "term": "Migration（資料庫遷移）",
+      "english": "db-migration",
+      "definition": "reversible 的 schema 變更腳本，由 migration 工具（如 Alembic）追蹤已套用版本",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:51Z"
+    },
+    {
+      "term": "Expand-Contract",
+      "english": "expand-contract",
+      "definition": "三段式刪欄協議（db-conventions §5.3）：先 nullable 加新欄、再切換應用、最後 DROP 舊欄",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:52Z"
+    },
+    {
+      "term": "軟刪除",
+      "english": "soft-delete",
+      "definition": "用 deleted_at 標記取代 DELETE FROM；查詢時加 WHERE deleted_at IS NULL",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:53Z"
+    },
+    {
+      "term": "Connection pool",
+      "english": "connection-pool",
+      "definition": "應用層維護的 DB 連線重用池，避免每次 query 開新連線",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:54Z"
+    },
+    {
+      "term": "ALTER TABLE try/except hack",
+      "english": "alter-table-hack",
+      "definition": "既有 web/auth/database.py:44-52 用 try: ALTER TABLE; except: pass 寬鬆吞例外的 brownfield 技術債（baseline-audit C-1）",
+      "type": "term_added",
+      "phase": "ba",
+      "addedAt": "2026-06-08T05:36:55Z"
+    }
+  ]
 }
