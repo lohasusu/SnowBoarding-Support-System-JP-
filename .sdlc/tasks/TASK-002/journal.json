@@ -4,7 +4,7 @@
   "version": "1.0",
   "taskId": "TASK-002",
   "createdAt": "2026-06-06T14:34:04Z",
-  "lastUpdate": "2026-06-08T05:36:55Z",
+  "lastUpdate": "2026-06-08T10:23:48Z",
   "entries": [
     {
       "term": "PostgreSQL 16",
@@ -69,6 +69,114 @@
       "type": "term_added",
       "phase": "ba",
       "addedAt": "2026-06-08T05:36:55Z"
+    },
+    {
+      "id": "MOD-101",
+      "name": "postgres_db",
+      "filePath": "tasks/TASK-002/sa/system-arch.md",
+      "section": "3",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:39Z"
+    },
+    {
+      "id": "MOD-102",
+      "name": "migrations",
+      "filePath": "tasks/TASK-002/sa/system-arch.md",
+      "section": "3",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:40Z"
+    },
+    {
+      "id": "MOD-103",
+      "name": "auth_repositories",
+      "filePath": "tasks/TASK-002/sa/system-arch.md",
+      "section": "3",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:40Z"
+    },
+    {
+      "id": "MOD-104",
+      "name": "db_bootstrap",
+      "filePath": "tasks/TASK-002/sa/system-arch.md",
+      "section": "3",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:41Z"
+    },
+    {
+      "id": "FUNC-101",
+      "name": "PostgreSQL 連線池初始化",
+      "filePath": "tasks/TASK-002/sa/functional-flow.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:42Z"
+    },
+    {
+      "id": "FUNC-102",
+      "name": "PostgreSQL 連線池釋放",
+      "filePath": "tasks/TASK-002/sa/functional-flow.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:43Z"
+    },
+    {
+      "id": "FUNC-103",
+      "name": "Schema 初始化 migration",
+      "filePath": "tasks/TASK-002/sa/functional-flow.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:44Z"
+    },
+    {
+      "id": "FUNC-104",
+      "name": "補軟刪欄位 migration",
+      "filePath": "tasks/TASK-002/sa/functional-flow.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:44Z"
+    },
+    {
+      "id": "FUNC-105",
+      "name": "既有 SQL query 適配層",
+      "filePath": "tasks/TASK-002/sa/functional-flow.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:45Z"
+    },
+    {
+      "id": "FUNC-106",
+      "name": "一次性 SQLite → PostgreSQL 匯入腳本",
+      "filePath": "tasks/TASK-002/sa/functional-flow.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:46Z"
+    },
+    {
+      "id": "FUNC-107",
+      "name": "Production 部署切換 IRREVERSIBLE",
+      "filePath": "tasks/TASK-002/sa/functional-flow.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:47Z"
+    },
+    {
+      "id": "PATTERN-101",
+      "name": "Migration Versioning + Reversibility + Expand-Contract",
+      "filePath": "tasks/TASK-002/sa/pattern-spec.md",
+      "section": "2",
+      "type": "id_added",
+      "phase": "sa",
+      "addedAt": "2026-06-08T10:23:48Z"
     }
   ]
 }

@@ -150,3 +150,20 @@
 [2026-06-08T09:44:56Z] sa    | TASK-002 | input_validate| FAIL: passed=7 failed=1 warnings=0
 [2026-06-08T10:12:34Z] SA     | TASK-002 | completed    | score=93 artifacts=6 (4 MOD / 7 FUNC / 1 PATTERN / 0 ENTITY new + 80 [REUSE] / 4 [CROSS-TASK] / 1 new [IRREVERSIBLE])
 [2026-06-08T10:12:34Z] PM     | TASK-002 | pm_review    | sa
+[2026-06-08T10:23:39Z] sa    | TASK-002 | journal_id_added| id=MOD-101 name=postgres_db filePath=tasks/TASK-002/sa/system-arch.md section=3
+[2026-06-08T10:23:40Z] sa    | TASK-002 | journal_id_added| id=MOD-102 name=migrations filePath=tasks/TASK-002/sa/system-arch.md section=3
+[2026-06-08T10:23:41Z] sa    | TASK-002 | journal_id_added| id=MOD-103 name=auth_repositories filePath=tasks/TASK-002/sa/system-arch.md section=3
+[2026-06-08T10:23:41Z] sa    | TASK-002 | journal_id_added| id=MOD-104 name=db_bootstrap filePath=tasks/TASK-002/sa/system-arch.md section=3
+[2026-06-08T10:23:42Z] sa    | TASK-002 | journal_id_added| id=FUNC-101 name=PostgreSQL 連線池初始化 filePath=tasks/TASK-002/sa/functional-flow.md section=2
+[2026-06-08T10:23:43Z] sa    | TASK-002 | journal_id_added| id=FUNC-102 name=PostgreSQL 連線池釋放 filePath=tasks/TASK-002/sa/functional-flow.md section=2
+[2026-06-08T10:23:44Z] sa    | TASK-002 | journal_id_added| id=FUNC-103 name=Schema 初始化 migration filePath=tasks/TASK-002/sa/functional-flow.md section=2
+[2026-06-08T10:23:45Z] sa    | TASK-002 | journal_id_added| id=FUNC-104 name=補軟刪欄位 migration filePath=tasks/TASK-002/sa/functional-flow.md section=2
+[2026-06-08T10:23:45Z] sa    | TASK-002 | journal_id_added| id=FUNC-105 name=既有 SQL query 適配層 filePath=tasks/TASK-002/sa/functional-flow.md section=2
+[2026-06-08T10:23:46Z] sa    | TASK-002 | journal_id_added| id=FUNC-106 name=一次性 SQLite → PostgreSQL 匯入腳本 filePath=tasks/TASK-002/sa/functional-flow.md section=2
+[2026-06-08T10:23:47Z] sa    | TASK-002 | journal_id_added| id=FUNC-107 name=Production 部署切換 IRREVERSIBLE filePath=tasks/TASK-002/sa/functional-flow.md section=2
+[2026-06-08T10:23:48Z] sa    | TASK-002 | journal_id_added| id=PATTERN-101 name=Migration Versioning + Reversibility + Expand-Contract filePath=tasks/TASK-002/sa/pattern-spec.md section=2
+[2026-06-08T10:23:52Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0
+[2026-06-08T10:25:26Z] User   | TASK-002 | approved     | sa
+[2026-06-08T10:25:26Z] PM     | TASK-002 | journal_id_added | 12 entries (4 MOD-101..104 / 7 FUNC-101..107 / 1 PATTERN-101)
+[2026-06-08T10:25:26Z] PM     | TASK-002 | shared_rebuild | id-registry / terminology / error-codes / i18n-registry / parameter-registry
+[2026-06-08T10:25:26Z] PM     | TASK-002 | dispatched   | test-sa
