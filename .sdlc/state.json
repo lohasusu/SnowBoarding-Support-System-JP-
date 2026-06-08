@@ -207,9 +207,17 @@
           "approvedAt": "2026-06-08T10:30:00Z"
         },
         "test-sa": {
-          "status": "in_progress",
-          "startedAt": "2026-06-08T10:30:00Z"
+          "status": "pm_review",
+          "startedAt": "2026-06-08T10:30:00Z",
+          "completedAt": "2026-06-08T11:00:00Z",
+          "score": 95,
+          "testerEvaluationOfSA": 91,
+          "verdict": "PASS",
+          "findings": { "critical": 0, "major": 0, "minor": 3, "info": 5 },
+          "L1VerifyNote": "L1 sdlc-role-verify.sh tester 報多項 FAIL — 同 test-ba 案例（檢查項針對 test-fe/test-be 執行性測試，與 test-sa 架構審查本質不符）。Tester 採 verify-architecture skill 結構合理。",
+          "testerRecommendation": "考慮 skip UIUX（純後端重構，SA impact-assessment §6.1 已明示）"
         },
+        "uiux": { "status": "pending" },
         "uiux": { "status": "pending" },
         "deploy-init": { "status": "pending" },
         "test-uiux": { "status": "pending" },
