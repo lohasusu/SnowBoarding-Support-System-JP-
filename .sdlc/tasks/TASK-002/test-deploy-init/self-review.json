@@ -1,0 +1,123 @@
+{
+  "document_id": "REVIEW-TEST-DEPLOY-INIT-TASK-002-v1.0",
+  "task_id": "TASK-002",
+  "phase": "test-deploy-init",
+  "date": "2026-06-10",
+  "reviewer": "tester-independent",
+  "score": 95,
+  "passed": true,
+  "threshold": 90,
+
+  "phaseUnderTestVerdict": {
+    "deployInitResult": "CONDITIONAL_PASS",
+    "testerIndependentScore": 76,
+    "scoringRationale": "起始 100；扣 5 個 Major × 4 = -20；扣 3 個 Minor × 1 = -3；扣 0 Critical = 0；獨立判定 76/100。Deployer 自評 95 + L1 90 PASS 不採信，差 19 分主因 25 個 stale references。",
+    "criticalCount": 0,
+    "majorCount": 5,
+    "minorCount": 3,
+    "infoCount": 4,
+    "blockingItems": [],
+    "majorTopics": [
+      "Major-1: Q0 PG hosting 決策未傳播至 service-contract.yaml + parameter-plan.md (9 處 stale)",
+      "Major-2: POSTGRES_SSL_MODE 預設值 verify-full 未配合 Q0 改為 disable (9 處 stale)",
+      "Major-3: Q3 Backup DEFERRED 未傳播至 service-contract / migration-strategy §4/§6/§7 / deploy-plan (5 處 stale)",
+      "Major-4: self-review.json deploymentDecisions / blockedOnDeployerResolution / subjective evidence stale (4 處)",
+      "Major-5: 使用者選自建後缺漏 PG_VOLUME_NAME + PG_DATA_PATH 兩個 parameter"
+    ],
+    "pmPatchAdequacy": "partial - 範圍合理但廣度不夠（修了 deploy-env.json + migration-strategy.md §2 共 2 檔，未修 service-contract.yaml + parameter-plan.md + deploy-plan.md + .env.example + self-review.json + migration-strategy.md §3.4/§4/§6/§7 共 6 檔/章節）",
+    "pmPatchOverreach": "not overreach - patches 範圍合理（unblocking-modifications）但需擴大覆蓋",
+    "recommendation": "Option A: PM 啟動 stale-reference sweep 批次 patch 25 行（§12.1 Major 修補清單）— 1 個對話完成，升級為 PASS；Option B: 接受 CONDITIONAL_PASS 在 SD prompt 注入真相，但保留 audit confusion 風險"
+  },
+
+  "checklist": [
+    {"item": "測試報告格式正確（含 metadata / 各 D 維度 / 發現清單 / 結論 / 追溯）", "passed": true, "score": 5},
+    {"item": "每個檢查項都有結果（42 項全部填寫）", "passed": true, "score": 5},
+    {"item": "Critical/Major/Minor/Info 分級正確（Major 為下游影響嚴重但不阻塞當前階段；Critical 為阻塞）", "passed": true, "score": 5},
+    {"item": "每個發現都有位置（檔案+行號）和理由", "passed": true, "score": 5},
+    {"item": "追溯矩陣驗證完整（16 個規格元素三向追溯）", "passed": true, "score": 5},
+    {"item": "範圍邊界驗證完整（反腦補檢查 §9.8 6 項全部 pass）", "passed": true, "score": 5},
+    {"item": "一致性驗證完整（D2 BA·SA 22 項規格映射 + D3 4 個使用者決策落地)", "passed": true, "score": 5},
+    {"item": "格式驗證完整（service-contract.yaml YAML / Dockerfile multi-stage / docker-compose depends_on / .env.example secret 占位）", "passed": true, "score": 5},
+    {"item": "測試決策邏輯正確（5 Major + 0 Critical → CONDITIONAL PASS 符合 Rule 3 規格）", "passed": true, "score": 5},
+    {"item": "建議具體可行（§12 修補清單共 22 個動作項，每項含檔案+行號+具體改寫文字）", "passed": true, "score": 5},
+    {"item": "無漏掉的被測文件（12 個 deploy artifacts 全部 Read 並列入評估）", "passed": true, "score": 5},
+    {"item": "對照基準完整（BA requirement-spec + business-flow + SA 5 檔 + test-sa report + conventions + environments + railway.toml + .github/workflows + 既有 root docker-compose）", "passed": true, "score": 5},
+    {"item": "發現清單編號連續（Major-1..5 / Minor-1..3 / Info-1..4 連續無跳號）", "passed": true, "score": 5},
+    {"item": "測試方法適合 deploy-init 階段（自製 5 維度 + Rule 11/18/19 + 8 個 PM 重點關注項）", "passed": true, "score": 5},
+    {"item": "獨立性保證（未存取 Deployer agent 對話歷史 / PM approve session 對話 / 僅讀正式產出物）", "passed": true, "score": 5},
+    {"item": "每個測試案例可追溯到規格 ID（@traces_to FR-001..008 / NFR-002/003/005/010/011 / FUNC-107 / BF-002/003 / 4 [CROSS-TASK]）", "passed": true, "score": 5},
+    {"item": "結論與發現一致（76 分對應 5 Major + CONDITIONAL_PASS；無誤導性 PASS）", "passed": true, "score": 5},
+    {"item": "報告日期和版本正確（2026-06-10 v1.0）", "passed": true, "score": 5},
+    {"item": "Mermaid 語法（本報告無 mermaid 圖，引用 SA functional-flow / BA business-flow 既有圖 — 無需新繪）", "passed": true, "score": 5},
+    {"item": "文件模板嚴格遵循（無 test-deploy-init.tpl.md 預設模板 → Tester 自製，但結構對齊 test-report.tpl.md 標準）", "passed": true, "score": 5}
+  ],
+
+  "verificationDimensions": {
+    "D1_spec_completeness": {"passed": 14, "total": 16, "minor": 1, "critical": 0, "major": 0, "note": "Dockerfile.template 與 Dockerfile.be 重複（Minor-1）+ 1 待後續 PM patch"},
+    "D2_ba_sa_consistency": {"passed": 22, "total": 22, "note": "規格映射全 pass，但多項 deploy 元素內部存在 stale 矛盾（即 Major 1-3 4-5 的累積影響）"},
+    "D3_user_decisions_landed": {"q0_postgres_hosting": "50%", "q1_migration_trigger": "100%", "q2_cicd": "100%", "q3_backup": "60%", "average": "77.5%"},
+    "D4_func107_mitigation": {"adequate_within_14d": true, "adequate_after_14d": "user_acknowledged_tradeoff", "rule_11_4_elements": "complete", "rule_11_2_downstream": "complete"},
+    "D5_rule18_param_registry": {"passed": 8, "total": 10, "major": 2, "note": "Major-2 SSL_MODE default 未更新 + Major-5 volume parameters 缺漏"}
+  },
+
+  "ruleProtocolCompliance": {
+    "rule_10_abandoned_tasks": "PASS (no abandoned tasks list)",
+    "rule_11_irreversible": "PASS (FUNC-107 4 elements + 14d emergency 三層落實)",
+    "rule_18_parameter_registry": "MOSTLY PASS (Major-2 SSL default / Major-5 missing 2 params)",
+    "rule_19_ci_gate": "PASS (1 Minor: sdlc-merge-gate.yml 整合未明示)"
+  },
+
+  "userDecisionLandingDetail": {
+    "Q0_postgres_hosting_self_hosted_container": {
+      "deploy_env_json": "PATCHED",
+      "service_contract_yaml": "STALE (9 lines)",
+      "parameter_plan_md": "STALE (2 lines)",
+      "verdict": "PARTIAL — Major-1"
+    },
+    "Q1_migration_trigger_startup_auto": {
+      "all_files": "CONSISTENT",
+      "verdict": "COMPLETE"
+    },
+    "Q2_cicd_github_actions": {
+      "all_files": "CONSISTENT",
+      "verdict": "COMPLETE"
+    },
+    "Q3_backup_sqlite_only_pg_deferred": {
+      "deploy_env_json": "PATCHED",
+      "migration_strategy_md_§2_2_to_2_4": "PATCHED",
+      "migration_strategy_md_§3_4_§4_§6_§7": "STALE (5 lines)",
+      "service_contract_yaml": "STALE (1 line)",
+      "deploy_plan_md": "STALE (1 line)",
+      "self_review_json": "STALE (3 lines)",
+      "verdict": "PARTIAL — Major-3 + Major-4"
+    }
+  },
+
+  "fiveBlockedOnDeployerIndependentVerdict": {
+    "1_postgres_hosting": "RESOLVED (user confirmed self-hosted container)",
+    "2_ssl_mode": "PARTIAL DEFERRED - PM 標 DEFERRED 但實際即時 disable; status 語意應改為 RESOLVED_AS_DISABLE_WITH_FUTURE_HARDENING (Info-2)",
+    "3_backup_strategy": "PARTIAL (user confirmed sqlite-only-deferred — 合理分類但需 §12 stale references 修補)",
+    "4_production_sla_dashboard": "PARTIAL (Railway built-in + Sentry/UptimeRobot SUG — 合理)",
+    "5_docker_compose_volume": "RESOLVED but NOT env var化 (Major-5 需補 PG_VOLUME_NAME + PG_DATA_PATH)"
+  },
+
+  "artifacts": [
+    "test-report-deploy-init.md",
+    "self-review.json"
+  ],
+
+  "openIssuesForPM": [
+    "PM 決定 Option A (sweep) vs Option B (revise) vs Option C (accept CONDITIONAL_PASS + SD prompt 注入)",
+    "PM 對 Info-2 SSL mode DEFERRED 語意修正是否採納",
+    "PM 對 Info-1 pg_dump emergency snapshot 是否升級為 BLOCKING（Tester 建議 SUG 即可）",
+    "PM 對 Info-3 retroactive parameter registry 是否列入 SDLC backlog"
+  ],
+
+  "tasksForSDStageIfConditionalPass": [
+    "SD 階段必須先讀 deploy-env.json._deploymentDecisions + userConfirmedDecisions 作為真相來源",
+    "SD 階段 connection string 預設 sslmode=disable（不是 verify-full）",
+    "SD 階段不規劃 PG backup 機制（DEFERRED_TO_FUTURE_TASK）",
+    "SD 階段 logic-flow.md / db-schema.md / api-spec.md 不寫 Railway addon 假設（如 SSL 內建 / daily backup）",
+    "SD 階段執行 parameter-plan §1.1-1.10 + 補 PG_VOLUME_NAME + PG_DATA_PATH 兩個 parameter_added events"
+  ]
+}

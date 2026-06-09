@@ -82,7 +82,7 @@ sequenceDiagram
 | 比較項 | startup-auto | CI/CD prerun |
 |--------|--------------|--------------|
 | 複雜度 | 低（單一 entrypoint） | 中（CI runner 需連 PG） |
-| Railway PG addon 適配 | ✅ Railway 內部 network 直連 | ⚠️ 需開公網 + IP whitelist 或 Railway CLI |
+| 自建 PG container 適配 | ✅ docker-compose / Railway 內網（service name=postgres）直連 | ⚠️ 需開公網 + IP whitelist 或 Railway CLI |
 | Race condition | 多 worker 風險 → advisory lock 解 | 無 |
 | 失敗處理 | App 啟動失敗 → Railway auto rollback | CI fail → 不部署 |
 | 部署速度 | startup 多 100-500ms（lock + check schema_migrations） | CI 多一階段 ~30s |
@@ -287,12 +287,12 @@ git push origin main
 |------|---------|------|
 | dev (本機 docker-compose) | `disable` | localhost 同 host 通訊；container 間 private network；自簽 cert 增加開發摩擦 |
 | staging (Railway preview) | `require` | 加密但不驗 cert；Railway 內部 network 預設提供 SSL cert |
-| **production (Railway addon)** | **`verify-full`** | 完整驗證（含 hostname）；defense-in-depth 對 SQL injection 攻擊面有額外阻隔 |
+| **production (自建 container — USER CONFIRMED 2026-06-09)** | **`disable`** | 自建 container 預設無 SSL；future hardening（self-signed cert / Let's Encrypt / sidecar proxy）留後續 TASK |
 
 **SD 階段實作要求**:
 - `POSTGRES_SSL_MODE` env var 從 `deploy/service-contract.yaml` 讀取
 - driver 選定後（psycopg / SQLAlchemy）將此值傳入 connection string
-- DATABASE_URL 替代方案：URL 中 `?sslmode=verify-full`（同優先級）
+- DATABASE_URL 替代方案：URL 中 `?sslmode=disable`（同優先級；自建 container 預設）
 
 **驗證**:
 ```bash
@@ -342,9 +342,9 @@ railway run -- psql -c "SHOW ssl;"
 |---------|---------|
 | Startup-auto migration | SA FUNC-101 + FUNC-103 + NFR-003 |
 | Advisory lock | NFR-005 + 防 race condition |
-| Daily backup (7 天) | Railway PG addon 預設 + SUG-006 |
+| ~~Daily backup (7 天)~~ | DEFERRED_TO_FUTURE_TASK — 自建 container 無自動 backup；USER CONFIRMED 2026-06-09 接受此 trade-off；14 天 SQLite emergency 為唯一 backup 機制 |
 | 14 天 SQLite emergency path | SA SUG-006 + FUNC-107 IRREVERSIBLE 緩解 |
-| SSL `verify-full` (prod) | BA SUG-005 + defense-in-depth |
+| ~~SSL `verify-full` (prod)~~ | DOWNGRADED — USER CONFIRMED 2026-06-09 自建 container prod sslmode=disable；BA SUG-005 hardening 留後續 TASK |
 | SSL `disable` (dev) | 本機開發摩擦最小化 |
 | Railway built-in metrics | test-ba INFO-2 + SA-SUG-104 |
 | DB connection error counter | NFR-005 + 新規格 |

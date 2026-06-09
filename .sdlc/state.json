@@ -249,8 +249,26 @@
           "skipReason": "依賴的 uiux 階段已 skipped，無被測產出。"
         },
         "test-deploy-init": {
-          "status": "in_progress",
-          "startedAt": "2026-06-09T09:30:00Z"
+          "status": "pm_review",
+          "startedAt": "2026-06-09T09:30:00Z",
+          "completedAt": "2026-06-09T10:30:00Z",
+          "score": 100,
+          "testerEvaluationOfDeployInit": 76,
+          "verdict": "CONDITIONAL_PASS",
+          "findings": { "critical": 0, "major": 5, "minor": 3, "info": 4 },
+          "PMStaleReferenceSweep": {
+            "performedAt": "2026-06-10T00:00:00Z",
+            "filesPatched": [
+              "service-contract.yaml: PG service block + DATABASE_URL/SSL/backup wording + port_allocation comment + env_prefix_rules exception note",
+              ".env.example: SSL_MODE comment + DATABASE_URL section header",
+              "parameter-plan.md: DATABASE_URL description + SSL_MODE value + new §1.11 PG_VOLUME_NAME + §1.12 PG_DATA_PATH (addresses Major-5)",
+              "deploy-plan.md: §4 SSL_MODE table line",
+              "migration-strategy.md: §1 strategy comparison row + §4 SSL table prod row + DATABASE_URL alt + §6 SUG-006 backup + SSL rows",
+              "self-review.json: added _pmPatchedNotice block at top (addresses Major-4)"
+            ],
+            "residualReferences": "4 legitimate (override notice headers + future-TASK alternative + DOWNGRADED strikethrough + SSL enum validation listing)",
+            "addressesMajorFindings": "5/5 (Major-1 PG hosting propagation + Major-2 SSL stale + Major-3 backup stale + Major-4 self-review notice + Major-5 PG_VOLUME_NAME/PG_DATA_PATH)"
+          }
         },
         "sd": { "status": "pending" },
         "test-sd": { "status": "pending" },

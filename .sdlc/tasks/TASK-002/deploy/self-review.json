@@ -6,6 +6,13 @@
   "version": "1.0",
   "reviewedAt": "2026-06-09T08:38:00Z",
   "reviewer": "deployer-init",
+  "_pmPatchedNotice": {
+    "patchedAt": "2026-06-09T10:30:00Z",
+    "patchedBy": "PM (sdlc:next approve session)",
+    "rationale": "Deployer 推斷了 4 個應由 AskUserQuestion 詢問的決策（postgres-hosting / migration-trigger / cicd / backup-rollback）。PM 在 approve 階段與使用者確認後，2 個決策被覆寫：Q0 PG hosting → self-hosted container (非 addon), Q3 backup → SQLite emergency only (PG backup DEFERRED_TO_FUTURE_TASK)。本 self-review.json 內 'pm_decisions_required' / '_blockedOnDeployerResolved' 等欄位反映的是 Deployer 當時的推斷，並非最終事實。最終事實見 deploy-env.json._deploymentDecisions + .userConfirmedDecisions。本 notice 為 Tester (test-deploy-init) Major-4 建議加上以保留歷史 + 標記 stale。",
+    "actualDecisionsAuthoritative": ".sdlc/tasks/TASK-002/deploy/deploy-env.json (._deploymentDecisions + .userConfirmedDecisions)",
+    "downstreamImpact": "本 self-review.json 內所有引用 'Railway addon' / 'verify-full' / 'Railway daily backup' 的項目皆為 stale，請以 deploy-env.json + service-contract.yaml (PM patched) 為準"
+  },
 
   "objective": {
     "_comment": "由 sdlc-role-verify.sh deployer TASK-002 執行式驗證填入；本欄為腳本唯一真相",

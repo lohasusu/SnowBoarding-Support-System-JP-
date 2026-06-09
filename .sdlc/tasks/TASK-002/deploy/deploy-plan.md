@@ -78,7 +78,7 @@ approval:
 | 層級 | 存放位置 | 本 TASK 範例 |
 |------|---------|------------|
 | Secrets | Railway dashboard env vars（prod）/ `.env` gitignored（dev）/ GitHub Actions Secrets（CI） | `POSTGRES_PASSWORD`, `SECRET_KEY`, `SERPAPI_API_KEY`, `DATABASE_URL` |
-| 環境特定配置 | Railway dashboard 不同 environment | `POSTGRES_HOST`, `POSTGRES_SSL_MODE`（dev=disable, prod=verify-full）|
+| 環境特定配置 | Railway dashboard 不同 environment | `POSTGRES_HOST`, `POSTGRES_SSL_MODE`（dev/staging/prod 全部 disable — USER CONFIRMED 2026-06-09 自建 container 預設無 SSL；future hardening 留後續 TASK）|
 | Feature flags | 無（本 TASK 不引入 flag — BA §1.4 不納入）| — |
 | Build-time 常量 | `nixpacks.toml` / `railway.toml`（已存在）；新增 `.env.example`（範本）| Python 版本、entrypoint command |
 

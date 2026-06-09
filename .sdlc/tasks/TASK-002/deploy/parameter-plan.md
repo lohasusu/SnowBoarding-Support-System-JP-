@@ -137,7 +137,7 @@ bash $HOME/.claude/skills/sdlc/scripts/sdlc-journal-write.sh TASK-002 parameter_
   "requiredNote": "若採用此 var 則 POSTGRES_* 5 個變為 optional；SD 決定支援哪種模式",
   "secret": true,
   "ownerService": "be",
-  "description": "PostgreSQL 連線字串（替代方案 — Railway PG addon 自動注入）；格式: postgresql://user:pass@host:port/db?sslmode=require",
+  "description": "PostgreSQL 連線字串（替代方案 — 自建 container 需手動設定；prod docker service name=postgres）；格式: postgresql://user:pass@postgres:5432/db?sslmode=disable",
   "sourceFR": "FR-005 (替代方案)",
   "envPrefix": "(無 — 業界慣例特例)",
   "validation": "PostgreSQL connection URI format"
@@ -151,7 +151,7 @@ bash $HOME/.claude/skills/sdlc/scripts/sdlc-journal-write.sh TASK-002 parameter_
   "paramName": "POSTGRES_SSL_MODE",
   "paramKind": "env",
   "paramType": "string",
-  "value": "(env-specific: disable dev / require staging / verify-full prod)",
+  "value": "(env-specific: disable dev / disable staging / disable prod — USER CONFIRMED 2026-06-09 自建 container 預設無 SSL；future hardening 留後續 TASK)",
   "scope": "all",
   "required": true,
   "secret": false,
@@ -217,6 +217,46 @@ bash $HOME/.claude/skills/sdlc/scripts/sdlc-journal-write.sh TASK-002 parameter_
   "sourceFR": "NFR-005",
   "envPrefix": "POSTGRES_",
   "validation": "1000 <= value <= 30000"
+}'
+```
+
+### 1.11 PG_VOLUME_NAME（PM 補 — test-deploy-init Major-5）
+
+> **PM Patched 2026-06-09**: Tester 在 test-deploy-init Major-5 指出，使用者選自建 container 後，docker-compose volume 未 env var 化，三環境差異會出問題。補登記如下兩個 parameter。
+
+```bash
+bash $HOME/.claude/skills/sdlc/scripts/sdlc-journal-write.sh TASK-002 parameter_added sd '{
+  "paramName": "PG_VOLUME_NAME",
+  "paramKind": "env",
+  "paramType": "string",
+  "value": "(env-specific: sdlc-db-data dev / sdlc-db-staging staging / sdlc-db-prod prod)",
+  "scope": "all",
+  "required": true,
+  "secret": false,
+  "ownerService": "deploy",
+  "description": "docker-compose / Railway named volume 名稱，掛載到 PG container 的 data 目錄。USER CONFIRMED 2026-06-09 自建 container 需 mount persistent volume 否則 redeploy 資料消失。",
+  "sourceFR": "deploy-env.json Q0 自建 container + Tester Major-5",
+  "envPrefix": "PG_",
+  "validation": "non-empty string, docker volume name format"
+}'
+```
+
+### 1.12 PG_DATA_PATH
+
+```bash
+bash $HOME/.claude/skills/sdlc/scripts/sdlc-journal-write.sh TASK-002 parameter_added sd '{
+  "paramName": "PG_DATA_PATH",
+  "paramKind": "env",
+  "paramType": "string",
+  "value": "/var/lib/postgresql/data",
+  "scope": "all",
+  "required": true,
+  "secret": false,
+  "ownerService": "deploy",
+  "description": "PG container 內資料目錄路徑（postgres:16-alpine image 預設）；docker-compose / Railway volume mount target。",
+  "sourceFR": "deploy-env.json Q0 自建 container + Tester Major-5",
+  "envPrefix": "PG_",
+  "validation": "Absolute path, default /var/lib/postgresql/data for postgres:16-alpine"
 }'
 ```
 
