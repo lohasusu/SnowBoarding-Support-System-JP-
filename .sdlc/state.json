@@ -158,7 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "deploy-init",
+      "currentPhase": "test-deploy-init",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -224,21 +224,34 @@
           "skipReason": "純後端重構 — SQLite→PostgreSQL 持久層遷移，無 UI 變更。Tester (test-sa) 強烈建議 skip；SA impact-assessment.md §6.1 已明示。FR-001~008 + NFR-002 (既有 22 AC 100% 通過) 已保證 UI 行為不變。"
         },
         "deploy-init": {
-          "status": "pm_review",
+          "status": "approved",
           "startedAt": "2026-06-09T00:00:00Z",
           "completedAt": "2026-06-09T08:46:46Z",
           "score": 90,
           "L1VerifyScore": 90,
           "L1L2Agreement": true,
           "L1VerifyNote": "首次 L1 與 L2 一致 PASS（18/20 items pass）— deployer agent 有 Bash 工具自己跑了 L1 verify，產出符合 deployer 角色檢查項。",
-          "pendingUserConfirmation": "Deployer 推斷 4 個應由 AskUserQuestion 詢問的決策（hosting / migration trigger / CI/CD / backup-rollback），PM 必須與使用者確認後才能 approve。"
+          "approvedAt": "2026-06-09T09:30:00Z",
+          "userConfirmedDecisions": {
+            "Q0_postgresHosting": "railway-self-hosted-postgres-docker (overrode Deployer inference)",
+            "Q1_migrationTrigger": "startup-auto-with-advisory-lock (matched)",
+            "Q2_cicdPlatform": "github-actions (matched)",
+            "Q3_backupRollback": "sqlite-emergency-only-pg-backup-deferred (overrode Deployer inference)"
+          },
+          "PMArtifactPatches": [
+            "deploy-env.json: postgresHosting → self-hosted-docker + sslMode → deferred-to-deploy-execute + backupRollback → sqlite-only + new userConfirmedDecisions block",
+            "migration-strategy.md §2.2/2.3/2.4: Railway daily backup mechanism marked NOT_APPLICABLE; backup restore drill removed from test-be; SQLite emergency path is the only backup mechanism; new postgresBackup section marked DEFERRED_TO_FUTURE_TASK"
+          ]
         },
         "test-uiux": {
           "status": "skipped",
           "skippedAt": "2026-06-09T00:00:00Z",
           "skipReason": "依賴的 uiux 階段已 skipped，無被測產出。"
         },
-        "test-deploy-init": { "status": "pending" },
+        "test-deploy-init": {
+          "status": "in_progress",
+          "startedAt": "2026-06-09T09:30:00Z"
+        },
         "sd": { "status": "pending" },
         "test-sd": { "status": "pending" },
         "fe": { "status": "pending" },

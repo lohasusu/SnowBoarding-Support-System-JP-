@@ -1,5 +1,5 @@
 {
-  "_comment": "deploy-env.json — Deploy(Init) 寫入。本 TASK 為 brownfield migration（既有 Railway production 已上線），scope=full 為既定事實。Q0/Q1/Q2/Q3 4 個決策因 sub-agent 無 AskUserQuestion 工具，由 Deployer 依 SA/BA/CLAUDE.md 推斷預設並標記 [Deploy 推斷 — 待 PM/使用者確認]。PM approve 階段須補確認。",
+  "_comment": "deploy-env.json — Deploy(Init) 寫入；PM 於 2026-06-09 approve 階段與使用者確認 4 個決策後 patch。Q0 postgresHosting 從推斷的 'railway-postgres-addon' 改為使用者實際選擇 'railway-self-hosted-postgres-docker'；Q3 backupRollback 從推斷的 'both' 改為使用者實際選擇 'sqlite-emergency-only-pg-backup-deferred'。Q1 migrationTrigger + Q2 cicdPlatform 推斷與使用者選擇一致。",
   "scope": "full",
   "scopeRationale": "[CLAUDE.md 已記載 Railway production URL: https://snowboarding-support-system-jp-production.up.railway.app — production 已上線，scope=full 為既定事實，非推斷]",
   "platform": "paas",
@@ -33,13 +33,20 @@
   "_deploymentDecisions": {
     "_comment": "PM dispatch prompt 要求的 4 個 AskUserQuestion 決策（sub-agent 無工具呼叫 → 推斷預設，PM approve 階段須補確認）",
     "postgresHosting": {
-      "decision": "railway-postgres-addon",
-      "rationale": "[Deploy 推斷 — 待 PM/使用者確認] CLAUDE.md 已記載 Railway 為 production；同帳號最簡，env vars 自動注入 DATABASE_URL，內建 SSL + daily backup（7 天保留）；Supabase/Neon 為外部託管會增加 latency（~30ms）且需額外帳號管理；本 TASK 解 Critical 缺陷優先簡單可靠",
-      "alternatives": ["supabase", "neon", "railway-self-hosted-postgres-docker"],
-      "costEstimate": "$5/月起（Railway Hobby plan 含 PG addon）",
-      "sslMode": "verify-full（Railway PG addon 預設啟用 SSL，cert 由 Railway 提供）",
-      "backup": "Daily 自動 backup（7 天保留 — Hobby plan；Pro plan 14 天 + PITR）",
-      "connectionLimit": "Railway Hobby PG: 100 max connections（NFR-005 max=10 充裕）"
+      "decision": "railway-self-hosted-postgres-docker",
+      "decisionConfirmedBy": "user (2026-06-09 PM approve session)",
+      "rationale": "[USER CONFIRMED] 使用者選擇自建 postgres:16-alpine container 而非託管 addon；完全控制 PG 版本與設定，避免 addon 收費（$5/月起）。trade-off：使用者接受需自行管理 backup / SSL / version 升級。",
+      "alternatives_rejected": ["railway-postgres-addon (Deployer 推斷)", "supabase", "neon"],
+      "costEstimate": "container 本身約 $0（Hobby plan resource quota 內），需自配 persistent volume",
+      "sslMode": "[USER WILL CONFIGURE] 自建 container 預設不啟用 SSL；production 建議使用者後續自行設定 cert（或 sslmode=disable 加風險）。本 TASK 階段 sslmode=disable 為預設，留 SD/Deploy(Execute) 階段視需要強化。",
+      "connectionLimit": "postgres:16-alpine 預設 max_connections=100（NFR-005 pool max=10 充裕）",
+      "selfHostedImplications": [
+        "Railway 不自動 backup PG container 內資料 → Q3 backup 已重選為 SQLite emergency only",
+        "需 mount Railway persistent volume 給 /var/lib/postgresql/data 否則 redeploy 資料消失",
+        "PG version 升級由使用者控制（改 docker image tag）",
+        "SSL cert 需使用者自行配置（或本機 dev sslmode=disable）",
+        "Sentry / monitoring 仍可工作（透過應用層 metrics）"
+      ]
     },
     "migrationTrigger": {
       "decision": "startup-auto-with-advisory-lock",
@@ -55,16 +62,24 @@
       "newWorkflowsNeeded": ["ci-be.yml (lint+test+build for be)", "deploy-staging.yml (PR preview)", "deploy-prod.yml (production gate)"]
     },
     "backupRollback": {
-      "decision": "both",
-      "rationale": "[Deploy 推斷 — 待 PM/使用者確認] SA SUG-006 明示 14 天 SQLite emergency path 保留 + FUNC-107 IRREVERSIBLE 要求 rollback plan；雙保險最安全",
+      "decision": "sqlite-emergency-only-pg-backup-deferred",
+      "decisionConfirmedBy": "user (2026-06-09 PM approve session)",
+      "rationale": "[USER CONFIRMED] 使用者明示『先不訂 PG backup，以後再說』。本 TASK scope 縮為僅保留 14 天 SQLite emergency path（SUG-006）；PG 累積資料的備份策略留後續 TASK 處理。trade-off：使用者接受 14 天後 SQLite path 移除後若 PG 災難無 backup 可回。",
       "sqliteEmergencyPath": {
         "retentionDays": 14,
         "implementation": "保留 web/auth/database.py 原 SQLite 實作於 git history（不刪 commit）+ 14 天內可 git revert 切回 SQLite 部署；過後正式刪除 SQLite path 程式碼（新開 TASK）",
         "trigger": "production 切換後 14 天內若發生不可恢復的 PG 災難（資料毀損 / 連線完全失能 > 1 hr）"
       },
-      "postgresPITR": {
-        "available": "Railway PG addon Pro plan 才有 PITR；Hobby plan 只有 daily backup",
-        "rationale": "本 TASK 為單人專案，Hobby plan daily backup 已足夠；正式上線後若使用者升 Pro 可啟用 PITR"
+      "postgresBackup": {
+        "status": "DEFERRED_TO_FUTURE_TASK",
+        "rationale": "使用者明示本 TASK 不訂 PG backup。自建 PG container 在 Railway 沒有自動 backup；若需 backup 必須自寫 pg_dump cron job 或改回 Railway PG addon（內建 daily backup）。建議新開 TASK 評估 backup 架構（cron pg_dump → Railway volume / S3 / 外部 backup service）。"
+      },
+      "riskAcceptance": {
+        "userAcknowledged": "Production 累積資料在 14 天 SQLite path 過期後若 PG 災難無 backup 可回；使用者接受此風險直到下次 backup TASK 處理",
+        "mitigationCandidates": [
+          "新開 TASK 評估 pg_dump cron + Railway persistent volume 備份方案",
+          "或改回 Railway PG addon（含 daily backup）— 但需評估 addon 月費 vs 自建 container 的 trade-off"
+        ]
       }
     }
   },
@@ -72,15 +87,15 @@
     "_comment": "test-sa 報告中 5 個 [BLOCKED_ON_DEPLOYER] 在本 deploy-env.json 解決狀態",
     "1_postgres_hosting": {
       "status": "RESOLVED",
-      "resolution": "Railway PostgreSQL addon — 詳見 _deploymentDecisions.postgresHosting"
+      "resolution": "Railway self-hosted postgres:16-alpine container（USER CONFIRMED 2026-06-09）— 詳見 _deploymentDecisions.postgresHosting"
     },
     "2_ssl_mode": {
-      "status": "RESOLVED",
-      "resolution": "verify-full（Railway PG addon 預設 SSL）；DATABASE_URL 內含 sslmode=require 參數；本機 docker-compose dev 環境 sslmode=disable"
+      "status": "DEFERRED_TO_DEPLOY_EXECUTE",
+      "resolution": "自建 container 預設不啟用 SSL；本 TASK 階段 sslmode=disable，留 SD/Deploy(Execute) 階段評估 production SSL 配置（self-signed cert / Let's Encrypt / sidecar proxy）"
     },
     "3_backup_strategy": {
-      "status": "RESOLVED",
-      "resolution": "Daily backup (7 天保留, Railway Hobby) + 14 天 SQLite emergency path（SUG-006）；Pro plan 升級後可啟用 PITR — 留後續 TASK"
+      "status": "PARTIAL",
+      "resolution": "14 天 SQLite emergency path（SUG-006）為唯一 backup 機制；PG 累積資料 backup 由使用者明示 DEFERRED_TO_FUTURE_TASK"
     },
     "4_production_sla_dashboard": {
       "status": "PARTIAL",
@@ -92,5 +107,12 @@
     }
   },
   "confirmedAt": "2026-06-09T08:30:00Z",
-  "confirmedBy": "deployer-init-inferred-defaults"
+  "confirmedBy": "deployer-init-inferred-defaults",
+  "userConfirmedAt": "2026-06-09T09:30:00Z",
+  "userConfirmedDecisions": {
+    "Q0_postgresHosting": "railway-self-hosted-postgres-docker (overrode Deployer inference of railway-postgres-addon)",
+    "Q1_migrationTrigger": "startup-auto-with-advisory-lock (matched Deployer inference)",
+    "Q2_cicdPlatform": "github-actions (matched Deployer inference)",
+    "Q3_backupRollback": "sqlite-emergency-only-pg-backup-deferred (overrode Deployer inference of both)"
+  }
 }

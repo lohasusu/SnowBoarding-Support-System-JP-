@@ -112,48 +112,46 @@ sequenceDiagram
 | 災難復原 | 本機開發資料不重要，re-run migration + seed script 重建 |
 | 注意事項 | 開發者 .env 含 POSTGRES_PASSWORD 必須 gitignored |
 
-### 2.2 Staging 環境
+> **⚠️ 2026-06-09 PM 修訂**：使用者實際選擇「自建 postgres:16-alpine container」（非 Railway PG addon）+「先不訂 PG backup，以後再說」。
+> 本 §2.2-2.4 的 Railway daily backup 機制**不適用**於自建 container。
+> 自建 container 在 Railway 沒有自動 backup — Railway 只會做 container layer 的 snapshot，不會 dump PG 邏輯資料。
+> 因此 PG backup 已 **DEFERRED_TO_FUTURE_TASK**（見 deploy-env.json _deploymentDecisions.backupRollback.postgresBackup）。
+
+### 2.2 Staging 環境（修訂後）
 
 | 項目 | 配置 |
 |------|------|
-| Backup 機制 | Railway PG addon 內建 daily backup | 
-| 保留期 | 7 天 (Hobby plan) |
-| 災難復原 | Railway dashboard → Backups → Restore |
-| 注意事項 | Staging 切換 prod 前須驗證 backup restore 流程（test-be 階段） |
+| Backup 機制 | **無自動 PG backup**（自建 container 不在 Railway addon 服務範圍） |
+| Persistent volume | Railway named volume mount 到 `/var/lib/postgresql/data` — redeploy 不丟資料但無時間點還原能力 |
+| 災難復原 | **DEFERRED** — 後續 TASK 評估 `pg_dump` cron 或改回 addon |
+| 注意事項 | test-be 階段**不跑** backup restore 流程（無 backup 可測） |
 
-### 2.3 Production 環境
+### 2.3 Production 環境（修訂後）
 
 | 項目 | 配置 |
 |------|------|
-| Backup 機制 | Railway PG addon **daily backup**（內建，無需配置） |
-| 保留期 | 7 天 (Hobby) / 14 天 (Pro plan — 若升級) |
-| PITR (Point-In-Time Recovery) | ❌ Hobby plan 無；Pro plan 有 — 留後續 TASK 升級時啟用 |
-| 多區域備份 | ❌ Hobby plan 無；不在本 TASK 範圍 |
-| 災難復原 RTO | < 1 hr（Railway 自動化 restore） |
-| 災難復原 RPO | < 24 hr（daily backup 粒度） |
-| 緊急 path | 14 天 SQLite emergency path（SUG-006）— 詳見 §3.4 |
+| Backup 機制 | **無自動 PG backup**（USER CONFIRMED — DEFERRED_TO_FUTURE_TASK） |
+| Persistent volume | Railway named volume — 提供 container restart 持久化但**不等於 backup** |
+| PITR | ❌ 無 |
+| 多區域備份 | ❌ 無 |
+| 災難復原 RTO/RPO | **無定義** — 無 PG backup 即無 RPO；emergency 走 SQLite path |
+| 緊急 path | **唯一可用 backup 機制** — 14 天 SQLite emergency path（SUG-006）— 詳見 §3.4 |
+| 使用者已知接受風險 | ✅ 14 天 SQLite path 過期後若 PG 災難無 backup 可回；後續 TASK 評估方案前接受此風險 |
 
-### 2.4 Backup 驗證計畫（test-be 階段必跑）
+### 2.4 Backup 驗證計畫（修訂後 — test-be 階段不跑）
 
-```bash
-# 1. 觸發手動 backup（Railway CLI）
-railway environment use staging
-railway service postgres backup create
+本 TASK scope 內**不安排** backup restore 驗證測試（因無 PG backup 機制可測）。
 
-# 2. 等待 backup 完成（通常 < 5 分鐘）
-railway service postgres backup list
+**替代驗證項目**（test-be 階段必跑）:
+- ✅ 14 天 SQLite emergency rollback drill：模擬 PG 故障 → `git revert <pg-merge-commit>` → Railway 重新部署 SQLite → 確認 app 啟動 + 8 個 pytest 通過
+- ✅ Persistent volume 持久化驗證：PG container restart → 資料不丟（透過 mount volume）
+- ❌ ~~`railway service postgres backup create/restore`~~ — 移除（自建 container 不適用）
 
-# 3. 模擬災難：DROP 一張表
-railway run -- psql -c "DROP TABLE favorites;"
-
-# 4. Restore backup
-railway service postgres backup restore <backup-id>
-
-# 5. 驗證 favorites 表已還原
-railway run -- psql -c "SELECT COUNT(*) FROM favorites;"
-```
-
-**驗收**: backup → DROP → restore → 資料回來 = ✅
+**後續 TASK 規劃（DEFERRED）**：
+新開 TASK 評估 backup 方案，候選：
+1. cron job 跑 `pg_dump` 輸出到 Railway persistent volume（最低成本，需自寫 scheduler）
+2. cron job 跑 `pg_dump` 上傳到 S3 / R2（額外服務但 off-site 安全）
+3. 改回 Railway PG addon（內建 daily backup 7 天，月費 $5）— 需評估 trade-off
 
 ---
 

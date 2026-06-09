@@ -182,3 +182,6 @@
 [2026-06-09T08:43:30Z] deployer | TASK-002 | phase_complete | deploy-init: 7 artifacts produced + 5 BLOCKED_ON_DEPLOYER resolved
 [2026-06-09T08:48:19Z] Deployer | TASK-002 | completed | deploy-init L1=90 L2=90 PASS artifacts=12; 4 inferred decisions pending user confirmation
 [2026-06-09T08:48:19Z] PM     | TASK-002 | pm_review    | deploy-init
+[2026-06-09T18:05:56Z] User   | TASK-002 | approved     | deploy-init (with 4 confirmed decisions: PG=self-built, migration=startup-auto, CI=GH-Actions, backup=sqlite-only)
+[2026-06-09T18:05:56Z] PM     | TASK-002 | artifact_patched | deploy-env.json + migration-strategy.md (reflect user-confirmed Q0+Q3 overrides)
+[2026-06-09T18:05:56Z] PM     | TASK-002 | dispatched   | test-deploy-init
