@@ -169,3 +169,7 @@
 [2026-06-08T10:25:26Z] PM     | TASK-002 | dispatched   | test-sa
 [2026-06-08T10:56:11Z] Tester | TASK-002 | completed    | test-sa L2=95 (Tester eval SA=91) verdict=PASS (0 Critical / 0 Major / 3 Minor / 5 Info) recommends UIUX skip
 [2026-06-08T10:56:11Z] PM     | TASK-002 | pm_review    | test-sa
+[2026-06-09T08:18:33Z] User   | TASK-002 | approved     | test-sa
+[2026-06-09T08:18:33Z] PM     | TASK-002 | phase_skipped | uiux (reason: pure backend refactor, no UI changes — per Tester recommendation + SA impact-assessment §6.1)
+[2026-06-09T08:18:33Z] PM     | TASK-002 | phase_skipped | test-uiux (reason: depends on skipped uiux, no artifact to test)
+[2026-06-09T08:18:33Z] PM     | TASK-002 | dispatched   | deploy-init
