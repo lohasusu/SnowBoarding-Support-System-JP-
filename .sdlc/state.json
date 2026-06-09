@@ -224,8 +224,14 @@
           "skipReason": "純後端重構 — SQLite→PostgreSQL 持久層遷移，無 UI 變更。Tester (test-sa) 強烈建議 skip；SA impact-assessment.md §6.1 已明示。FR-001~008 + NFR-002 (既有 22 AC 100% 通過) 已保證 UI 行為不變。"
         },
         "deploy-init": {
-          "status": "in_progress",
-          "startedAt": "2026-06-09T00:00:00Z"
+          "status": "pm_review",
+          "startedAt": "2026-06-09T00:00:00Z",
+          "completedAt": "2026-06-09T08:46:46Z",
+          "score": 90,
+          "L1VerifyScore": 90,
+          "L1L2Agreement": true,
+          "L1VerifyNote": "首次 L1 與 L2 一致 PASS（18/20 items pass）— deployer agent 有 Bash 工具自己跑了 L1 verify，產出符合 deployer 角色檢查項。",
+          "pendingUserConfirmation": "Deployer 推斷 4 個應由 AskUserQuestion 詢問的決策（hosting / migration trigger / CI/CD / backup-rollback），PM 必須與使用者確認後才能 approve。"
         },
         "test-uiux": {
           "status": "skipped",

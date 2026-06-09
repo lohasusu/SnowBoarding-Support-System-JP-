@@ -1,0 +1,50 @@
+# Dockerfile.fe — TASK-002 Frontend Dockerfile 模板（Deploy Init — STUB）
+#
+# ⚠️ 本 TASK 為 monolith（FastAPI 直接 serve static HTML + 原生 JS templates）；
+# **本 TASK 不需要獨立 frontend container**。
+#
+# 此 Dockerfile.fe 為 SDLC Deployer Init 規範要求的「統一檔名」stub（rules/sdlc-deployer.md §3A
+# 矩陣要求 Dockerfile.fe + Dockerfile.be 兩者都存在）。
+#
+# 用途：
+#   - 滿足 sdlc-role-verify.sh deployer Init 模式檢查項
+#   - 未來 Vue + Vite 重構（CLAUDE.md 提及）時，此檔可直接擴充為實際 FE Dockerfile
+#
+# 當前狀態：[STUB] 未啟用；docker-compose.yml 透過 profiles=disabled 隱藏 frontend service
+
+# 預備模板：Vue + Vite + Nginx 多階段建構（未來重構時啟用）
+# 目前為佔位 — 不會被任何 docker-compose / CI 使用
+
+# === Stage 1: builder（未來啟用）===
+FROM ${FE_BUILD_IMAGE:-node:22-alpine} AS builder
+
+WORKDIR /build
+
+# COPY package.json package-lock.json ./
+# RUN npm ci
+# COPY . .
+# ARG FE_BUILD_CMD="npm run build"
+# RUN ${FE_BUILD_CMD}
+
+# 當前 stub 行為：建立空 dist
+RUN mkdir -p /build/dist && \
+    echo '<!doctype html><title>STUB — TASK-002 monolith</title><body><h1>This container is not in use</h1><p>TASK-002 is a backend-only migration; FE is served by FastAPI from web/templates/</p></body>' \
+    > /build/dist/index.html
+
+# === Stage 2: serve (Nginx) ===
+FROM ${FE_SERVE_IMAGE:-nginx:alpine} AS runtime
+
+COPY --from=builder /build/dist /usr/share/nginx/html
+
+ARG FE_PORT=3000
+EXPOSE ${FE_PORT}
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+    CMD wget --no-verbose --tries=1 --spider "http://localhost:${FE_PORT}/" || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# === [STUB 警告] ===
+# 此檔在 TASK-002 範圍內不會被建構或執行；docker-compose.yml profiles=disabled。
+# 若 CI 嘗試 build 此檔，會產出一個 nginx + 警告頁面，不影響 backend 部署。
+# 未來啟用 Vue + Vite 時，移除此警告 + 取消上方 builder stage 註解。

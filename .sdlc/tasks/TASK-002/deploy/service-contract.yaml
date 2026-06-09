@@ -1,0 +1,330 @@
+# service-contract.yaml — TASK-002 SQLite → PostgreSQL 持久化遷移
+#
+# 此檔案是 env var 名稱、port 分配、服務依賴的**單一真相來源**
+# SD/BE 引用環境變數時必須使用此檔案定義的 key 名稱
+#
+# 本 TASK 性質：替換 storage engine（SQLite → PostgreSQL）；
+# 保留既有 FastAPI service（uvicorn web.main:app）+ Railway PaaS 部署架構。
+# 不新增 FE/BE service（單服務 monolith — TASK-001 brownfield 真相）。
+
+version: "1.0"
+generated_by: "deployer-init"
+generated_at: "2026-06-09T08:30:00Z"
+task_id: "TASK-002"
+mode: "feature-migration"
+
+services:
+  # 既有 FastAPI service — 邊界不變、實作替換（SA system-arch.md MOD-005）
+  backend:
+    name: "snowboarding_support"
+    type: "monolith-fastapi"
+    runtime: "python:3.12-slim"
+    framework: "fastapi"
+    entrypoint: "uvicorn web.main:app --host 0.0.0.0 --port $PORT"
+    entrypoint_lock: "LOCKED — CLAUDE.md 規定不可改"
+    port: 8000
+    port_railway: "${PORT}"  # Railway 動態注入
+    health_check: "/api/auth/me"  # 既有 endpoint；未登入回 401 證明 app + DB 正常
+    health_check_note: "[SA建議 SA-SUG-101] 後續 TASK 引入 /healthz 端點區分 app/DB 健康；本 TASK 用既有 endpoint"
+    depends_on: ["database"]
+    env_vars:
+      # ========== PostgreSQL 連線（本 TASK 新增 5 個 — Rule 18 將於 SD 階段寫入 parameter_added）==========
+      - key: "POSTGRES_HOST"
+        description: "PostgreSQL 主機"
+        example: "localhost (dev) / Railway 內部 host (prod)"
+        required: true
+        secret: false
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "FR-005"
+
+      - key: "POSTGRES_PORT"
+        description: "PostgreSQL port"
+        example: "5432"
+        required: true
+        secret: false
+        default: "5432"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "FR-005"
+
+      - key: "POSTGRES_USER"
+        description: "PostgreSQL 使用者"
+        example: "snowtrip (dev) / postgres (Railway addon default)"
+        required: true
+        secret: false
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "FR-005"
+
+      - key: "POSTGRES_PASSWORD"
+        description: "PostgreSQL 密碼（絕不可 commit 到 git）"
+        required: true
+        secret: true
+        secret_storage: "Railway dashboard (prod) / .env (dev, gitignored)"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "FR-005 + NFR-011"
+
+      - key: "POSTGRES_DB"
+        description: "PostgreSQL 資料庫名稱"
+        example: "snowtrip"
+        required: true
+        secret: false
+        default_suggestion: "snowtrip"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "FR-005"
+
+      # ========== 替代方案：DATABASE_URL（Railway addon 預設提供）==========
+      - key: "DATABASE_URL"
+        description: "PostgreSQL 連線字串（Railway PG addon 自動注入；本 TASK SD 階段決定優先讀 POSTGRES_* 或 DATABASE_URL）"
+        example: "postgresql://user:pass@host:5432/snowtrip?sslmode=require"
+        required: false
+        required_note: "若使用此 var 則 POSTGRES_* 5 個變為 optional；SD 階段決定支援哪種"
+        secret: true
+        secret_storage: "Railway dashboard"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "FR-005 (替代方案)"
+
+      # ========== SSL 模式（FR-005 + BA SUG-005）==========
+      - key: "POSTGRES_SSL_MODE"
+        description: "PostgreSQL SSL 模式"
+        example: "disable (本機) / require (staging) / verify-full (production)"
+        required: true
+        secret: false
+        default_dev: "disable"
+        default_prod: "verify-full"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "FR-005 + BA SUG-005"
+
+      # ========== Connection Pool 參數（NFR-005）==========
+      - key: "POSTGRES_POOL_MIN"
+        description: "Connection pool 最小連線數"
+        example: "2"
+        required: false
+        secret: false
+        default: "2"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "NFR-005"
+
+      - key: "POSTGRES_POOL_MAX"
+        description: "Connection pool 最大連線數"
+        example: "10"
+        required: false
+        secret: false
+        default: "10"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "NFR-005"
+
+      - key: "POSTGRES_POOL_TIMEOUT_MS"
+        description: "從 pool 取得連線的 timeout（ms）"
+        example: "5000"
+        required: false
+        secret: false
+        default: "5000"
+        first_task: "TASK-002"
+        owner_service: "backend"
+        source_fr: "NFR-005"
+
+      # ========== 既有 env vars [REUSE: from TASK-001 — 不在本 TASK FR 範圍但運行時必須]==========
+      - key: "SECRET_KEY"
+        description: "JWT 簽章密鑰 [REUSE: from TASK-001 — fail-fast 在 PATTERN-007]"
+        required: true
+        secret: true
+        secret_storage: "Railway dashboard / .env"
+        first_task: "TASK-001"
+        owner_service: "backend"
+        source_fr: "TASK-001/PATTERN-007 + HOTFIX-B"
+        reuse: true
+
+      - key: "SERPAPI_API_KEY"
+        description: "SerpAPI 機票查詢 [REUSE: from TASK-001]"
+        required: true
+        secret: true
+        secret_storage: "Railway dashboard / .env"
+        first_task: "TASK-001"
+        owner_service: "backend"
+        source_fr: "TASK-001/FR (機票)"
+        reuse: true
+
+      - key: "PORT"
+        description: "Railway 動態注入的應用 port [REUSE: from TASK-001]"
+        required: true
+        secret: false
+        first_task: "TASK-001"
+        owner_service: "backend"
+        source_fr: "TASK-001/Railway grandfather"
+        reuse: true
+
+  # 新增 PostgreSQL service（本 TASK 核心）— SA system-arch.md MOD-101
+  database:
+    name: "postgres"
+    type: "managed-database"
+    image: "postgres:16-alpine"  # config.json techStack.database.image
+    image_lock: "LOCKED — config.json 已鎖定 postgres:16-alpine"
+    port: 5432
+    port_dev: "5432"  # 本機 docker-compose
+    port_prod: "Railway 內部 (private network)"
+    health_check_cmd: "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"  # config.json healthcheck
+    deployment_mode_dev: "docker-compose"
+    deployment_mode_prod: "railway-postgres-addon"
+    persistence:
+      dev_volume: "sdlc-db-data (named volume — 既有 docker-compose.yml line 138-140)"
+      prod: "Railway PG addon 內建持久化儲存（managed）"
+    env_vars:
+      # Postgres 容器初始化時需要的 env vars（與 backend 使用的同名變數共用值；docker-compose.yml line 99-110 已對應）
+      - key: "POSTGRES_USER"
+        description: "PostgreSQL 容器初始化使用者（與 backend env vars 共用值）"
+        required: true
+        secret: false
+        cross_ref: "backend.POSTGRES_USER"
+
+      - key: "POSTGRES_PASSWORD"
+        description: "PostgreSQL 容器初始化密碼"
+        required: true
+        secret: true
+        cross_ref: "backend.POSTGRES_PASSWORD"
+
+      - key: "POSTGRES_DB"
+        description: "PostgreSQL 容器初始化資料庫名稱"
+        required: true
+        secret: false
+        cross_ref: "backend.POSTGRES_DB"
+    backup:
+      dev: "N/A (docker-compose volume，本機開發資料不備份)"
+      prod: "Railway PG addon daily backup (7 天保留 — Hobby plan)"
+      emergency_path: "[SUG-006] 14 天 SQLite emergency path 保留（git history + revert）"
+
+  # 沒有獨立 frontend service（既有架構為單 service，FastAPI 直接 serve static + templates）
+  # 不規劃 redis/cache/mq（BA §1.4 明示不納入）
+
+port_allocation:
+  backend: 8000        # 本機開發；Railway 用 $PORT 動態注入
+  database: 5432       # 本機 docker-compose；Railway PG addon 走 private network
+  # 無 frontend / redis / mq 等其他服務
+
+env_naming_convention: "UPPER_SNAKE_CASE"
+env_naming_convention_source: "api-conventions.md v1.1 + db-conventions.md v1.1 §2"
+
+env_prefix_rules:
+  database: "POSTGRES_"     # config.json techStack.database.envPrefix = POSTGRES_
+  auth: "SECRET_"           # SECRET_KEY [REUSE: from TASK-001]
+  external_api: "SERPAPI_"  # SERPAPI_API_KEY [REUSE]
+  # 禁止模糊命名：URL、KEY、SECRET（必須有服務前綴）
+  # 例外：DATABASE_URL 為 Railway PG addon 慣例，業界廣為使用，允許不加 POSTGRES_ 前綴
+
+env_prefix_rules_note: |
+  config.json.techStack.frontend.envPrefix = VUE_APP_ — 但本 TASK 為純後端，
+  無 FE env vars 引入（既有 FE 為 static HTML + 原生 JS，無 build-time env）。
+  未來 Vue + Vite 重構（CLAUDE.md 提及）時將套用 VUE_APP_ 前綴。
+
+# Path-based CI 路徑映射（Execute 模式落實為最終 CI 配置）
+# 本 TASK 為 monorepo single-service，無 fe/be 拆分；ci_path_filters 依實際目錄結構調整
+ci_path_filters:
+  backend:
+    paths:
+      - "web/**"
+      - "flight_search/**"
+      - "*.py"
+      - "requirements.txt"
+      - "http_scraper.py"
+    triggers: ["lint:be", "test:be"]
+  migration:
+    paths:
+      - "migrations/**"
+      - "alembic.ini"  # 假設 SD 選 Alembic
+      - "scripts/run_migrations.py"
+    triggers: ["validate:migration", "test:migration-up-down"]
+  infra:
+    paths:
+      - "docker-compose*.yml"
+      - "Dockerfile*"
+      - ".github/workflows/**"
+      - "railway.toml"
+      - "nixpacks.toml"
+    triggers: ["validate:infra"]
+  static_assets:
+    paths:
+      - "web/static/**"
+      - "web/templates/**"
+    triggers: ["lint:static"]  # 無 build 步驟（原生 JS / Jinja2）
+  sdlc_docs:
+    paths:
+      - ".sdlc/**"
+    triggers: []  # SDLC docs 變更不觸發應用 CI
+
+# Service Dependencies（依賴順序：啟動順序由上到下）
+service_dependency_graph:
+  - database               # 1. PostgreSQL 必須先就緒
+  - backend                # 2. backend 等 PG healthy 才啟動（既有 docker-compose depends_on.condition: service_healthy）
+
+# Migration ordering（FR-007 + FUNC-107）
+migration_ordering:
+  - "1. PostgreSQL provision (Railway addon or docker-compose up postgres)"
+  - "2. App startup → FUNC-101 init_pool"
+  - "3. App startup → FUNC-103 migration upgrade head (auto)"
+  - "4. App ready to serve traffic"
+
+# Rollback Strategy（FUNC-107 IRREVERSIBLE — SA 強制）
+rollback_strategy:
+  trigger_conditions:
+    - "Railway healthcheck fail > 2 分鐘 → auto rollback to N-1 build"
+    - "Smoke test (BF-002 step 4) 失敗 → 手動觸發 BF-003"
+    - "Production 5xx rate 上升 > 5x baseline 持續 10 分鐘 → 觸發 BF-003"
+    - "DB connection error 持續 > 1 hr 無法恢復 → 啟動 14 天 SQLite emergency path"
+  rollback_command_railway: "Railway dashboard → Deployments → Select previous deploy → Redeploy"
+  rollback_command_db: "[BLOCKED_ON_SD] Migration down — Alembic: alembic downgrade -1 / yoyo: yoyo rollback"
+  sqlite_emergency_window: "14 days (SUG-006)"
+  emergency_path_implementation: |
+    1. database_sqlite.py 保留於 git history（不刪 commit — git log 可追溯）
+    2. 14 天內若需 emergency rollback：
+       a. Railway dashboard 移除 POSTGRES_* env vars
+       b. git revert {pg-migration-merge-commit}
+       c. git push → Railway 自動 redeploy SQLite 版本
+       d. 接受 SQLite ephemeral 缺陷重現作為 emergency tradeoff
+    3. 14 天後新開 TASK 正式移除 SQLite path 程式碼
+
+# Service Contract Validation（Deploy(Execute) E-1.6 將執行）
+validation:
+  env_consistency_check: "bash scripts/sdlc-env-consistency.sh TASK-002 (Execute 階段)"
+  expected_env_keys_in_code:
+    - "POSTGRES_HOST"
+    - "POSTGRES_PORT"
+    - "POSTGRES_USER"
+    - "POSTGRES_PASSWORD"
+    - "POSTGRES_DB"
+    - "POSTGRES_SSL_MODE"
+    - "POSTGRES_POOL_MIN"
+    - "POSTGRES_POOL_MAX"
+    - "POSTGRES_POOL_TIMEOUT_MS"
+    - "DATABASE_URL"
+    - "SECRET_KEY"
+    - "SERPAPI_API_KEY"
+    - "PORT"
+
+# 追溯
+traces_to:
+  fr:
+    - "FR-001: PostgreSQL 連線層替換（services.backend.env_vars POSTGRES_*）"
+    - "FR-002: 三表 schema 重建（services.database image + migration_ordering）"
+    - "FR-003: Migration 工具導入（ci_path_filters.migration）"
+    - "FR-004: 補軟刪欄位（migration_ordering step 3 涵蓋）"
+    - "FR-005: 環境變數註冊（services.backend.env_vars 5 + 1 個）"
+    - "FR-006: Railway 部署設定（deploy-env.json.platformDetail=railway）"
+    - "FR-007: 既有資料遷移（rollback_strategy.sqlite_emergency_window）"
+    - "FR-008: 全環境統一 PG（services.database.deployment_mode_dev + _prod）"
+  nfr:
+    - "NFR-002: 既有 22 AC 外部行為不變（health_check 用既有 endpoint /api/auth/me）"
+    - "NFR-005: Connection pool（POSTGRES_POOL_* 3 個 env vars）"
+    - "NFR-010: env vars UPPER_SNAKE_CASE（env_naming_convention）"
+    - "NFR-011: Secret 不洩漏（POSTGRES_PASSWORD secret_storage 標明）"
+  cross_task_modify:
+    - "[CROSS-TASK: TASK-001 / MOD-005 storage engine 替換 / FR-001]"
+    - "[CROSS-TASK: TASK-001 / TBL-001/002/003 補 timestamp 欄位 / FR-004]"
+  irreversible:
+    - "FUNC-107 production cutover [IRREVERSIBLE] — rollback_strategy 完整覆蓋"

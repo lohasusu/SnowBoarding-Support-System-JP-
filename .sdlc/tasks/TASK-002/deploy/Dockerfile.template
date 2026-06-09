@@ -1,0 +1,76 @@
+# Dockerfile.template — TASK-002 Deploy(Init)
+#
+# 本 TASK 為單服務 monolith（FastAPI），實際部署使用 Railway nixpacks buildpack（不需自製 Dockerfile）。
+# 本模板供「本機 docker-compose dev 環境」+「未來自製 image 推 ghcr.io」使用。
+#
+# [DELTA] 既有專案無 Dockerfile（Railway 用 nixpacks 自動偵測 requirements.txt 構建）；
+# 本 TASK Init 階段不強制產出 Dockerfile，Execute 階段視需求決定是否啟用。
+
+# === 多階段建構 ===
+
+# Stage 1: builder — 安裝 Python 依賴
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+# 系統依賴（psycopg / asyncpg 編譯需要 — SD 階段選定 driver 後可簡化）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+# Install dependencies to /install (later copied to runtime image)
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# Stage 2: runtime — 精簡 image
+FROM python:3.12-slim AS runtime
+
+WORKDIR /app
+
+# 只需 libpq runtime（不需 -dev）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --shell /bin/bash appuser
+
+# 從 builder 階段複製安裝好的 packages
+COPY --from=builder /install /usr/local
+
+# 複製應用程式碼（owner 設為 appuser）
+COPY --chown=appuser:appuser web/ ./web/
+COPY --chown=appuser:appuser flight_search/ ./flight_search/
+COPY --chown=appuser:appuser http_scraper.py ./
+COPY --chown=appuser:appuser migrations/ ./migrations/
+
+# 切到非 root user 執行（資安最佳實踐）
+USER appuser
+
+# Expose port（依 env var；本機 8000 / Railway $PORT）
+ARG BE_PORT=8000
+ENV PORT=${BE_PORT}
+EXPOSE ${PORT}
+
+# Healthcheck（service-contract.yaml health_check = /api/auth/me）
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/api/auth/me 2>&1 | grep -qE '(401|200)' || exit 1
+
+# Entrypoint — 與 railway.toml 一致（CLAUDE.md 鎖定）
+# Migration auto-run 由 web/main.py @app.on_event("startup") 觸發（FUNC-101 + FUNC-103；SD 階段實作）
+CMD ["sh", "-c", "uvicorn web.main:app --host 0.0.0.0 --port ${PORT}"]
+
+# === [DEPLOYER建議] 後續優化（不在本 TASK 範圍）===
+#
+# 1. Multi-arch build（buildx）— 已在 config.json 規劃 linux/amd64 + linux/arm64
+#    Execute 階段若決定推 ghcr.io，CI workflow 加 `docker buildx build --platform linux/amd64,linux/arm64 --push`
+#
+# 2. Image tag binding（Rule 4 外部 ID 綁定）—
+#    image naming: ghcr.io/{org}/snowboarding_support-backend:TASK-002 (per config.json.containerStrategy.imageNaming)
+#
+# 3. Distroless / scratch base —
+#    可進一步精簡 image size，但需驗證 wget / psycopg runtime 依賴；本 TASK 採 python:3.12-slim 為穩定起點
+#
+# 4. .dockerignore（Execute 階段產出於 root）—
+#    必須排除 .sdlc/ / .git/ / web/data/ (SQLite db) / __pycache__/ / *.pyc / .pytest_cache/

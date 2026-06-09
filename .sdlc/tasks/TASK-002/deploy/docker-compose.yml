@@ -1,0 +1,91 @@
+# docker-compose.yml — TASK-002 Deploy(Init) 模板
+#
+# 本 TASK 為 monolith FastAPI app（無獨立 fe / be 拆分；既有 FE 為 static HTML + 原生 JS）；
+# 此檔為 deploy/ 內 Init 模板（含 ${PLACEHOLDER}）；Execute 階段對應到專案 root 既有 docker-compose.yml
+# 並產出 docker-compose.dev.yml override（見 docker-compose.template.yml [DELTA] 章節）。
+#
+# 模板原則（Rule 4 — Init 模式不寫實值）：所有環境特定值用 ${VAR}；未知值標 PLACEHOLDER。
+
+version: '3.8'
+
+services:
+  # FastAPI monolith backend（既有 service — 邊界不變、storage 替換）
+  backend:
+    build:
+      context: ${BUILD_CONTEXT:-.}
+      dockerfile: ${BE_DOCKERFILE:-Dockerfile.be}
+    image: ${BE_IMAGE:-ghcr.io/${GITHUB_ORG_PLACEHOLDER}/snowboarding_support-backend:${IMAGE_TAG:-TASK-002}}
+    container_name: snowboarding-backend-${ENV_NAME:-dev}
+    ports:
+      - "${BE_PORT:-8000}:${BE_PORT:-8000}"
+    environment:
+      # PostgreSQL 連線（service-contract.yaml 真相）
+      POSTGRES_HOST: "${POSTGRES_HOST:-database}"
+      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
+      POSTGRES_USER: "${POSTGRES_USER:-snowtrip}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}"
+      POSTGRES_DB: "${POSTGRES_DB:-snowtrip}"
+      POSTGRES_SSL_MODE: "${POSTGRES_SSL_MODE:-disable}"
+      POSTGRES_POOL_MIN: "${POSTGRES_POOL_MIN:-2}"
+      POSTGRES_POOL_MAX: "${POSTGRES_POOL_MAX:-10}"
+      POSTGRES_POOL_TIMEOUT_MS: "${POSTGRES_POOL_TIMEOUT_MS:-5000}"
+      DATABASE_URL: "${DATABASE_URL:-postgresql://${POSTGRES_USER:-snowtrip}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-database}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-snowtrip}?sslmode=${POSTGRES_SSL_MODE:-disable}}"
+      # 既有 env vars [REUSE: TASK-001]
+      SECRET_KEY: "${SECRET_KEY:?SECRET_KEY must be set in .env (PATTERN-007 fail-fast)}"
+      SERPAPI_API_KEY: "${SERPAPI_API_KEY:-}"
+      PORT: "${BE_PORT:-8000}"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      # service-contract.yaml health_check = /api/auth/me（未登入回 401 證明 app + DB 都活）
+      test:
+        - "CMD-SHELL"
+        - "wget --no-verbose --tries=1 --spider http://localhost:${BE_PORT:-8000}/api/auth/me 2>&1 | grep -qE '(401|200)' || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # PostgreSQL database service（本 TASK 新增 — MOD-101 + FR-008）
+  database:
+    image: "${DB_IMAGE:-postgres:16-alpine}"
+    container_name: snowboarding-postgres-${ENV_NAME:-dev}
+    ports:
+      - "${DB_PORT:-5432}:${DB_PORT:-5432}"
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-snowtrip}"
+      POSTGRES_USER: "${POSTGRES_USER:-snowtrip}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}"
+    volumes:
+      # Named volume 持久化（即使 docker compose down 也保留資料；down -v 才清空）
+      - sdlc-db-data:${DB_DATA_DIR:-/var/lib/postgresql/data}
+    healthcheck:
+      # config.json techStack.database.healthcheck
+      test:
+        - "CMD-SHELL"
+        - "${DB_HEALTHCHECK:-pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB}"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+# ========================================================================
+# 注意：實際本機開發使用「專案 root 的 docker-compose.yml」+ docker-compose.dev.yml override
+# 本檔為 deploy/ 內的 Init 階段模板，作為 Execute 階段對照基準。
+# 詳見 docker-compose.template.yml 的 [DELTA] 差異分析。
+#
+# 未來 Vue + Vite 重構（CLAUDE.md 提及）後，可加 frontend service：
+#   frontend:
+#     build:
+#       context: ./fe
+#       dockerfile: ${FE_DOCKERFILE:-Dockerfile.fe}
+#     environment:
+#       VUE_APP_API_BASE_URL: "${VUE_APP_API_BASE_URL:-http://localhost:${BE_PORT:-8000}}"
+# ========================================================================
+
+volumes:
+  sdlc-db-data:
+    name: sdlc-db-data
+    # external: true 若沿用既有專案 root volume；本 deploy/ 模板獨立用
