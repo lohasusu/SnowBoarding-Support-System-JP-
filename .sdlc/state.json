@@ -158,7 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "test-deploy-init",
+      "currentPhase": "sd",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -268,9 +268,13 @@
             ],
             "residualReferences": "4 legitimate (override notice headers + future-TASK alternative + DOWNGRADED strikethrough + SSL enum validation listing)",
             "addressesMajorFindings": "5/5 (Major-1 PG hosting propagation + Major-2 SSL stale + Major-3 backup stale + Major-4 self-review notice + Major-5 PG_VOLUME_NAME/PG_DATA_PATH)"
-          }
+          },
+          "approvedAt": "2026-06-10T00:00:00Z"
         },
-        "sd": { "status": "pending" },
+        "sd": {
+          "status": "in_progress",
+          "startedAt": "2026-06-10T00:00:00Z"
+        },
         "test-sd": { "status": "pending" },
         "fe": { "status": "pending" },
         "be": { "status": "pending" },

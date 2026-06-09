@@ -188,3 +188,5 @@
 [2026-06-09T18:37:54Z] Tester | TASK-002 | completed    | test-deploy-init L2=100 (eval deploy-init=76) verdict=CONDITIONAL_PASS (0C/5M/3m/4I)
 [2026-06-09T18:37:54Z] PM     | TASK-002 | stale_sweep  | 6 files patched addressing 5/5 Major (Q0+Q3 user decisions propagation + Major-5 PG_VOLUME_NAME/PG_DATA_PATH added)
 [2026-06-09T18:37:54Z] PM     | TASK-002 | pm_review    | test-deploy-init
+[2026-06-09T18:40:09Z] User   | TASK-002 | approved     | test-deploy-init
+[2026-06-09T18:40:09Z] PM     | TASK-002 | dispatched   | sd
