@@ -22,4 +22,13 @@ requests>=2.31.0
 # 會員認證
 bcrypt>=4.0.0
 python-jose[cryptography]>=3.3.0
-# 沒有新增套件：resend 用 httpx 直接呼叫 API，Google OAuth 用 httpx + 手動實作
+
+# ★ TASK-002 — PostgreSQL 持久化遷移
+psycopg[binary]==3.1.18      # MOD-101 driver (PEP 249 DB-API 2.0)
+psycopg-pool==3.2.0          # MOD-101 connection pool
+alembic==1.13.1              # MOD-102 migration runner
+
+# 測試（TASK-002 新增 PG fixture）
+pytest>=7.4
+pytest-asyncio>=0.23
+testcontainers[postgres]==4.7.2   # 整合測試用 PG container fixture (Major-1 解決)

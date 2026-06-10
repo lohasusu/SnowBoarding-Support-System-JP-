@@ -1,12 +1,19 @@
 """
 SnowTrip Japan — FastAPI Web Application
 執行: python main.py  或  uvicorn main:app --reload
+
+TASK-002 變更：
+- 新增 FastAPI lifespan — startup 跑 init_pool + Alembic migration（含 advisory lock）
+- mount /api/db/healthz endpoint（API-101）
+- 移除原 init_db() — schema 改由 Alembic migration 管理
 """
 import asyncio
 import io
 import json
+import os
 import re
 import sys
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
 
@@ -27,7 +34,30 @@ import uvicorn
 
 BASE_URL = "https://snowboarding-support-system-jp-production.up.railway.app"
 
-app = FastAPI(title="SnowTrip Japan", docs_url=None, redoc_url=None)
+
+# ── FastAPI Lifespan: DB pool + Alembic migration（TASK-002 MOD-104）─────────
+
+@asynccontextmanager
+async def lifespan(app):
+    """Startup → init pool + run migrations；Shutdown → close pool.
+
+    若 RUN_DB_BOOTSTRAP=0 則略過（給 unit test / standalone CLI 用）。
+    """
+    if os.environ.get("RUN_DB_BOOTSTRAP", "1") != "0":
+        try:
+            from web.db_bootstrap import on_startup, on_shutdown
+        except ImportError:
+            from db_bootstrap import on_startup, on_shutdown  # type: ignore
+        on_startup()
+        try:
+            yield
+        finally:
+            on_shutdown()
+    else:
+        yield
+
+
+app = FastAPI(title="SnowTrip Japan", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 # ── 受保護的路徑 ──────────────────────────────────────────────────────────────
 _PROTECTED_PAGES    = frozenset({"/ski", "/flight", "/plan", "/profile"})
@@ -74,6 +104,13 @@ app.include_router(auth_router)
 app.include_router(oauth_router)
 from auth.verify_client import verify_router   # noqa: E402
 app.include_router(verify_router)
+
+# TASK-002 API-101: DB healthcheck endpoint
+try:
+    from web.api.healthz import healthz_router  # noqa: E402
+except ImportError:
+    from api.healthz import healthz_router  # type: ignore  # noqa: E402
+app.include_router(healthz_router)
 
 try:
     from airport_codes import airport_label, airline_label

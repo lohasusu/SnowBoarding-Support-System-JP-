@@ -1,6 +1,14 @@
 """
 auth_router.py — 認證 + 收藏 API
 在 main.py 中以 app.include_router(auth_router) 掛載。
+
+TASK-002 變更（FUNC-105 SQLite → PG dialect 適配）：
+- SQL placeholder: `?` → `%s`
+- INSERT cursor.lastrowid → INSERT ... RETURNING id + cur.fetchone()["id"]
+- UPDATE 補 SET updated_at = NOW()（決策 #6 應用層注入）
+- 移除 `init_db()` 呼叫 — schema 改由 Alembic migration 管理（FUNC-103/104）
+- 移除 ISO 字串時間字典序比較 — 改 PG TIMESTAMPTZ 原生比較（用 datetime 物件）
+- NFR-002 保證：HTTP / Response / Cookie 外部行為完全不變
 """
 import json
 import re
@@ -13,7 +21,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse as _R
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-from .database import get_conn, init_db
+from .database import get_conn
 from .dependencies import get_current_user, get_optional_user
 from .security import create_access_token, hash_password, verify_password
 from .email_service import send_verification_email
@@ -24,8 +32,8 @@ _templates   = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 BASE_URL = "https://snowboarding-support-system-jp-production.up.railway.app"
 
-# 初始化 DB（第一次 import 時執行）
-init_db()
+# TASK-002: 移除 init_db() — schema 改由 Alembic migration 管理（FUNC-103/104）
+# DB schema 由 web/db_bootstrap.py.on_startup() 在 FastAPI lifespan 中經 advisory lock 套用
 
 
 def _ctx(request: Request, **kw) -> dict:
@@ -57,7 +65,7 @@ async def register_page(request: Request):
 async def profile_page(request: Request, current_user=Depends(get_current_user)):
     with get_conn() as conn:
         favs = conn.execute(
-            "SELECT id, type, data, label, created_at FROM favorites WHERE user_id = ? ORDER BY created_at DESC",
+            "SELECT id, type, data, label, created_at FROM favorites WHERE user_id = %s ORDER BY created_at DESC",
             (current_user["id"],)
         ).fetchall()
     favorites = [dict(f) for f in favs]
@@ -91,19 +99,26 @@ async def api_register(body: RegisterBody):
     hashed = hash_password(body.password)
     try:
         with get_conn() as conn:
+            # TASK-002 FUNC-105: lastrowid → RETURNING id
             cur = conn.execute(
-                "INSERT INTO users (email, username, hashed_password, is_verified) VALUES (?, ?, ?, 0)",
+                "INSERT INTO users (email, username, hashed_password, is_verified) "
+                "VALUES (%s, %s, %s, FALSE) RETURNING id",
                 (body.email.lower().strip(), body.username.strip(), hashed),
             )
-            user_id = cur.lastrowid
+            user_id = cur.fetchone()["id"]
             token = secrets.token_urlsafe(32)
-            expires_at = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+            expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
             conn.execute(
-                "INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
+                "INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)",
                 (user_id, token, expires_at),
             )
+    except HTTPException:
+        raise
     except Exception as e:
-        if "UNIQUE" in str(e):
+        # psycopg.errors.UniqueViolation → ERR-DB-003 → 409
+        # 既有 NFR-002 行為：訊息維持中文「Email 或用戶名稱已被使用」
+        emsg = str(e)
+        if "unique" in emsg.lower() or "UniqueViolation" in type(e).__name__:
             raise HTTPException(status_code=409, detail="Email 或用戶名稱已被使用")
         raise HTTPException(status_code=500, detail="註冊失敗")
     sent = await send_verification_email(body.email.lower().strip(), body.username.strip(), token)
@@ -118,11 +133,12 @@ async def api_register(body: RegisterBody):
 async def api_login(body: LoginBody):
     with get_conn() as conn:
         row = conn.execute(
-            "SELECT id, hashed_password, is_verified FROM users WHERE email = ?",
+            "SELECT id, hashed_password, is_verified FROM users WHERE email = %s",
             (body.email.lower().strip(),)
         ).fetchone()
     if not row or not verify_password(body.password, row["hashed_password"]):
         raise HTTPException(status_code=401, detail="Email 或密碼錯誤")
+    # is_verified 為 PG 原生 BOOLEAN（不再是 SQLite 的 0/1 整數）
     if not row["is_verified"]:
         raise HTTPException(status_code=403, detail="請先驗證您的 Email 後再登入。未收到信？請點選下方「重寄驗證信」")
     token = create_access_token({"sub": str(row["id"])})
@@ -144,22 +160,30 @@ async def api_logout():
 
 @auth_router.get("/api/auth/verify-email")
 async def api_verify_email(token: str):
-    now = datetime.now(timezone.utc).isoformat()
+    # TASK-002 FUNC-105: 改用 datetime 物件比較（PG TIMESTAMPTZ 原生）
+    now = datetime.now(timezone.utc)
     with get_conn() as conn:
         row = conn.execute(
-            "SELECT id, user_id, expires_at, used_at FROM email_verification_tokens WHERE token = ?",
+            "SELECT id, user_id, expires_at, used_at FROM email_verification_tokens WHERE token = %s",
             (token,)
         ).fetchone()
     if not row:
         return _Redirect(url="/login?error=invalid_token")
     if row["used_at"]:
         return _Redirect(url="/login?error=token_used")
+    # row["expires_at"] 為 psycopg 回傳的 datetime（含 tz）
     if row["expires_at"] < now:
         return _Redirect(url="/login?error=token_expired")
     with get_conn() as conn:
-        conn.execute("UPDATE users SET is_verified=1 WHERE id=?", (row["user_id"],))
-        conn.execute("UPDATE email_verification_tokens SET used_at=? WHERE id=?",
-                     (now, row["id"]))
+        # TASK-002 FUNC-105: UPDATE 補 updated_at = NOW() (決策 #6)
+        conn.execute(
+            "UPDATE users SET is_verified = TRUE, updated_at = NOW() WHERE id = %s",
+            (row["user_id"],),
+        )
+        conn.execute(
+            "UPDATE email_verification_tokens SET used_at = %s, updated_at = NOW() WHERE id = %s",
+            (now, row["id"]),
+        )
     return _Redirect(url="/login?verified=1")
 
 
@@ -171,24 +195,27 @@ class ResendVerificationBody(BaseModel):
 async def api_resend_verification(body: ResendVerificationBody):
     with get_conn() as conn:
         user = conn.execute(
-            "SELECT id, username, is_verified FROM users WHERE email=?",
+            "SELECT id, username, is_verified FROM users WHERE email = %s",
             (body.email.lower().strip(),)
         ).fetchone()
     if not user:
         raise HTTPException(status_code=404, detail="找不到此 Email 的帳號")
     if user["is_verified"]:
         return {"ok": True, "message": "此帳號已完成驗證"}
-    # 廢棄舊 token
+    # 廢棄舊 token + 發新 token
+    now = datetime.now(timezone.utc)
     with get_conn() as conn:
         conn.execute(
-            "UPDATE email_verification_tokens SET used_at=? WHERE user_id=? AND used_at IS NULL",
-            (datetime.now(timezone.utc).isoformat(), user["id"])
+            "UPDATE email_verification_tokens "
+            "SET used_at = %s, updated_at = NOW() "
+            "WHERE user_id = %s AND used_at IS NULL",
+            (now, user["id"]),
         )
         token = secrets.token_urlsafe(32)
-        expires_at = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
         conn.execute(
-            "INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
-            (user["id"], token, expires_at)
+            "INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)",
+            (user["id"], token, expires_at),
         )
     sent = await send_verification_email(body.email.lower().strip(), user["username"], token)
     return {"ok": True, "message": "驗證信已重新寄出" if sent else "寄信失敗，請稍後再試"}
@@ -215,7 +242,7 @@ class FavoriteBody(BaseModel):
 async def api_get_favorites(current_user=Depends(get_current_user)):
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT id, type, data, label, created_at FROM favorites WHERE user_id = ? ORDER BY created_at DESC",
+            "SELECT id, type, data, label, created_at FROM favorites WHERE user_id = %s ORDER BY created_at DESC",
             (current_user["id"],)
         ).fetchall()
     result = []
@@ -234,19 +261,21 @@ async def api_add_favorite(body: FavoriteBody, current_user=Depends(get_current_
     if body.type not in ("ski", "flight"):
         raise HTTPException(status_code=400, detail="type 必須是 ski 或 flight")
     with get_conn() as conn:
+        # TASK-002 FUNC-105: lastrowid → RETURNING id
         cur = conn.execute(
-            "INSERT INTO favorites (user_id, type, data, label) VALUES (?, ?, ?, ?)",
+            "INSERT INTO favorites (user_id, type, data, label) VALUES (%s, %s, %s, %s) RETURNING id",
             (current_user["id"], body.type, json.dumps(body.data), body.label),
         )
-        fav_id = cur.lastrowid
+        fav_id = cur.fetchone()["id"]
     return {"ok": True, "id": fav_id}
 
 
 @auth_router.delete("/api/favorites/{fav_id}")
 async def api_delete_favorite(fav_id: int, current_user=Depends(get_current_user)):
+    # [IRREVERSIBLE REUSE]: hard delete — 由 SUG-004 + CONST-005 維持既有行為
     with get_conn() as conn:
         conn.execute(
-            "DELETE FROM favorites WHERE id = ? AND user_id = ?",
+            "DELETE FROM favorites WHERE id = %s AND user_id = %s",
             (fav_id, current_user["id"]),
         )
     return {"ok": True}

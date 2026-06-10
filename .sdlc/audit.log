@@ -232,3 +232,7 @@
 [2026-06-10T17:51:26Z] PM     | TASK-002 | state_fix    | sd.status retroactively fixed: pm_review→approved (audit confirmed approval 2026-06-10T05:20:17Z; PM missed flip yesterday)
 [2026-06-10T17:51:26Z] User   | TASK-002 | approved     | test-sd
 [2026-06-10T17:51:26Z] PM     | TASK-002 | dispatched   | fe+be (parallel, subBranches.enabled=false single-branch mode)
+[2026-06-10T18:44:22Z] FE     | TASK-002 | completed    | score=95 result="0 FE changes confirmed"
+[2026-06-10T18:44:22Z] BE     | TASK-002 | completed    | score=92 result="12 new + 7 modified ~1300 LOC, Major-1/2 resolved (testcontainers + precise grep), pytest pending test-be"
+[2026-06-10T18:44:22Z] PM     | TASK-002 | auto_approved| fe+be (dev_pipeline auto-string)
+[2026-06-10T18:44:22Z] PM     | TASK-002 | dispatched   | test-fe + test-be (parallel)

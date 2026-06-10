@@ -1,6 +1,13 @@
 """
 oauth_router.py — Google OAuth 2.0 登入
 需要設定環境變數: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+
+TASK-002 變更（FUNC-105 SQLite → PG dialect 適配）：
+- SQL placeholder: `?` → `%s`
+- INSERT cursor.lastrowid → INSERT ... RETURNING id + cur.fetchone()["id"]
+- UPDATE 補 SET updated_at = NOW()（決策 #6）
+- is_verified 改 PG 原生 BOOLEAN（TRUE/FALSE）
+- NFR-002 保證：HTTP / Cookie / redirect URL 外部行為完全不變
 """
 import os
 import secrets
@@ -83,30 +90,33 @@ async def google_callback(
 
     # 3. Upsert user
     with get_conn() as conn:
+        # TASK-002 FUNC-105: ? → %s
         existing_by_gid = conn.execute(
-            "SELECT id FROM users WHERE google_id=?", (g_id,)
+            "SELECT id FROM users WHERE google_id = %s", (g_id,)
         ).fetchone()
         if existing_by_gid:
             user_id = existing_by_gid["id"]
         else:
             existing_by_email = conn.execute(
-                "SELECT id FROM users WHERE email=?", (g_email,)
+                "SELECT id FROM users WHERE email = %s", (g_email,)
             ).fetchone()
             if existing_by_email:
                 # Link Google to existing account
                 user_id = existing_by_email["id"]
+                # TASK-002 FUNC-105: UPDATE 補 updated_at = NOW() (決策 #6)
                 conn.execute(
-                    "UPDATE users SET google_id=?, avatar_url=?, is_verified=1 WHERE id=?",
-                    (g_id, g_avatar, user_id)
+                    "UPDATE users SET google_id = %s, avatar_url = %s, is_verified = TRUE, "
+                    "updated_at = NOW() WHERE id = %s",
+                    (g_id, g_avatar, user_id),
                 )
             else:
-                # New user
+                # New user — TASK-002 FUNC-105: lastrowid → RETURNING id
                 cur = conn.execute(
                     "INSERT INTO users (email, username, hashed_password, is_verified, google_id, avatar_url) "
-                    "VALUES (?, ?, '', 1, ?, ?)",
-                    (g_email, g_name, g_id, g_avatar)
+                    "VALUES (%s, %s, '', TRUE, %s, %s) RETURNING id",
+                    (g_email, g_name, g_id, g_avatar),
                 )
-                user_id = cur.lastrowid
+                user_id = cur.fetchone()["id"]
 
     jwt_token = create_access_token({"sub": str(user_id)})
     resp = RedirectResponse(url="/plan", status_code=302)
