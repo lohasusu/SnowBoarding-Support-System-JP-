@@ -158,7 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "test-fe+test-be",
+      "currentPhase": "build-gate",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -347,14 +347,47 @@
           "L1VerifyNote": "L1 FAIL 為 false positive — backend-report 含所有所需內容（API-101 / ERR codes / modification list / 套件 / healthz），L1 grep 用 naive phrase match 抓不到。L2 92 為實際品質。"
         },
         "test-fe": {
-          "status": "in_progress",
-          "startedAt": "2026-06-11T00:10:00Z"
+          "status": "approved",
+          "startedAt": "2026-06-11T00:10:00Z",
+          "completedAt": "2026-06-11T00:15:00Z",
+          "approvedAt": "2026-06-11T00:20:00Z",
+          "score": 95,
+          "verdict": "PASS",
+          "findings": { "critical": 0, "major": 0, "minor": 0, "info": 2 },
+          "agentId": "adde712d52a2290ab",
+          "autoApproved": true,
+          "autoApprovedReason": "dev_pipeline auto-string: test-fe + test-be 完成 + 0 Critical → auto approve → dispatch build-gate"
         },
         "test-be": {
-          "status": "in_progress",
-          "startedAt": "2026-06-11T00:10:00Z"
+          "status": "approved",
+          "startedAt": "2026-06-11T00:10:00Z",
+          "completedAt": "2026-06-11T00:18:00Z",
+          "approvedAt": "2026-06-11T00:20:00Z",
+          "score": 94,
+          "verdict": "CONDITIONAL_PASS",
+          "findings": { "critical": 0, "major": 0, "minor": 3, "info": 4, "blocked": 2 },
+          "agentId": "ab22a3c7adba0cfb5",
+          "autoApproved": true,
+          "blockedItems": [
+            "BLOCK-001: pytest 執行 → 移交 build-gate (Bash sandbox 限制)",
+            "BLOCK-002: Alembic up→down→up 冪等性 → 移交 build-gate"
+          ],
+          "verificationResults": {
+            "placeholder_residual": "PASS — 0 SQL literal 殘留 (17 命中皆 URL/docstring)",
+            "lastrowid_residual": "PASS — 0 active 存取 (7 命中皆 comment/docstring)",
+            "NFR-002_3_endpoint_sample": "PASS — login/register/verify-email HTTP/body/cookie/redirect 100% 對齊",
+            "migration_DDL": "PASS — 0001 + 0002 逐字對齊 SD §2/§4",
+            "API-101_healthz": "PASS — 8 fields + 3 states + 2 ERR-IDs 對齊 SD §2"
+          },
+          "buildGateMandatoryTests": [
+            "pytest web/auth/tests/test_auth.py -v (8/8 should pass via testcontainers postgres:16-alpine)",
+            "Alembic upgrade head → downgrade -1 → upgrade head idempotency"
+          ]
         },
-        "build-gate": { "status": "pending" },
+        "build-gate": {
+          "status": "in_progress",
+          "startedAt": "2026-06-11T00:20:00Z"
+        },
         "code-review": { "status": "pending" },
         "deploy": { "status": "pending" },
         "test": { "status": "pending" }

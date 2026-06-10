@@ -236,3 +236,7 @@
 [2026-06-10T18:44:22Z] BE     | TASK-002 | completed    | score=92 result="12 new + 7 modified ~1300 LOC, Major-1/2 resolved (testcontainers + precise grep), pytest pending test-be"
 [2026-06-10T18:44:22Z] PM     | TASK-002 | auto_approved| fe+be (dev_pipeline auto-string)
 [2026-06-10T18:44:22Z] PM     | TASK-002 | dispatched   | test-fe + test-be (parallel)
+[2026-06-10T19:07:11Z] Tester | TASK-002 | completed    | test-fe L2=95 verdict=PASS (0C/0M/0m/2I) zero-delta confirmed
+[2026-06-10T19:07:11Z] Tester | TASK-002 | completed    | test-be L2=94 verdict=CONDITIONAL_PASS (0C/0M/3m/4I/2BLOCKED→build-gate) all 6 verification points PASS
+[2026-06-10T19:07:11Z] PM     | TASK-002 | auto_approved| test-fe + test-be (0 Critical, dev_pipeline auto-string)
+[2026-06-10T19:07:11Z] PM     | TASK-002 | dispatched   | build-gate (must run pytest 8/8 + Alembic up→down→up idempotency to resolve 2 BLOCKED)
