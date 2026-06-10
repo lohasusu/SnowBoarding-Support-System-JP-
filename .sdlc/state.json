@@ -159,6 +159,7 @@
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
       "currentPhase": "sd",
+      "currentPhaseNote": "sd.status=blocked — Claude usage limit hit during SD agent execution; resume after 7am Asia/Taipei reset",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -272,8 +273,12 @@
           "approvedAt": "2026-06-10T00:00:00Z"
         },
         "sd": {
-          "status": "in_progress",
-          "startedAt": "2026-06-10T00:00:00Z"
+          "status": "blocked",
+          "startedAt": "2026-06-10T00:00:00Z",
+          "blockedAt": "2026-06-10T00:32:35Z",
+          "blockedReason": "Claude usage limit reached during SD agent execution (52 tool calls + 32 min duration before hit limit). Agent wrote no artifacts (sd/ dir empty, 0 new journal entries). Resume after limit resets (7am Asia/Taipei).",
+          "agentIdInterrupted": "ae9c0d3c06cf1cece",
+          "resumeStrategy": "After limit reset: option A re-dispatch fresh Agent(subagent_type=sdlc-sd) with same prompt; option B SendMessage to=ae9c0d3c06cf1cece to resume in-place (untested whether existing agent context persists across limit reset)."
         },
         "test-sd": { "status": "pending" },
         "fe": { "status": "pending" },
