@@ -226,3 +226,6 @@
 [2026-06-10T05:20:17Z] User   | TASK-002 | approved     | sd
 [2026-06-10T05:20:17Z] PM     | TASK-002 | dispatched   | test-sd
 [2026-06-10T07:54:42Z] System | TASK-002 | test_sd_blocked | Claude usage limit hit (2nd) during Tester (agent a8dfac661a48c9bdb, 24 calls, 0 artifacts). Reset 3:40pm Asia/Taipei.
+[2026-06-10T08:03:46Z] PM     | TASK-002 | test_sd_resumed | Limit reset; re-dispatching fresh Tester (previous a8dfac661a48c9bdb had 0 artifacts)
+[2026-06-10T08:21:19Z] Tester | TASK-002 | completed    | test-sd L2=92 verdict=CONDITIONAL_PASS (0C/2M/4m/3I)
+[2026-06-10T08:21:19Z] PM     | TASK-002 | pm_review    | test-sd

@@ -159,7 +159,6 @@
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
       "currentPhase": "test-sd",
-      "currentPhaseNote": "test-sd.status=blocked — Claude usage limit (2nd hit, resets 3:40pm Asia/Taipei)",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -298,12 +297,26 @@
           "approvedAt": "2026-06-10T08:30:00Z"
         },
         "test-sd": {
-          "status": "blocked",
+          "status": "pm_review",
           "startedAt": "2026-06-10T08:30:00Z",
-          "blockedAt": "2026-06-10T09:30:00Z",
-          "blockedReason": "Claude usage limit reached during test-sd Tester execution (24 tool calls, ~10 min). 0 artifacts written. This is the 2nd limit hit in TASK-002 (1st was SD agent same day, reset 7am). Resume after 3:40pm Asia/Taipei reset (5-hour rolling window).",
-          "agentIdInterrupted": "a8dfac661a48c9bdb",
-          "resumeStrategy": "After limit reset: re-dispatch fresh sdlc-tester agent with same prompt (agent a8dfac661a48c9bdb wrote no artifacts so re-dispatch = clean start)."
+          "resumedAt": "2026-06-10T16:00:00Z",
+          "completedAt": "2026-06-10T16:15:00Z",
+          "score": 92,
+          "verdict": "CONDITIONAL_PASS",
+          "findings": { "critical": 0, "major": 2, "minor": 4, "info": 3 },
+          "agentId": "a8d1ab4b76cabad30",
+          "previousAttempts": [
+            {
+              "attemptId": 1,
+              "agentId": "a8dfac661a48c9bdb",
+              "blockedAt": "2026-06-10T09:30:00Z",
+              "blockedReason": "Claude usage limit (24 calls, ~10 min). 0 artifacts written.",
+              "resolution": "Limit reset after 3:40pm Asia/Taipei; fresh agent re-dispatched with lean prompt."
+            }
+          ],
+          "L1VerifyNote": "L1 tester 報多項 FAIL — 同 test-ba/test-sa/test-deploy-init 案例（檢查項針對 test-fe/test-be 執行性測試，與 test-sd spec 審查本質不符）。Tester 採 verify-spec skill 結構合理。",
+          "PMObservation": "Tester 建議的『批次執行 12 個 Rule 18 parameter_added events』PM 已於 SD approve 階段執行完成（22 events 含 12 parameter — 見 journal.json）。本建議因 Tester 無讀 journal 而誤判，無需動作。",
+          "passToBE": "2 Major（pytest 相容性 + placeholder 全替換風險）標『不阻塞 SD，須 BE 階段優先解決』— PM dispatch BE 時必須明確標示。"
         },
         "fe": { "status": "pending" },
         "be": { "status": "pending" },

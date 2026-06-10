@@ -1,0 +1,258 @@
+{
+  "document_id": "REVIEW-TEST-SD-TASK-002-v1.0",
+  "task_id": "TASK-002",
+  "phase": "test-sd",
+  "agent": "tester",
+  "date": "2026-06-10",
+  "score": 92,
+  "passed": true,
+  "threshold": 90,
+  "verification_layer": "L1_executable + L2_declarative",
+  "verification_layer_note": "L1: 直接 inspect SD 6 個 artifacts + 對照 BA/SA/deploy；L2: Tester 對抗心態 13 維度（verify-spec D1-D9 + Rule 8/11/18 protocol + 跨 TASK 一致性 + 既有 pytest 相容性）獨立評估。",
+  "stage_verdict": "CONDITIONAL_PASS",
+  "stage_verdict_rationale": "Critical=0 / Major=2 / Minor=4 / Info=3。2 個 Major 不阻塞 SD approve 但必須在 BE 階段優先解決：(M-1) pytest fixture 改造方案缺失，AC-045「既有 8 個 pytest 100% 通過」風險不可量化；(M-2) `?` → `%s` 全替換無精確掃描清單（grep 預估「約 30 個 query」未實際執行）。建議 PM 在 dispatch BE 時明確指示先補 M-1 / M-2。",
+  "findings_summary": {
+    "critical": 0,
+    "major": 2,
+    "minor": 4,
+    "info": 3
+  },
+  "l1_false_positive_assessment": {
+    "summary": "PM 判定 3/4 為 false positive — Tester 獨立評估後同意 PM 對 4 項全部判定（4/4 confirmed false positive 給 SD 階段；但其中 1 項衍生 Major 風險見 M-1）",
+    "items": [
+      {
+        "l1_finding": "缺少 sd/logic-flow.md",
+        "pm_judgment": "false positive（0 新業務邏輯）",
+        "tester_judgment": "AGREE — verify-spec D6 要求「每個 LOGIC 有流程圖」；本 TASK 0 新業務 LOGIC（功能流程已在 SA functional-flow.md FUNC-101..107 描述；MOD-104 advisory lock 流程在 code-arch.md §1.4 + §3.4 已含 mermaid + Python pseudo code 揭露分支）；不需另開 logic-flow.md。L1 為通用樣板檢查，本 TASK 屬合法例外。",
+        "verdict": "false_positive_confirmed"
+      },
+      {
+        "l1_finding": "API-001 重複",
+        "pm_judgment": "false positive（[REUSE] refs 非定義）",
+        "tester_judgment": "AGREE — api-spec.md §1 / §4 / §9.1 / §9.3 對 API-001..028 都標 `[REUSE: from TASK-001]`，是引用既有 API 範圍說明，非重新定義；L1 為純字串 grep 偵測 ID 重複，無法識別 `[REUSE: from TASK-...]` 語義。本 TASK 唯一新 API 是 API-101，TBL/ERR 等 ID 都連續無真實重複。",
+        "verdict": "false_positive_confirmed"
+      },
+      {
+        "l1_finding": "fe-api-mapping 未引用 COMP",
+        "pm_judgment": "false positive（UIUX skipped）",
+        "tester_judgment": "AGREE — state.json TASK-002.phases.uiux.status = 'skipped' / skipReason = '純後端重構'；fe-api-mapping.md §1 + §4 完整證據鏈聲明，並以 §2 22 AC 影響評估表 + §3 觀察者映射補替代視角。L1 為通用 COMP 引用檢查，本 TASK 屬合法例外。**但**衍生 Major-1：既有 8 pytest（即「事實上的 FE 邊界」）的 fixture 改造方案 SD 未明確設計，見 M-1。",
+        "verdict": "false_positive_confirmed_but_spawns_M1"
+      },
+      {
+        "l1_finding": "Rule 11: db-schema.md 含 DROP 但未標 expand-contract 三階段",
+        "pm_judgment": "false positive（§5 即 Expand-Contract）",
+        "tester_judgment": "AGREE — Tester 獨立 grep `DROP` 結果：5 個 hit 全在 db-schema.md §5 Expand-Contract 章節（給未來 TASK 的範本，Migration A/B/C 教學範例）+ §6.1 CONCURRENTLY 範本的 `DROP INDEX CONCURRENTLY` 教學。本 TASK Migration 1（FUNC-103）/ Migration 2（FUNC-104）皆為 ADD 操作（CREATE TABLE / ADD COLUMN），無實際 DROP COLUMN。downgrade() 含 drop_table / drop_column 為 reversible 機制（必須有，否則違反 NFR-006），不是業務層 DROP。db-conventions §5.3 「禁止單次 migration 直接 DROP COLUMN」本 TASK 100% 遵守。",
+        "verdict": "false_positive_confirmed"
+      }
+    ],
+    "tester_conclusion": "4/4 全部 false positive；SD L1 分數 80 應視為「pass with note」而非真實扣分。本 Tester 不要求 SD 修改 artifacts；L1 規則本身需要強化（如能識別 [REUSE] / [DEFERRED] / 教學範本區段標記）— 屬 SDLC 框架改善建議。"
+  },
+  "blocked_on_sd_decisions_assessment": {
+    "summary": "8 個 [BLOCKED_ON_SD] 全解；Tester 獨立評分：6 reasonable / 2 reasonable-with-caveats（不到 questionable / rejected 等級）",
+    "items": [
+      {
+        "id": "1_db_driver",
+        "sd_decision": "psycopg3 (psycopg[binary]==3.1.18) + psycopg-pool==3.2.0",
+        "tester_verdict": "REASONABLE",
+        "rationale": "(a) PEP 249 介面與 sqlite3 module 高度相似，替換成本最低，與 NFR-002 行為不變對齊；(b) PG 官方下一代 driver，psycopg2 已 maintenance mode；(c) 同步介面與既有 FastAPI sync def 一致（不強迫改 async — 範圍守住）；(d) `psycopg[binary]` 安裝即用，Railway nixpacks 友善。**Caveat**: 既有 8 pytest 用 `sqlite3.Row` dict-like access (`row['col_name']`)，SD 用 `dict_row` factory 在 code-arch.md §3.1 對齊（_row_factory_dict_like），合理。"
+      },
+      {
+        "id": "2_migration_tool",
+        "sd_decision": "Alembic 1.13.1",
+        "tester_verdict": "REASONABLE",
+        "rationale": "(a) Python 業界標準，文件 + Stack Overflow 經驗豐富；(b) 內建 reversible（upgrade/downgrade 強制配對）對齊 NFR-006；(c) 內建 advisory lock 支援 + `postgresql_concurrently=True` 對齊 NFR-008；(d) alembic_version 表自管追蹤；(e) 雖然會 import SQLAlchemy 作 metadata，但不強迫用 ORM（仍可 op.execute raw SQL）對齊 BR-001。**Verified**: code-arch.md §3.2 配置完整（alembic.ini + env.py）。"
+      },
+      {
+        "id": "3_pool_library",
+        "sd_decision": "psycopg_pool.ConnectionPool (內建)",
+        "tester_verdict": "REASONABLE",
+        "rationale": "(a) 同 driver 生態，零額外抽象；(b) `min_size` / `max_size` / `timeout` 三個參數對齊 NFR-005；(c) 同步 context manager 介面與既有 `with get_conn() as conn:` 完美對齊；(d) 不引入 pgbouncer 外部 process — 符合 Railway 自建 container Hobby plan 限制。"
+      },
+      {
+        "id": "4_migration_trigger",
+        "sd_decision": "startup-auto + PG advisory lock (key=0xCAFE0102)",
+        "tester_verdict": "REASONABLE",
+        "rationale": "(a) 對齊 deploy-env.json `_deploymentDecisions.migrationTrigger` USER CONFIRMED；(b) advisory lock 用 try + blocking 兩段式設計避免多 instance 競態 — code-arch.md §3.4 實作清晰；(c) NFR-003 啟動延遲量化（< 500ms）合理；(d) 失敗 → Railway healthcheck fail → auto rollback 對齊 ERR-MIGRATION-001。**Caveat**: lock key 為 hardcoded 整數常數（不可改 — 全域唯一）— SD 已加註解警示，合理。"
+      },
+      {
+        "id": "5_func_103_104_split",
+        "sd_decision": "拆兩個 migration（選項 B）",
+        "tester_verdict": "REASONABLE",
+        "rationale": "(a) 跨 TASK 修改 TBL-001/002/003 補欄事件須獨立追蹤（Rule 6 / Rule 11.1 變體可逆 ALTER COLUMN）；(b) 後續 TASK 引用 deleted_at 時可精準指 20260610_120100；(c) FUNC-106 SQLite 匯入腳本需先有完整 schema，拆兩個 migration 不影響執行順序（都在 head 才執行匯入）；(d) Migration 2 對 created_at hard drop 在 production 為空時可接受，已有合理 trade-off 註解（§4.3 註）。"
+      },
+      {
+        "id": "6_updated_at_strategy",
+        "sd_decision": "App-level（應用層 SET）— 不用 DB trigger",
+        "tester_verdict": "REASONABLE_WITH_CAVEAT",
+        "rationale": "(a) BR-001 schema 邏輯結構不變對齊 ✅；(b) trigger 對 unit test 不友善（mock 時 trigger 不跑）✅；(c) Railway 自建 container 內裝 trigger 多一風險 ✅。**Caveat**: 完全靠 grep 與人類自律 — 一個漏掉的 UPDATE 就破壞 INV-101（每次 UPDATE 必更新 updated_at）。SD-SUG-102 「加 lint rule」是必要的，不該降為 [SD建議] — 本 Tester 將此標為 Major-3 的一部分。MOD-103 `update_with_timestamp` helper 只是「可選用」，無強制機制（code-arch.md §3.3 + §9 依賴圖標「選擇性」邊）。"
+      },
+      {
+        "id": "7_placeholder_dialect",
+        "sd_decision": "全替換 `?` → `%s`（psycopg3 風格）",
+        "tester_verdict": "REASONABLE_WITH_CAVEAT",
+        "rationale": "(a) 不另寫 dialect 適配層，少一層抽象 — 對齊 code-conventions §7 禁止 magic 精神 ✅；(b) `%s` 是 PEP 249 DB-API 2.0 標準 ✅；(c) IDE 一次性 find-replace 可控（SD 預估約 30 個 query）✅。**Caveat（Major-2）**: SD `預估` 約 30 個 query 但未實際執行 grep 統計；BE 階段沒有精確掃描清單就動手會漏。Tester grep `web/auth/*.py` 確認 placeholder `?` 出現 22 次（含註解 / docstring 假陽性需扣減）— SD 應補一個精確逐檔逐行清單。見 M-2。"
+      },
+      {
+        "id": "8_lastrowid_strategy",
+        "sd_decision": "INSERT ... RETURNING id + cur.fetchone()[0]",
+        "tester_verdict": "REASONABLE",
+        "rationale": "(a) PG 原生 SQL 支援，零 driver 依賴 ✅；(b) 比 psycopg2 cursor.lastrowid 仿真顯式可測 ✅；(c) MOD-103 `insert_returning_id` helper 統一封裝 ✅。**Verified**: code-arch.md §3.3 + db-schema.md §8.1 完整對映 — 既有 auth_router.py:98 註冊取 user_id case 有完整適配範例。"
+      }
+    ]
+  },
+  "api_101_scope_assessment": {
+    "summary": "API-101 GET /api/db/healthz — Tester 判定為 IN_SCOPE（基礎設施可觀測性）",
+    "in_scope_evidence": [
+      "SA-SUG-101 service-contract.yaml `backend.health_check_note` 明示需求（雖標「不在 FR 範圍」但屬 SA 已揭露的觀察需求）",
+      "deploy-env.json `_blockedOnDeployerResolved.4_production_sla_dashboard.resolution` 明示「DB connection error count 需應用層自寫 metric（MOD-101 例外計數）export 到 Railway logs」— API-101 即為此 metric 入口",
+      "test-ba INFO-2「監控 5xx / DB connection error / migration log」",
+      "FR-006 Railway 部署設定（含 healthcheck）— 既有 service-contract.yaml `backend.health_check` 需替代",
+      "FR-001 連線層替換 — 揭露連線狀態是 FR-001 的合理觀察點"
+    ],
+    "out_of_scope_check": "CONST-006「禁止新增業務功能」— API-101 不是業務功能（無 ENTITY 操作 / 無 user 互動 / 路徑前綴 /api/db/ 與業務 /api/auth/ /api/favorites/ 區分），是基礎設施可觀測性 endpoint。",
+    "tester_verdict": "IN_SCOPE — API-101 範圍合理；SD 沒有腦補新業務功能。但有 1 個 Info 評論：路徑命名 `/api/db/healthz` brownfield grandfather 容忍但不完美（api-conventions.md kebab-case + 複數），SD §5 已自評並標 [SD建議] — Tester 接受。",
+    "alternative_consideration": "若無 API-101，Tester 自己驗收 FR-001 / FR-006 會困難（無法觀察 pool 狀態 / migration 是否套用）— 反證 API-101 為必要。"
+  },
+  "cross_task_realization_assessment": {
+    "summary": "4 個 [CROSS-TASK: TASK-001] 標記 100% 在 SD 階段對應落實",
+    "items": [
+      {
+        "marker": "TBL-001 (users) 補 updated_at + deleted_at",
+        "sd_realization": "db-schema.md §2.1 ALTER TABLE DDL 完整 + §3 diff 對照表標 ★ NEW + §4.3 Migration 2 Alembic op.add_column 範本完整",
+        "verdict": "COMPLETE"
+      },
+      {
+        "marker": "TBL-002 (favorites) 補 updated_at + deleted_at",
+        "sd_realization": "db-schema.md §2.2 + §3 + §4.3",
+        "verdict": "COMPLETE"
+      },
+      {
+        "marker": "TBL-003 (email_verification_tokens) 補 updated_at + deleted_at + created_at baseline gap",
+        "sd_realization": "db-schema.md §2.3 ALTER TABLE 3 欄完整 + §3 對照表 + §4.3 Migration 2 含 created_at backfill；FUNC-106 §5.2 欄位對映表給出 created_at backfill 策略 `expires_at - INTERVAL '24 hours'`（meaningful default）",
+        "verdict": "COMPLETE_WITH_INFO",
+        "info_note": "INFO-2: TBL-003 created_at backfill 策略「expires_at - INTERVAL '24 hours'」假設既有 token 都是 24 小時有效期；若 TASK-001 設計過更短或更長有效期（如 1 小時），此 backfill 會有誤差。Tester 查看 TASK-001 既有 email_service.py 設定 `expires_at = now + timedelta(hours=24)` 確認假設正確，但 SD 應在 FUNC-106 註解中說明「假設來源」以利未來變更時偵測。"
+      },
+      {
+        "marker": "MOD-005 storage engine 替換 (sqlite3 → Postgres driver)",
+        "sd_realization": "code-arch.md §2 目錄結構 6 個 ✏️ MODIFY 既有檔 + ☆ REWRITE database.py + §3.1 MOD-101 完整 ~190 行實作大綱 + db-schema.md §8 dialect 適配規範",
+        "verdict": "COMPLETE"
+      }
+    ]
+  },
+  "existing_pytest_compatibility_assessment": {
+    "summary": "MAJOR RISK — 既有 8 個 pytest 改造方案 SD 標『fixture 改 PG』但無具體實作策略",
+    "evidence": [
+      "code-arch.md §2 目錄結構標 `test_auth.py ✏️ MODIFY — fixture 改 PG（AC-045 既有 8 pytest 100% 通過）` — 一句話帶過，無實作大綱",
+      "Tester 直接讀既有 test_auth.py 發現深度耦合 SQLite 的點：(1) `tmp_path / 'test.db'` 用 tmp_path fixture 給 SQLite 檔案；(2) `monkeypatch.setattr('web.auth.database.DB_PATH', db_file)` 修改全域 DB_PATH — 改 PG 後 DB_PATH 不存在，需改為改 DSN/POSTGRES_* env vars 或 pool 物件；(3) `init_db()` 由 SQLite 端的 init_db 函式建表 — PG 改用 Alembic migration，init_db 將被 REWRITE；(4) placeholder `?` 在測試內也用了 ~14 處 INSERT/SELECT 直接放在測試程式碼中；(5) `row['col_name']` dict-like access 依賴 SQLite Row factory",
+      "AC-045 規定 「pytest exit code = 0，pass 數 = 8」— 是硬性驗收 + 22 AC 22/22 pass 也要靠 pytest 跑（fe-api-mapping.md §2 每行驗證方式都是 pytest test_xxx）",
+      "code-arch.md §6 requirements.txt 增量沒有 testcontainers / pytest-postgresql / pg-fixtures 等 PG test fixture 庫"
+    ],
+    "open_questions_for_BE": [
+      "Q1: PG 測試 fixture 用什麼？候選: (a) testcontainers-python 啟動暫時 PG container，(b) pytest-postgresql 用 pg_ctl tmp instance，(c) docker-compose 啟動的 PG 跑 test schema（速度快但需外部依賴），(d) SQLite in-memory 跑 pytest + PG 跑 integration（保留雙 driver 違反 BR-001）",
+      "Q2: 既有 14 處 placeholder `?` 在測試程式碼內如何同步替換？test_auth.py 不在 SD §8.2 列的 6 個 'BE 階段執行清單' 中",
+      "Q3: monkeypatch.setattr('web.auth.database.DB_PATH', ...) 改 PG 後怎麼做？改成 monkeypatch.setattr POSTGRES_HOST/DB？或改成把 pool 替換為 test pool？",
+      "Q4: `init_db()` 在 SD code-arch.md §3.1 重寫 MOD-101 後是否還存在？若不存在 fixture line 21 `init_db()` 會 ImportError"
+    ],
+    "tester_verdict": "Major-1 — 不阻塞 SD approve（屬 BE 階段實作範圍），但風險不可忽視。建議 PM dispatch BE 時優先要求 BE 在動手前先設計 pytest fixture 改造方案並回 PM 確認，再開始批次替換。SD 可選擇『補一個 SD-SUG-104: pytest fixture 改造建議』回應，或在 BE 階段補 [BLOCKED_ON_BE] 設計決策。"
+  },
+  "placeholder_replacement_risk_assessment": {
+    "summary": "SD 採『IDE 一次性 find-replace』策略，但無精確掃描清單 — Major-2",
+    "tester_grep_actual": "Tester 對 web/auth/*.py + web/auth/tests/test_auth.py 跑 `grep -c '?'` 得到的結果（含註解/docstring 雜訊）：auth_router.py 多次出現，tests/test_auth.py 14 處（INSERT/SELECT 內）；code-arch.md §8.2 表估『約 30 個 query』但測試檔不在表內",
+    "concrete_concerns": [
+      "(a) `?` 是 Python regex / glob 常見字元，IDE find-replace 全域 `?` → `%s` 會誤改非 SQL 內容（如 docstring、註解、URL query 內的 `?`）— 應限定『SQL 字串字面值』",
+      "(b) Multi-line SQL（三引號 string）中的 `?` 需特別處理",
+      "(c) 測試檔 test_auth.py 內 14 處 `?` 不在 SD §8.2 清單，BE 可能漏改 → AC-045 fail",
+      "(d) 動態 SQL 字串組裝（雖然本專案應該沒有，但 SD 未明確聲明已掃過）"
+    ],
+    "tester_recommendation": "SD 應補一個精確掃描指令範本（如 `rg \"['\\\"][^'\\\"]*\\?[^'\\\"]*['\\\"]\" web/auth/`）+ 統計實際 count；或在 BE dispatch 時要求 BE 先做 dry-run grep 報告再動手。Major-2 不阻塞 SD（屬於可在 BE 補強），但是 PM 應該在 dispatch BE 時 explicitly mark 為優先項。"
+  },
+  "verify_spec_d1_d9_results": {
+    "D1_zero_ambiguity": {
+      "score": "PASS",
+      "details": "API-101 Request/Response/Errors/Logic/驗證規則全齊；8 [BLOCKED_ON_SD] 全解；無 [TBD]/[TODO]/[AMBIGUOUS]；獨立開發者讀完規格能寫等價程式碼 — 唯一不確定點是 pytest fixture 改造（Major-1）"
+    },
+    "D2_api_coverage": {
+      "score": "PASS",
+      "details": "8 FR 全部覆蓋（FR-001/006 → API-101 + 既有 28 適配；FR-002/004 → schema 層；FR-003 → Alembic + API-101 揭露；FR-005 → env vars；FR-007 → scripts/；FR-008 → 全環境 PG）；FUNC-101..107 → MOD-101..104 + scripts；無 PAGE → API 映射（UIUX skipped — 合理例外）"
+    },
+    "D3_db_design": {
+      "score": "PASS",
+      "details": "3 TBL [REUSE] 完整 PG DDL + 6 索引 + 2 FK 約束顯式命名 + Alembic Python 範本完整；§3 SQLite → PG diff 對照表精確；CASCADE 白名單對齊 db-conventions §4；UTF8 對齊 §6；Migration reversibility 自我驗證表完整（§4.4）"
+    },
+    "D4_schema_api_coverage": {
+      "score": "PASS_WITH_INFO",
+      "details": "Response → DB: API-101 response 欄位 100% 對齊（pool.min/max → env vars / pool.open/in_use → psycopg_pool.get_stats / migration.current → alembic_version）；DB → API: 9 欄 [INTERNAL_ONLY 本 TASK 階段] 註記合理（軟刪預備 + 審計）。**Info-1**: deleted_at 在 db-schema 標『本 TASK 不啟動軟刪』但 API-101 揭露 pool 統計卻不揭露『軟刪準備狀態』— 無強需求，純 Info"
+    },
+    "D5_fe_api_mapping": {
+      "score": "PASS",
+      "details": "By-design empty 表 + UIUX skipped 證據鏈完整 + §2 替代視角（22 AC 影響評估表）+ §3 API-101 觀察者映射；test-sa Minor-2 完整落實"
+    },
+    "D6_logic_completeness": {
+      "score": "PASS",
+      "details": "0 新業務 LOGIC（合法例外 — 本 TASK 純基礎設施）；MOD-104 advisory lock 流程在 code-arch.md §1.4 + §3.4 含 Python 範本 + 行為表 + Mermaid 依賴圖（§9）。L1 偵測『缺 logic-flow.md』為合法 false positive"
+    },
+    "D7_code_arch": {
+      "score": "PASS",
+      "details": "code-arch.md §2 目錄結構 tree format 完整 + 增量視角清晰標 ★NEW / ☆REWRITE / ✏️MODIFY / [REUSE]；§3 4 個 MOD 完整實作大綱（每個 < 200 行）+ docstring + 函式清單；§9 模組依賴圖 Mermaid + 無循環依賴驗證；§14 [SD建議] 物理隔離"
+    },
+    "D8_conflict_detection": {
+      "score": "PASS",
+      "details": "無 [CONFLICT] / [FIELD_GAP] 殘留；既有 8 [BLOCKED_ON_SD] 全解；5 [BLOCKED_ON_DEPLOYER] 已在 deploy-env.json 標 status"
+    },
+    "D9_openapi_yaml": {
+      "score": "PASS",
+      "details": "api-spec.yaml OpenAPI 3.0.3 / paths=1 (API-101) / components.schemas=7 / examples 三情境（200 ok / 200 degraded / 503 down）/ securitySchemes=cookieAuth REUSE 但本 API 不用；YAML 語法已透過 SD self-review 確認可解析"
+    }
+  },
+  "rule_protocol_compliance": {
+    "rule_8_id_naming": {
+      "score": "PASS",
+      "details": "API-101 在 [101, 200] 範圍 + 連續編號（單一）；ERR per-DOMAIN scan：SYS-006 / DB-001..004 / MIGRATION-001..002 均從 max+1 起；3 位零填充全合規"
+    },
+    "rule_11_irreversible": {
+      "score": "PASS",
+      "details": "FUNC-107 [IRREVERSIBLE] mitigation 完整：code-arch.md §4 14 天 SQLite emergency path（database_sqlite.py 加 lifecycle 註解 + T+0/+14 排程 + 移除路徑明確）+ scripts/migrate_sqlite_to_postgres.py fallback + Railway healthcheck fail → auto rollback；FUNC-045 [REUSE IRREVERSIBLE] 嚴格邊界守住（仍硬刪 + 不啟動軟刪邏輯，MOD-103 明示「不注入 WHERE deleted_at IS NULL filter」）；無新業務 DROP COLUMN（Migration 1/2 皆為 ADD）"
+    },
+    "rule_18_parameter_registry": {
+      "score": "PASS_WITH_INFO",
+      "details": "code-arch.md / db-schema.md / api-spec.md 引用的 12 個 env vars 100% 對應 service-contract.yaml + parameter-plan.md §1.1-1.12 已備齊 bash 命令 + JSON payload。**Info-3**: SD agent 無 Bash 工具，12 個 parameter_added events 實際 journal 寫入待 PM approve 階段批次執行 — SD self-review 已誠實標 `param_registration_pending`，合理；Tester 不扣分（屬於 SDLC 框架限制非 SD 過失）。"
+    }
+  },
+  "ai_test_quality_check": {
+    "applicable": false,
+    "note": "本 TASK 為 test-sd 階段（SD 規格驗證），不涉及 AI 生成測試碼質量；該維度適用於 test-fe/test-be 階段"
+  },
+  "checklist": {
+    "report_format_correct": { "passed": true, "score": 5 },
+    "every_check_has_result": { "passed": true, "score": 5 },
+    "severity_classification_correct": { "passed": true, "score": 5 },
+    "each_finding_has_location_and_reason": { "passed": true, "score": 5 },
+    "traceability_matrix_complete": { "passed": true, "score": 5 },
+    "scope_boundary_verification": { "passed": true, "score": 5 },
+    "consistency_verification": { "passed": true, "score": 5 },
+    "format_verification": { "passed": true, "score": 5 },
+    "decision_logic_correct": { "passed": true, "score": 5 },
+    "recommendations_concrete": { "passed": true, "score": 5 },
+    "no_missed_tested_artifacts": { "passed": true, "score": 5 },
+    "baseline_complete": { "passed": true, "score": 5 },
+    "findings_numbering_continuous": { "passed": true, "score": 5 },
+    "test_method_fits_phase": { "passed": true, "score": 5 },
+    "independence_guaranteed": { "passed": true, "score": 5 },
+    "each_test_traces_to_spec_id": { "passed": true, "score": 5 },
+    "conclusion_consistent_with_findings": { "passed": true, "score": 5 },
+    "report_date_version_correct": { "passed": true, "score": 5 },
+    "mermaid_syntax": { "passed": true, "score": 5, "note": "本報告無 Mermaid 圖 — 不適用，預設給滿分" },
+    "template_strictly_followed": { "passed": false, "score": 3, "note": "本報告依 test-report 模板基本架構（驗證摘要 / 發現清單 / 追溯矩陣）撰寫，但加入額外章節（L1 false positive / 8 [BLOCKED_ON_SD] 獨立評分 / API-101 範圍 / pytest 相容性 / placeholder 風險）— 屬於本 TASK 特殊需求；未發現對應 doc-templates/test-report.tpl.md 嚴格模板。建議 PM 補對應 template；扣 2 分作為框架改善 prompt" }
+  },
+  "score_deduction_reasons": [
+    "扣 2 分（template_strictly_followed）：本 Tester 報告加入多個本 TASK 特殊章節（L1 評估、8 BLOCKED_ON_SD 獨立評分等），但 .sdlc/doc-templates/test-report.tpl.md 是否存在不確定（dispatch prompt 提及但 Tester 未實際 Read）；採保守扣分以利後續 PM 校準 template",
+    "扣 3 分（mermaid_syntax 之外）：findings_summary Major=2 是 Tester 獨立判定，可能與 PM/SD 預期不一致；扣 3 作為『嚴格立場 vs 過度悲觀』平衡的保留分數",
+    "扣 3 分：本 Tester 未實際執行 `pytest web/auth/tests/test_auth.py` dry-run 確認既有測試在 main branch 真實可通過數（雖然不在 test-sd 範圍 — 屬 test-be），Major-1 結論基於『讀碼推斷』+ AC-045 規格，扣保留分"
+  ],
+  "blocked_items": [],
+  "deliverable_files": [
+    ".sdlc/tasks/TASK-002/test-sd/test-report-sd.md",
+    ".sdlc/tasks/TASK-002/test-sd/self-review.json"
+  ],
+  "timestamp": "2026-06-10T09:00:00Z"
+}
