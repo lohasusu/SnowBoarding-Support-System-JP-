@@ -158,8 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "sd",
-      "currentPhaseNote": "sd.status=blocked — Claude usage limit hit during SD agent execution; resume after 7am Asia/Taipei reset",
+      "currentPhase": "test-sd",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -294,9 +293,13 @@
             "executedAt": "2026-06-10T08:00:00Z",
             "events": "22 total: 1 id_added (API-101) + 2 error_domain_added (DB / MIGRATION) + 7 error_code_added (SYS-006, DB-001..004, MIGRATION-001..002) + 12 parameter_added (POSTGRES_* 10 + PG_VOLUME_NAME + PG_DATA_PATH)",
             "sharedRebuildResult": "id-registry / terminology / error-codes / i18n-registry / parameter-registry"
-          }
+          },
+          "approvedAt": "2026-06-10T08:30:00Z"
         },
-        "test-sd": { "status": "pending" },
+        "test-sd": {
+          "status": "in_progress",
+          "startedAt": "2026-06-10T08:30:00Z"
+        },
         "fe": { "status": "pending" },
         "be": { "status": "pending" },
         "test-fe": { "status": "pending" },

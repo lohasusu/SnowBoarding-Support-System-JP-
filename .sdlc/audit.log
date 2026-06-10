@@ -223,3 +223,5 @@
 [2026-06-10T05:01:30Z] PM     | TASK-002 | journal_batch| 22 events (1 API-101 + 2 DOMAIN + 7 ERR + 12 parameter)
 [2026-06-10T05:01:30Z] PM     | TASK-002 | shared_rebuild | id-registry / terminology / error-codes / i18n-registry / parameter-registry
 [2026-06-10T05:01:30Z] PM     | TASK-002 | pm_review    | sd
+[2026-06-10T05:20:17Z] User   | TASK-002 | approved     | sd
+[2026-06-10T05:20:17Z] PM     | TASK-002 | dispatched   | test-sd
