@@ -1,0 +1,222 @@
+openapi: "3.0.3"
+info:
+  title: "snowboarding_support API (TASK-002 增量)"
+  version: "1.0.0"
+  description: |
+    TASK-002 SQLite → PostgreSQL 持久化遷移階段的 API 規格（OpenAPI 3.0 機器可讀版本）。
+
+    **範圍**: 本檔僅列出本 TASK 新增的 API（API-101 GET /api/db/healthz）。
+    TASK-001 既有 28 個 endpoint 屬 brownfield grandfather，待後續 retroactive registry TASK 補追溯（impact-assessment.md §1.3）—
+    本 TASK NFR-002 強制其外部行為完全不變，但 OpenAPI schema 不在本 TASK 範圍重新登記。
+
+    **對應規格**: 詳見 `api-spec.md`（人類可讀版）
+  contact:
+    name: "snowboarding_support TASK-002 SD"
+servers:
+  - url: "https://snowboarding-support-system-jp-production.up.railway.app"
+    description: "Railway production (CLAUDE.md / .sdlc/baseline 確認既定事實)"
+  - url: "http://localhost:8000"
+    description: "本機開發（docker-compose）"
+
+paths:
+  /api/db/healthz:
+    get:
+      operationId: "dbHealthz"
+      summary: "DB 健康檢查 + migration 狀態"
+      description: |
+        揭露 PostgreSQL 連線池狀態 + Alembic migration current vs head。
+
+        - 200 + status=ok: pool 就緒 + migration 已套用到 head
+        - 200 + status=degraded: pool 就緒但 migration 落後 head（罕見觀察用）
+        - 503 + status=down: pool 未就緒（連線失敗 / pool timeout）
+      tags:
+        - "MOD-104 db_bootstrap"
+        - "Infrastructure"
+      security: []  # 無認證 — healthcheck 必須任何狀態可達
+      responses:
+        "200":
+          description: "DB 健康（status=ok 或 status=degraded）"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthOk"
+              examples:
+                ok:
+                  summary: "正常 — pool ready, migration up-to-date"
+                  value:
+                    status: "ok"
+                    db:
+                      connected: true
+                      pool:
+                        min: 2
+                        max: 10
+                        open: 2
+                        in_use: 0
+                    migration:
+                      current: "20260610_120100"
+                      head: "20260610_120100"
+                      up_to_date: true
+                degraded:
+                  summary: "退化 — pool ready 但 migration 落後 head"
+                  value:
+                    status: "degraded"
+                    db:
+                      connected: true
+                      pool:
+                        min: 2
+                        max: 10
+                        open: 2
+                        in_use: 0
+                    migration:
+                      current: "20260610_120000"
+                      head: "20260610_120100"
+                      up_to_date: false
+        "503":
+          description: "DB 不可用（pool 取連線失敗）"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthDown"
+              examples:
+                down:
+                  summary: "Pool 取連線失敗"
+                  value:
+                    status: "down"
+                    db:
+                      connected: false
+                      error: "ERR-DB-001"
+                    migration: null
+
+components:
+  schemas:
+    HealthOk:
+      type: object
+      required: [status, db, migration]
+      properties:
+        status:
+          type: string
+          enum: ["ok", "degraded"]
+          description: "整體健康狀態；ok = 連線 + migration 都正常；degraded = 連線正常但 migration 落後"
+          example: "ok"
+        db:
+          $ref: "#/components/schemas/DbInfo"
+        migration:
+          $ref: "#/components/schemas/MigrationInfo"
+
+    HealthDown:
+      type: object
+      required: [status, db, migration]
+      properties:
+        status:
+          type: string
+          enum: ["down"]
+          example: "down"
+        db:
+          $ref: "#/components/schemas/DbInfoDown"
+        migration:
+          type: "null"
+          description: "DB 不可用時 migration 狀態未知 — 固定 null"
+
+    DbInfo:
+      type: object
+      required: [connected, pool]
+      properties:
+        connected:
+          type: boolean
+          description: "Pool 是否就緒"
+          example: true
+        pool:
+          $ref: "#/components/schemas/PoolStats"
+
+    DbInfoDown:
+      type: object
+      required: [connected, error]
+      properties:
+        connected:
+          type: boolean
+          enum: [false]
+          example: false
+        error:
+          type: string
+          description: "ERR-ID 引用 — 對應 .sdlc/shared/error-codes.md"
+          enum: ["ERR-DB-001", "ERR-DB-002"]
+          example: "ERR-DB-001"
+
+    PoolStats:
+      type: object
+      required: [min, max, open, in_use]
+      properties:
+        min:
+          type: integer
+          minimum: 0
+          description: "POSTGRES_POOL_MIN env var 值（NFR-005）"
+          example: 2
+        max:
+          type: integer
+          minimum: 1
+          description: "POSTGRES_POOL_MAX env var 值（NFR-005）"
+          example: 10
+        open:
+          type: integer
+          minimum: 0
+          description: "目前 open 的連線總數（idle + in_use）"
+          example: 2
+        in_use:
+          type: integer
+          minimum: 0
+          description: "目前借出（被 request 使用中）的連線數"
+          example: 0
+
+    MigrationInfo:
+      type: object
+      required: [current, head, up_to_date]
+      properties:
+        current:
+          type: string
+          nullable: true
+          description: "alembic_version 表中目前 revision；未 migration 時為 null"
+          example: "20260610_120100"
+          pattern: "^\\d{8}_\\d{6}$"
+        head:
+          type: string
+          description: "migrations/versions/ 中最新 revision id"
+          example: "20260610_120100"
+          pattern: "^\\d{8}_\\d{6}$"
+        up_to_date:
+          type: boolean
+          description: "current == head"
+          example: true
+
+    Error:
+      type: object
+      description: "通用錯誤回應（既有 28 API 沿用 api-conventions.md §3 格式 — 本 TASK API-101 採客製化 health response 結構而非此通用格式；列在此供未來 API 引用）"
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: "ERR-{DOMAIN}-NNN 格式"
+              example: "ERR-DB-001"
+              pattern: "^ERR-[A-Z]+-\\d{3}$"
+            message:
+              type: string
+              description: "面向使用者的訊息（zh-TW — NFR-012）"
+              example: "系統暫時無法連線資料庫，請稍後再試"
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: |
+        JWT in HTTP-only Cookie（PATTERN-007 [REUSE: from TASK-001]）。
+        本 TASK API-101 不使用此認證；列在 components 供既有 28 API 引用文件化。
+
+tags:
+  - name: "MOD-104 db_bootstrap"
+    description: "DB bootstrap 模組 — startup migration + advisory lock"
+  - name: "Infrastructure"
+    description: "基礎設施 / 維運用 endpoint（非業務 API）"

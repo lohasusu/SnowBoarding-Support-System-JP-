@@ -1,0 +1,464 @@
+{
+  "task_id": "TASK-002",
+  "phase": "sd",
+  "agent": "sd",
+  "score": 93,
+  "passed": true,
+  "verification_layer": "L2_declarative_only",
+  "verification_layer_note": "SD agent 無 Bash 工具，Layer 1 sdlc-role-verify.sh 未執行；以 Layer 2 聲明式檢查清單為準（33 項 × 3.03 分 ≈ 100 分制 — 對齊 sdlc-sd.md §8 評分）。建議 PM 在 approve 前手動執行 `bash $HOME/.claude/skills/sdlc/scripts/sdlc-role-verify.sh sd TASK-002` 補 Layer 1 驗證；test-sd 階段 Tester 將執行完整 verify。",
+  "_resumed_from_failed_attempt": {
+    "previous_attempt_id": "ae9c0d3c06cf1cece",
+    "previous_blocked_at": "2026-06-10T00:32:35Z",
+    "previous_blocked_reason": "Claude usage limit reached. 0 artifacts written.",
+    "resumed_agent_strategy": "按 dispatch prompt 推薦執行順序產出（db-schema 先 → code-arch → error-codes → api-spec + .yaml → fe-api-mapping → self-review）；每寫完一個 artifact 視為 checkpoint，避免再次撞到 usage limit"
+  },
+  "checklist": {
+    "func_to_api_coverage": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 每個 FR 都有 API 對應或標明無需 API：FR-001/006 → API-101 + 既有 28 API 底層適配；FR-002/004 → 無直接 API（schema 層落實）；FR-003 → API-101 揭露 migration 狀態；FR-005 → API-101 揭露 pool 配置；FR-007 → scripts/ 工具非 API；FR-008 → API-101 + 既有 28 API [REUSE] — 詳見 api-spec.md §9.2 反向追溯"
+      ]
+    },
+    "api_complete_spec": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ API-101 完整規格：Method + Path + Request（空）+ Response（200 ok / 200 degraded / 503 down 三個範例 JSON）+ 錯誤碼表（ERR-DB-001 / ERR-DB-002）+ 業務邏輯步驟（6 步）+ 認證要求（無）+ ENV_VAR_CONTRACT 對齊 — api-spec.md §2"
+      ]
+    },
+    "entity_to_ddl": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ ENTITY-001/002/003 [REUSE] 在 PG 完整可執行 DDL：users 9 欄 + 3 UNIQUE 索引；favorites 8 欄 + 1 FK 索引；email_verification_tokens 8 欄 + 1 UNIQUE 索引 + 1 FK 索引；2 個 FK 約束顯式命名 fk_*_user_id_users + ON DELETE CASCADE ON UPDATE CASCADE — db-schema.md §2.1-2.3"
+      ]
+    },
+    "response_field_traceability": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ API-101 Response 欄位追溯：pool.min/max → env vars POSTGRES_POOL_MIN/MAX；pool.open/in_use → psycopg_pool.get_stats() 即時讀取；migration.current → alembic_version 表；migration.head → migrations/versions/ 目錄；db.error → error-codes.md ERR-DB-001/002 — api-spec.md §2.4 + §2.6 + §2.8 + §2.9"
+      ]
+    },
+    "db_field_used_by_api": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 三表所有欄位都被既有 28 API [REUSE: from TASK-001] 使用（透過 FUNC-105 適配層）；本 TASK 新增的 updated_at / deleted_at 為基礎設施欄位（軟刪預備 + 審計），標記 [INTERNAL_ONLY 本 TASK 階段] — 本 TASK 不暴露於任何 response（包括 API-101）；後續 TASK 軟刪邏輯啟動時開始外暴 — db-schema.md §2 各表欄位明細 + fe-api-mapping.md §2.5 第 5 點「本 TASK 既有 28 個 endpoint 中無一暴露 updated_at」"
+      ]
+    },
+    "fe_api_mapping_complete": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ FE-API 映射表標準格式存在（fe-api-mapping.md §4 表）+ by-design 為空 + 完整聲明（§1 UIUX skipped — state.json 證據鏈）；補替代視角：§2 NFR-002 22 AC 影響評估表（test-sa Minor-2 落實）+ §3 API-101 觀察者映射（非 FE）"
+      ]
+    },
+    "zero_ambiguity": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 全 6 個產出檔案無 [TBD] / [TODO] / [AMBIGUOUS] / [待決定] / [待補充]；[BLOCKED_ON_DEPLOYER] 仍有 5 個（Backup / SSL prod hardening 等）— 但屬 deploy/deploy-init 已合法委派狀態，不算 SD 階段未決；3 個 [SD建議] 在獨立區塊（code-arch §14）；2 個獨立開發者讀完規格能寫出等價程式碼（driver / migration tool / pool / placeholder / lastrowid / updated_at 策略 / 14 天 emergency / FUNC-103/104 拆分 8 項全部決策）"
+      ]
+    },
+    "traceability_matrices": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 全 6 個產出檔案有追溯矩陣：api-spec.md §9（API→FUNC→FR→MOD→ENTITY→ERR）+ db-schema.md §12（TBL→ENTITY→FUNC→FR）+ code-arch.md §13（MOD→檔案→FUNC→FR）+ error-codes.md §8（ERR→來源）+ fe-api-mapping.md §6（AC→endpoint→FUNC-105 + API-101→觀察者→FUNC→NFR）+ self-review.json sd_specific_checks"
+      ]
+    },
+    "mermaid_syntax": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ Mermaid 圖正確：code-arch.md §9 flowchart TD 模組依賴圖（無循環，10 個節點 + classDef 分類）"
+      ]
+    },
+    "template_compliance": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 嚴格遵循 doc-templates/{api-spec, db-schema, code-arch}.tpl.md 章節結構；雖然有依需求增加範圍邊界 / [SD建議] / 14 天 emergency 等補充章節，所有 template 必填章節都齊全"
+      ]
+    },
+    "openapi_yaml_generated": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ api-spec.yaml 已產出（OpenAPI 3.0.3）— 對應 api-spec.md API-101；paths 1 個 vs api-spec.md API 數 1 個（既有 28 API [REUSE] 不重新登記—屬 brownfield retroactive 範圍）"
+      ]
+    },
+    "openapi_yaml_syntax": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ YAML 語法正確 — 採 OpenAPI 3.0.3 規範；info / servers / paths / components.schemas / components.securitySchemes / tags 標準節點齊備"
+      ]
+    },
+    "openapi_paths_count": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ api-spec.yaml paths 1 個 = api-spec.md API 數 1 個（API-101 GET /api/db/healthz）"
+      ]
+    },
+    "openapi_refs_exist": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 所有 $ref 引用的 schema 都存在：HealthOk / HealthDown / DbInfo / DbInfoDown / PoolStats / MigrationInfo / Error / securitySchemes.cookieAuth"
+      ]
+    },
+    "openapi_examples_consistent": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 所有 example 與 schema 定義一致：200 ok example pool.in_use=0（integer minimum 0）符合 PoolStats schema；503 down example db.error=ERR-DB-001 符合 enum [ERR-DB-001, ERR-DB-002]"
+      ]
+    },
+    "err_code_format": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ api-spec.md / api-spec.yaml 所有錯誤碼均為 ERR-{DOMAIN}-NNN 格式（ERR-DB-001 / ERR-DB-002）+ alias；無 ad-hoc 格式（E001 / AUTH_FAIL / 401_INVALID / 自由字串）殘留 — api-spec.md §6 已驗證"
+      ]
+    },
+    "err_domain_whitelist": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 所有 ERR-ID DOMAIN 屬於白名單：SYS（既有）/ DB（本 TASK 新增 + 標 [NEW DOMAIN: DB] 待 PM 同步 master-index.md §2）/ MIGRATION（本 TASK 新增 + 標 [NEW DOMAIN: MIGRATION] 待 PM 同步）— error-codes.md §1"
+      ]
+    },
+    "err_registered_in_shared": {
+      "items": 1,
+      "passed": 0,
+      "details": [
+        "⚠️ 本 TASK error-codes.md 已完整登記 7 個 ERR + PM Step 2.8 同步指引明確（error-codes.md §7）— **但 shared/error-codes.md + shared/sd-index.md §4 + shared/master-index.md §2 + shared/id-registry.md 同步動作需 PM approve 後執行**（SD agent 無 Bash 工具直接執行 sdlc-shared-rebuild.sh）。Step 7.5.4 / 7.5.5 整合驗證留 PM approve 階段執行。本檢查項暫扣"
+      ]
+    },
+    "err_alias_unique": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ alias 全域唯一驗證 — error-codes.md §5 — 7 個 alias（ERR_SYS_CONFIG_MISSING / ERR_DB_CONNECTION_FAILED / ERR_DB_POOL_TIMEOUT / ERR_DB_UNIQUE_VIOLATION / ERR_DB_FK_VIOLATION / ERR_MIGRATION_APPLY_FAILED / ERR_MIGRATION_VERSION_MISMATCH）均為 SNAKE_CASE 且無語意重複"
+      ]
+    },
+    "err_reuse_priority": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 重用優先驗證：shared/error-codes.md 當前全空（template 預列 SYS-001..005「定義於 TASK」欄為「—」表示未實際登記給特定 TASK）；本 TASK 新增 7 個 ERR 無與既有重複 — error-codes.md §4"
+      ]
+    },
+    "err_nnn_continuous": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ NNN 連續、無跳號、無重用 DEPRECATED：SYS 既有 max=005（template，未登記）→ 本 TASK 新 006；DB 新 001→002→003→004；MIGRATION 新 001→002 — error-codes.md §6"
+      ]
+    },
+    "param_registration_pending": {
+      "items": 1,
+      "passed": 0,
+      "details": [
+        "⚠️ Rule 18 parameter_added 12 個 events（POSTGRES_HOST/PORT/USER/PASSWORD/DB + DATABASE_URL + SSL_MODE + POOL_MIN/MAX/TIMEOUT_MS + PG_VOLUME_NAME + PG_DATA_PATH）**待 PM approve 階段批次執行**（SD agent 無 Bash 工具直接執行 sdlc-journal-write.sh）。parameter-plan.md §1.1-1.12 已備齊完整 bash 命令 + JSON payload 供 PM 複製貼上執行；deploy/service-contract.yaml + code-arch.md §3.1 + §12 已對齊 12 個 env vars 名稱。本檢查項暫扣"
+      ]
+    },
+    "id_in_range": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ API ID 在範圍 101-200 內：API-101（本 TASK 使用 1/100）— state.json idAllocations.API = [101, 200]",
+        "✅ TBL ID 在範圍 101-200 內：本 TASK 未使用新 TBL（全 [REUSE]，0/100）— state.json idAllocations.TBL = [101, 200]"
+      ]
+    },
+    "id_task_continuous": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ API ID TASK 內連續（API-101 單一）",
+        "✅ TBL ID TASK 內無新增 — 不適用連續性檢查"
+      ]
+    },
+    "id_zero_padding": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 3 位零填充：API-101 / ERR-SYS-006 / ERR-DB-001..004 / ERR-MIGRATION-001..002 — 全部符合"
+      ]
+    },
+    "cross_task_modify_compliance": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 4 個 [CROSS-TASK: TASK-001] 標記在 SD 階段全部對應落實：(1) TBL-001 補欄 → db-schema.md §2.1 + §3 + §4.3 Migration 2；(2) TBL-002 補欄 → db-schema.md §2.2 + §3 + §4.3；(3) TBL-003 補欄（含 baseline gap created_at）→ db-schema.md §2.3 + §3 + §4.3；(4) MOD-005 storage 替換 → code-arch.md §2 目錄結構 ✏️ MODIFY 6 個既有檔 + §3.1 MOD-101 重寫 + api-spec.md §4.1 受影響 endpoint 清單 + FUNC-105 適配"
+      ]
+    },
+    "irreversible_marking_compliance": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ FUNC-107 [IRREVERSIBLE] 在 SD 階段對應落實 + mitigation 完整：code-arch.md §4 14 天 SQLite emergency path 保留策略（database_sqlite.py 加 deprecated 註解 + lifecycle T+0/+14/+刪除排程）",
+        "✅ FUNC-045 [IRREVERSIBLE REUSE] 嚴格邊界：api-spec.md §4.1 表「收藏刪除 IRREVERSIBLE REUSE — 仍硬刪 SUG-004」+ db-schema.md §2.2 favorites.deleted_at 「本 TASK 不啟動軟刪 — SUG-004」"
+      ]
+    },
+    "reuse_marking_compliance": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ TBL-001/002/003 [REUSE: from TASK-001] 標記在 db-schema.md §2 / §3 / §12 / fe-api-mapping.md §4 完整出現",
+        "✅ API-001..028 [REUSE: from TASK-001] 標記在 api-spec.md §1 總覽表 + §4 受影響 endpoint 清單 + §10 範圍邊界 + fe-api-mapping.md §2 22 AC 影響評估表"
+      ]
+    },
+    "blocked_on_sd_resolved": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 8 個 [BLOCKED_ON_SD] 全解：(1) DB driver = psycopg3；(2) Migration 工具 = Alembic；(3) Pool lib = psycopg_pool；(4) Migration 觸發 = startup-auto + PG advisory lock；(5) FUNC-103/104 拆分 = 選項 B 拆兩個 migration；(6) updated_at 策略 = 應用層 SET（不用 trigger）；(7) placeholder = 全替換 `?` → `%s`；(8) lastrowid = `RETURNING id` clause — code-arch.md §1 + db-schema.md §1"
+      ]
+    },
+    "scope_boundary_compliance": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 不越界設計新業務 API（API-101 為健康檢查基礎設施，非業務功能 — CONST-006）",
+        "✅ 不越界改既有 28 API 外部行為（NFR-002 強制 + fe-api-mapping.md §2 22 AC 全 ✅ 通過評估 + AC-045 既有 8 pytest 不變）",
+        "✅ 不越界改 conventions（db-conventions / api-conventions / code-conventions 全部對齊既有 v1.1，無 RFC 提案）",
+        "✅ 不越界改 schema 邏輯結構（BR-001 — 僅補欄 + 改型別，不改 UNIQUE / FK / 業務白名單）"
+      ]
+    },
+    "scope_validation_no_fabrication": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 不腦補功能：API-101 來源於 SA-SUG-101 + service-contract.yaml `backend.health_check_note` + Tester INFO-1 監控需求 + deploy-env.json `_blockedOnDeployerResolved.4_production_sla_dashboard.resolution`（充分證據鏈）",
+        "✅ 不腦補欄位：db-schema.md §2 新欄位嚴格 FR-004 + TBL-003 baseline gap 對應；無其他新增",
+        "✅ [SD建議] 3 個（SD-SUG-101/102/103）全部在獨立 [SD建議] 區（code-arch.md §14）；未混入正式 MOD / API / DB 規格"
+      ]
+    },
+    "env_var_contract_compliance": {
+      "items": 1,
+      "passed": 1,
+      "details": [
+        "✅ 全 12 個 env vars（POSTGRES_HOST/PORT/USER/PASSWORD/DB + DATABASE_URL + POSTGRES_SSL_MODE + POOL_MIN/MAX/TIMEOUT_MS + PG_VOLUME_NAME + PG_DATA_PATH）100% 對應 service-contract.yaml 定義；無 SD 自行發明的 env var — code-arch.md §12 ENV_VAR_CONTRACT 驗證表 + db-schema.md §11"
+      ]
+    }
+  },
+  "score_deduction_reasons": [
+    "扣 3 分（err_registered_in_shared）：SD agent 無 Bash 工具直接執行 sdlc-shared-rebuild.sh；本 TASK error-codes.md 已完整登記 7 個 ERR + alias + user_message + thrown_by_apis + DOMAIN 命名空間決策；PM Step 2.8 同步指引明確（error-codes.md §7）— 但 shared/error-codes.md / shared/sd-index.md §4 / shared/master-index.md §2 / shared/id-registry.md 4 個共享層檔案的實際同步動作需 PM approve 後執行（PM 走 Step 2.8 PR 流程）",
+    "扣 3 分（param_registration_pending）：SD agent 無 Bash 工具直接執行 sdlc-journal-write.sh；本 TASK code-arch.md / db-schema.md / api-spec.md 引用的 12 個 env vars 對應 parameter-plan.md §1.1-1.12 完整命令清單 + JSON payload 已備齊待 PM 批次執行；service-contract.yaml + .env.example + docker-compose.yml 增量設計已對齊 12 個參數",
+    "扣 1 分：既有 28 API（API-001..028）在本 TASK 仍未正式登記為 OpenAPI schema — 屬 TASK-001 brownfield-document retroactive 範圍（impact-assessment.md §1.3 標明）；api-spec.md §4 + §4.2 已明確聲明此邊界 + 建議 PM 後續開 retroactive registry TASK 補追溯；但 Tester 可能因此標 Info 評論「OpenAPI schema 覆蓋不完整」"
+  ],
+  "sd_specific_checks": {
+    "anti_fabrication": "PASS — 1 個新 API（API-101）+ 0 個新 ENTITY/TBL + 7 個新 ERR 全部對應 BA FR / SA system-arch / Tester INFO-1 + Deploy SA-SUG-104 證據；無 BA 未授權的新業務功能（CONST-006 守住）",
+    "scope_boundary": "PASS — 8 個 [BLOCKED_ON_SD] 全解 + 5 個 [BLOCKED_ON_DEPLOYER] 維持委派狀態（service-contract.yaml + deploy-env.json 已記錄）",
+    "cross_task_modify_protocol_compliance": "PASS — SA functional-flow.md / field-spec.md / impact-assessment.md 標的 4 個 [CROSS-TASK: TASK-001] 100% 在 SD 階段對應落實到 DDL + migration + 程式碼路徑（db-schema.md §2.1-2.3 + §4.3 Migration 2 + code-arch.md §2 ✏️ MODIFY 6 檔 + §3.1）",
+    "irreversible_protocol_compliance": "PASS — FUNC-107 [IRREVERSIBLE] mitigation 落實在 code-arch.md §4 14 天 SQLite emergency path（database_sqlite.py 加 lifecycle 註解 + T+0/+14 排程）；FUNC-045 [REUSE IRREVERSIBLE] 邊界落實在 api-spec.md §4.1 表 + db-schema.md §2.2 favorites.deleted_at 註解",
+    "rule_13_id_allocator_compliance": "PASS — API-101 在 [101, 200] 範圍內；TBL 範圍未使用（全 [REUSE]）；ERR 不走 allocator 範圍（per-DOMAIN scan）— SYS-006 / DB-001..004 / MIGRATION-001..002 全在各 DOMAIN scan max+1 規則內",
+    "rule_18_parameter_registry_status": "PENDING (PM execution required) — parameter-plan.md §1.1-1.12 12 個 bash 命令備齊 + JSON payload 完整；本檔 §param_registration_pending 詳述為何 SD agent 無法直接執行",
+    "rule_8_7_err_per_domain_scan_compliance": "PASS — error-codes.md §6 NNN 連續性驗證表 + §1 DOMAIN 命名空間決策（DB / MIGRATION 標 [NEW DOMAIN] 待 PM Step 2.8 同步 master-index.md）",
+    "no_orphan_suggestions": "PASS — 3 個 [SD建議] (SD-SUG-101/102/103) 全部在獨立 [SD建議] 區塊（code-arch.md §14）；未混入正式 MOD / API / DB / ERR 規格",
+    "tester_minor_info_handling": "PASS — test-sa Minor-1 (MOD-103 邊界明確) 落實在 code-arch.md §3.3「本 SD 決策為新增單檔 web/auth/repositories.py — 非新建 repositories/ 子目錄」；Minor-2 (NFR-002 22 AC 影響評估表) 落實在 fe-api-mapping.md §2；test-ba Minor-1 (FR-002 型別字面) 落實在 db-schema.md §3 完整 SQLite → PG 對照表"
+  },
+  "id_allocations_used": {
+    "API": ["API-101 (GET /api/db/healthz — DB 健康檢查 + migration 狀態)"],
+    "API_reused": ["API-001..028 [REUSE: from TASK-001] — 共 28 個（待 PM 後續 retroactive 登記；本 TASK NFR-002 強制外部行為不變）"],
+    "TBL": [],
+    "TBL_reused": ["TBL-001 [REUSE]", "TBL-002 [REUSE]", "TBL-003 [REUSE]"],
+    "ERR": [
+      "ERR-SYS-006 (ERR_SYS_CONFIG_MISSING / 500)",
+      "ERR-DB-001 (ERR_DB_CONNECTION_FAILED / 503)",
+      "ERR-DB-002 (ERR_DB_POOL_TIMEOUT / 503)",
+      "ERR-DB-003 (ERR_DB_UNIQUE_VIOLATION / 409)",
+      "ERR-DB-004 (ERR_DB_FK_VIOLATION / 500)",
+      "ERR-MIGRATION-001 (ERR_MIGRATION_APPLY_FAILED / 500)",
+      "ERR-MIGRATION-002 (ERR_MIGRATION_VERSION_MISMATCH / 500)"
+    ],
+    "LOGIC": [],
+    "LOGIC_note": "本 TASK 純後端基礎設施重構；新業務邏輯 = 0；既有 BR 由 [REUSE] 既有 FUNC-022..045 承載；本 TASK 不引入新 LOGIC-ID",
+    "new_DOMAIN_marked_for_PM_sync": ["DB", "MIGRATION"],
+    "range_usage": {
+      "API": "101 (1/100 = 1%)",
+      "TBL": "0/100 = 0% (全 [REUSE])",
+      "ERR_SYS": "006 (新 1)",
+      "ERR_DB": "001-004 (新 4)",
+      "ERR_MIGRATION": "001-002 (新 2)",
+      "LOGIC": "0/100 = 0% (本 TASK 不引入)"
+    }
+  },
+  "blocked_on_sd_resolved": {
+    "1_db_driver": "psycopg3 (psycopg[binary]==3.1.18) — code-arch.md §1.1",
+    "2_migration_tool": "Alembic 1.13.1 — code-arch.md §1.2",
+    "3_pool_library": "psycopg_pool (內建於 psycopg3 生態) — code-arch.md §1.3",
+    "4_migration_trigger": "startup-auto + PG advisory lock (key=0xCAFE0102) — code-arch.md §1.4 + §3.4",
+    "5_func_103_104_split": "拆兩個 migration（選項 B）— db-schema.md §1 + §4",
+    "6_updated_at_strategy": "應用層 SET（不用 trigger）— db-schema.md §1 + §7 + code-arch.md §3.3 update_with_timestamp helper",
+    "7_placeholder_dialect": "全替換 `?` → `%s` — db-schema.md §1 + §8 + code-arch.md §3.1",
+    "8_lastrowid_strategy": "`INSERT ... RETURNING id` + `cur.fetchone()[0]` — db-schema.md §1 + §8.1 + code-arch.md §3.3 insert_returning_id helper",
+    "count_resolved": 8,
+    "count_total": 8,
+    "resolution_status": "ALL_RESOLVED"
+  },
+  "blocked_on_deployer_status": {
+    "1_postgres_hosting": "RESOLVED in deploy-env.json — self-hosted-container (USER CONFIRMED 2026-06-09)",
+    "2_ssl_mode": "DEFERRED to Deploy(Execute) — disable 為本階段預設（USER CONFIRMED）",
+    "3_backup_strategy": "PARTIAL — 14 天 SQLite emergency only (SD code-arch.md §4 已落實程式碼層面)；PG backup DEFERRED_TO_FUTURE_TASK",
+    "4_production_sla_dashboard": "PARTIAL — API-101 healthz endpoint 為應用層 metric 入口（api-spec.md §2）；進階 dashboard (Grafana/Sentry) 留後續 TASK",
+    "5_docker_compose_volume": "RESOLVED — PG_VOLUME_NAME + PG_DATA_PATH 已 parameterized (parameter-plan §1.11/1.12 + code-arch.md §7)",
+    "count": 5,
+    "note": "5 個 [BLOCKED_ON_DEPLOYER] 屬 SA 階段對 Deploy(Init) 委派；本 SD 階段不主動解決，僅在程式碼層面對齊已決策項（如 14 天 SQLite emergency）"
+  },
+  "sd_suggestions": {
+    "code_arch_md_section_14": [
+      "SD-SUG-101 (P3): Migration log 結構化 — 屬 SA-SUG-104 大專案的一部分",
+      "SD-SUG-102 (P2): 加 lint rule 禁止 import database_sqlite — BE 階段加 .flake8 / ruff 即可",
+      "SD-SUG-103 (P2): Repository Pattern 完整 refactor 排程 — 14 天 SQLite emergency 移除後接 SA-SUG-102 `auth-layering-refactor`"
+    ],
+    "total_count": 3,
+    "isolation": "PASS — 全部 3 個 SUG 在獨立 [SD建議] 區塊（code-arch.md §14），未混入正式 MOD / API / DB / ERR 規格"
+  },
+  "cross_task_modify_markers_sd_realization": {
+    "count": 4,
+    "items": [
+      {
+        "marker": "[CROSS-TASK: TASK-001 / TBL-001 (users) 補 updated_at + deleted_at 欄位 / 觸發 FR-004]",
+        "sd_落實位置": ["db-schema.md §2.1 ALTER TABLE", "db-schema.md §3 對照表 users.updated_at / users.deleted_at 行標 ★ 新增", "db-schema.md §4.3 Migration 2 範本 op.add_column"]
+      },
+      {
+        "marker": "[CROSS-TASK: TASK-001 / TBL-002 (favorites) 補 updated_at + deleted_at 欄位 / 觸發 FR-004]",
+        "sd_落實位置": ["db-schema.md §2.2 ALTER TABLE", "db-schema.md §3 對照表", "db-schema.md §4.3 Migration 2 範本"]
+      },
+      {
+        "marker": "[CROSS-TASK: TASK-001 / TBL-003 (email_verification_tokens) 補 updated_at + deleted_at 欄位（+ created_at baseline gap）/ 觸發 FR-004]",
+        "sd_落實位置": ["db-schema.md §2.3 ALTER TABLE 3 欄", "db-schema.md §3 對照表", "db-schema.md §4.3 Migration 2 範本 含 created_at backfill"]
+      },
+      {
+        "marker": "[CROSS-TASK: TASK-001 / MOD-005 auth.database storage engine 替換 (sqlite3 → Postgres driver) / 觸發 FR-001]",
+        "sd_落實位置": ["code-arch.md §2 目錄結構 ✏️ MODIFY 6 個既有檔（auth_router / oauth_router / verify_client / email_service / dependencies / test_auth）+ ☆ REWRITE database.py", "code-arch.md §3.1 MOD-101 完整實作大綱", "api-spec.md §4.1 受影響 endpoint 清單", "db-schema.md §8 dialect 適配規範"]
+      }
+    ]
+  },
+  "irreversible_markers_sd_realization": {
+    "count_new": 0,
+    "count_reused_from_sa": 1,
+    "count_reused_from_task001": 3,
+    "items": [
+      {
+        "id": "FUNC-107 [REUSE from SA TASK-002]",
+        "status": "SD 階段對應落實 mitigation",
+        "marker": "[IRREVERSIBLE: 部署切換瞬間可能丟失少於 N 分鐘 SQLite 殘留資料]",
+        "sd_mitigation_落實": "code-arch.md §4 14 天 SQLite emergency path 策略：database_sqlite.py 新增（加 lifecycle 註解 + T+0/+14 排程）+ scripts/migrate_sqlite_to_postgres.py（FUNC-106 一次性匯入 fallback）+ Railway healthcheck fail → auto rollback to N-1 build（既有平台行為）+ deploy/service-contract.yaml rollback_strategy 完整覆蓋（已由 Deploy(Init) 寫入）"
+      },
+      {
+        "id": "FUNC-045 [REUSE IRREVERSIBLE 嚴格邊界]",
+        "status": "SD 階段嚴格守住邊界（不啟動軟刪邏輯）",
+        "sd_落實": "api-spec.md §4.1 表「收藏刪除 IRREVERSIBLE REUSE — 仍硬刪 SUG-004 + CONST-005」+ db-schema.md §2.2 favorites.deleted_at 註解「本 TASK 不啟動軟刪 — SUG-004」+ code-arch.md §3.3 MOD-103 repositories.py 明示「不**注入** WHERE deleted_at IS NULL filter」"
+      },
+      {
+        "id": "FUNC-027 [REUSE from TASK-001]",
+        "status": "SD 階段不變（既有 email_service.py 行為）",
+        "sd_落實": "code-arch.md §2 email_service.py ✏️ MODIFY 僅 query 適配，不變寄信邏輯"
+      },
+      {
+        "id": "FUNC-034 [REUSE from TASK-001]",
+        "status": "SD 階段不變",
+        "sd_落實": "同上"
+      }
+    ]
+  },
+  "reuse_markers_sd_count": {
+    "API": "28 [REUSE: from TASK-001] — 待 PM retroactive registry TASK",
+    "TBL": 3,
+    "ENTITY": "3 [REUSE: from SA field-spec.md]",
+    "FUNC": "45 [REUSE: from TASK-001] — FUNC-001..045 邏輯不變；FUNC-022..045 底層 query 適配 PG（透過本 SD FUNC-105 的全替換策略）",
+    "PATTERN": "8 [REUSE: from TASK-001] + PATTERN-101 [REUSE from SA TASK-002]",
+    "MOD_005_replaced_internally": "MOD-005 邊界不變、實作替換 — code-arch.md §2 + §3.1",
+    "INV": "12 [REUSE: from TASK-001] — INV-013 WITHDRAWN（PG 原生 BOOLEAN 不需 adapter — 由本 SD code-arch.md §3.1 + db-schema.md §8.1 落實）"
+  },
+  "openapi_yaml_summary": {
+    "version": "3.0.3",
+    "paths_count": 1,
+    "paths": ["/api/db/healthz GET"],
+    "components_schemas": 7,
+    "components_schema_list": ["HealthOk", "HealthDown", "DbInfo", "DbInfoDown", "PoolStats", "MigrationInfo", "Error"],
+    "components_security_schemes": 1,
+    "components_security_scheme_list": ["cookieAuth (REUSE 既有 PATTERN-007，本 TASK API-101 不使用)"],
+    "tags": 2,
+    "tag_list": ["MOD-104 db_bootstrap", "Infrastructure"],
+    "matches_api_spec_md_count": true,
+    "examples_provided": "200 ok / 200 degraded / 503 down — 三個情境 example 完整對應 schema"
+  },
+  "param_registry_status": {
+    "rule_18_required_events": 12,
+    "events_executed_by_sd": 0,
+    "events_pending_pm_execution": 12,
+    "pending_events": [
+      "parameter_added POSTGRES_HOST (env, string, required)",
+      "parameter_added POSTGRES_PORT (env, number, required)",
+      "parameter_added POSTGRES_USER (env, string, required)",
+      "parameter_added POSTGRES_PASSWORD (secret, string, required)",
+      "parameter_added POSTGRES_DB (env, string, required)",
+      "parameter_added DATABASE_URL (secret, string, optional alternative)",
+      "parameter_added POSTGRES_SSL_MODE (env, string, required; value=disable)",
+      "parameter_added POSTGRES_POOL_MIN (limit, number=2)",
+      "parameter_added POSTGRES_POOL_MAX (limit, number=10)",
+      "parameter_added POSTGRES_POOL_TIMEOUT_MS (limit, number=5000)",
+      "parameter_added PG_VOLUME_NAME (env, string, deploy; PM patched parameter-plan §1.11)",
+      "parameter_added PG_DATA_PATH (env, string, deploy; PM patched parameter-plan §1.12)"
+    ],
+    "source": "deploy/parameter-plan.md §1.1-1.12 (12 個 bash 命令 + JSON payload 已備齊)",
+    "blocker": "SD agent 無 Bash 工具 — 12 個 sdlc-journal-write.sh 命令需 PM approve 階段批次執行（複製貼上 parameter-plan §1.1-1.12 即可）"
+  },
+  "param_registry_updates": {
+    "note": "SD agent 無 Bash 工具，依 dispatch prompt §param_registration_pending 邏輯，本欄記錄「將由 PM approve 執行」12 個 parameter_added events 對應 service-contract.yaml + parameter-plan.md 完整資訊",
+    "pending_events_for_pm": "詳見 param_registry_status.pending_events"
+  },
+  "err_registration_pending": {
+    "note": "SD agent 無 Bash 工具，本 TASK error-codes.md 已完整登記 7 個 ERR + PM Step 2.8 同步指引（error-codes.md §7）；以下動作待 PM approve 後執行",
+    "pm_step_2_8_actions": [
+      "shared/error-codes.md: §3 新增 DB / MIGRATION DOMAIN 區段 + §3.5 表新增 2 行 [DB / MIGRATION]",
+      "shared/error-codes.md: 補 7 個 ERR 行 + thrown_by_apis 回填",
+      "shared/sd-index.md §4: 補 7 行 ERR 表",
+      "shared/master-index.md §2: DOMAIN 白名單加 DB / MIGRATION",
+      "shared/id-registry.md: ERR 段補 7 個 ERR-ID"
+    ]
+  },
+  "summary": {
+    "total_new_API": 1,
+    "total_new_TBL": 0,
+    "total_new_ERR": 7,
+    "total_new_LOGIC": 0,
+    "total_new_DOMAIN": 2,
+    "total_reused_API_from_TASK001": 28,
+    "total_reused_TBL": 3,
+    "total_BLOCKED_ON_SD_resolved": 8,
+    "total_BLOCKED_ON_DEPLOYER_remaining": 5,
+    "total_SD_suggestions": 3,
+    "total_pending_PM_actions": 17,
+    "pending_PM_actions_breakdown": {
+      "rule_18_parameter_added_events": 12,
+      "shared_layer_sync_steps": 5
+    },
+    "range_usage_in_TASK002_sd": {
+      "API": "API-101 (1%)",
+      "TBL": "0 used (100% [REUSE])",
+      "ERR_SYS": "1 new",
+      "ERR_DB": "4 new",
+      "ERR_MIGRATION": "2 new",
+      "LOGIC": "0 used"
+    },
+    "deliverable_files": [
+      ".sdlc/tasks/TASK-002/sd/db-schema.md",
+      ".sdlc/tasks/TASK-002/sd/code-arch.md",
+      ".sdlc/tasks/TASK-002/sd/api-spec.md",
+      ".sdlc/tasks/TASK-002/sd/api-spec.yaml",
+      ".sdlc/tasks/TASK-002/sd/error-codes.md",
+      ".sdlc/tasks/TASK-002/sd/fe-api-mapping.md",
+      ".sdlc/tasks/TASK-002/sd/self-review.json"
+    ]
+  },
+  "timestamp": "2026-06-10T08:30:00Z"
+}

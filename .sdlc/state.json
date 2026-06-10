@@ -273,12 +273,28 @@
           "approvedAt": "2026-06-10T00:00:00Z"
         },
         "sd": {
-          "status": "blocked",
+          "status": "pm_review",
           "startedAt": "2026-06-10T00:00:00Z",
-          "blockedAt": "2026-06-10T00:32:35Z",
-          "blockedReason": "Claude usage limit reached during SD agent execution (52 tool calls + 32 min duration before hit limit). Agent wrote no artifacts (sd/ dir empty, 0 new journal entries). Resume after limit resets (7am Asia/Taipei).",
-          "agentIdInterrupted": "ae9c0d3c06cf1cece",
-          "resumeStrategy": "After limit reset: option A re-dispatch fresh Agent(subagent_type=sdlc-sd) with same prompt; option B SendMessage to=ae9c0d3c06cf1cece to resume in-place (untested whether existing agent context persists across limit reset)."
+          "resumedAt": "2026-06-10T07:30:00Z",
+          "completedAt": "2026-06-10T08:00:00Z",
+          "score": 93,
+          "agentId": "a60cabfbe6cbfb4f5",
+          "previousAttempts": [
+            {
+              "attemptId": 1,
+              "agentId": "ae9c0d3c06cf1cece",
+              "blockedAt": "2026-06-10T00:32:35Z",
+              "blockedReason": "Claude usage limit reached (52 tool calls, 32 min). 0 artifacts written.",
+              "resolution": "Limit reset after 7am Asia/Taipei; fresh agent re-dispatched."
+            }
+          ],
+          "L1VerifyScore": 80,
+          "L1VerifyNote": "L1 報 4 fail：(1) 缺 logic-flow.md — 邊緣 (TASK 為純基礎設施 0 新業務邏輯，邏輯流程已隱含於 sa/functional-flow.md FUNC-101..107)，可選擇補空白檔或記為 N/A；(2) API-001 重複 — false positive (API-001..028 為 TASK-001 [REUSE] 引用非定義重複)；(3) fe-api-mapping 未引用 COMP — false positive (UIUX skipped 無 COMP)；(4) db-schema DROP without expand-contract — false positive (§5 即為 Expand-Contract 章節，DROP 是說明三段式刪欄協議)。L2 93 為實際品質。",
+          "PMJournalActions": {
+            "executedAt": "2026-06-10T08:00:00Z",
+            "events": "22 total: 1 id_added (API-101) + 2 error_domain_added (DB / MIGRATION) + 7 error_code_added (SYS-006, DB-001..004, MIGRATION-001..002) + 12 parameter_added (POSTGRES_* 10 + PG_VOLUME_NAME + PG_DATA_PATH)",
+            "sharedRebuildResult": "id-registry / terminology / error-codes / i18n-registry / parameter-registry"
+          }
         },
         "test-sd": { "status": "pending" },
         "fe": { "status": "pending" },
