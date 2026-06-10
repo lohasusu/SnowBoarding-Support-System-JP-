@@ -159,6 +159,7 @@
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
       "currentPhase": "test-sd",
+      "currentPhaseNote": "test-sd.status=blocked — Claude usage limit (2nd hit, resets 3:40pm Asia/Taipei)",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -297,8 +298,12 @@
           "approvedAt": "2026-06-10T08:30:00Z"
         },
         "test-sd": {
-          "status": "in_progress",
-          "startedAt": "2026-06-10T08:30:00Z"
+          "status": "blocked",
+          "startedAt": "2026-06-10T08:30:00Z",
+          "blockedAt": "2026-06-10T09:30:00Z",
+          "blockedReason": "Claude usage limit reached during test-sd Tester execution (24 tool calls, ~10 min). 0 artifacts written. This is the 2nd limit hit in TASK-002 (1st was SD agent same day, reset 7am). Resume after 3:40pm Asia/Taipei reset (5-hour rolling window).",
+          "agentIdInterrupted": "a8dfac661a48c9bdb",
+          "resumeStrategy": "After limit reset: re-dispatch fresh sdlc-tester agent with same prompt (agent a8dfac661a48c9bdb wrote no artifacts so re-dispatch = clean start)."
         },
         "fe": { "status": "pending" },
         "be": { "status": "pending" },
