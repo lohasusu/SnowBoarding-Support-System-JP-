@@ -26,6 +26,14 @@ if config.config_file_name is not None:
 if not config.get_main_option("sqlalchemy.url"):
     config.set_main_option("sqlalchemy.url", _build_dsn_from_env())
 
+# 強制 SQLAlchemy 用 psycopg3 driver（BE 選定）— 把 postgresql:// 改成 postgresql+psycopg://
+# 否則 SQLAlchemy 預設載入 psycopg2，但 requirements.txt 只有 psycopg3
+_url = config.get_main_option("sqlalchemy.url") or ""
+if _url.startswith("postgresql://"):
+    config.set_main_option("sqlalchemy.url", "postgresql+psycopg://" + _url[len("postgresql://"):])
+elif _url.startswith("postgres://"):
+    config.set_main_option("sqlalchemy.url", "postgresql+psycopg://" + _url[len("postgres://"):])
+
 # 不使用 autogenerate（不依賴 SQLAlchemy ORM）
 target_metadata = None
 

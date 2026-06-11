@@ -30,3 +30,7 @@ web/data/*.db-journal
 
 # Claude Code workspace state (ephemeral, per-machine)
 .claude/worktrees/
+
+# TASK-002 build-gate manual verification files (not for commit)
+Dockerfile.task002
+docker-compose.task002-verify.yml

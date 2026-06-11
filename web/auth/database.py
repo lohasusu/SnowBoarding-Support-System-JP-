@@ -57,9 +57,10 @@ def _build_dsn_from_env() -> str:
             "or provide DATABASE_URL as a fallback."
         )
 
+    from urllib.parse import quote_plus
     return (
-        f"host={host} port={port} user={user} password={password} "
-        f"dbname={db} sslmode={sslmode}"
+        f"postgresql://{quote_plus(user)}:{quote_plus(password)}"
+        f"@{host}:{port}/{db}?sslmode={sslmode}"
     )
 
 

@@ -158,7 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "build-gate",
+      "currentPhase": "code-review",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -385,10 +385,49 @@
           ]
         },
         "build-gate": {
-          "status": "in_progress",
-          "startedAt": "2026-06-11T00:20:00Z"
+          "status": "approved",
+          "startedAt": "2026-06-11T00:20:00Z",
+          "completedAt": "2026-06-11T00:25:00Z",
+          "completedAtV2": "2026-06-12T03:30:00Z",
+          "score": 92,
+          "scoreV1": 0,
+          "verdict": "PASS",
+          "verdictV1": "ENV_BLOCKED",
+          "verdictTransition": "v1.0 ENV_BLOCKED (sub-agent Bash sandbox) → v2.0 PASS (PM Path A PowerShell exec after user installed Docker Desktop)",
+          "rootCauseClassification": "RESOLVED — 5 IMPL_BUGs found and fixed during PM Path A execution",
+          "findings": {
+            "mandatoryTasksExecutedV1": 0,
+            "mandatoryTasksExecutedV2": 8,
+            "mandatoryTasksTotal": 8,
+            "passV2": 7,
+            "passWithNoteV2": 1,
+            "failV2": 0,
+            "implBugsFoundAndFixed": 5
+          },
+          "implBugsFixed": [
+            {"id": "IMPL_BUG-1", "file": "Dockerfile.task002", "issue": "Missing COPY alembic.ini → /app/alembic.ini absent → alembic Config reads empty → 'No script_location key' → backend exit 3", "fix": "Added COPY --chown=appuser:appuser alembic.ini ./"},
+            {"id": "IMPL_BUG-2", "file": "migrations/env.py", "issue": "postgresql:// URL defaults to psycopg2 driver (not installed); project uses psycopg3", "fix": "URL prefix normalization: postgresql:// → postgresql+psycopg://"},
+            {"id": "IMPL_BUG-3", "file": "Dockerfile.task002", "issue": "HEALTHCHECK /api/auth/me --spider (HEAD) returns 405; grep (401|200) never matches", "fix": "Switch to GET /api/db/healthz with grep '\"status\":\"ok\"'"},
+            {"id": "IMPL_BUG-4", "file": "web/auth/database.py", "issue": "_build_dsn_from_env() returns key-value 'host=... port=...' which SQLAlchemy cannot parse", "fix": "Return URL form postgresql://user:pass@host:port/db?sslmode=X"},
+            {"id": "ENV_BUG-5", "file": "alembic.ini", "issue": "Chinese UTF-8 comments + Windows cp950 locale → UnicodeDecodeError", "fix": "Rewrote Chinese comments as ASCII English"}
+          ],
+          "PMDecision": {
+            "decidedAt": "2026-06-11T01:05:00Z",
+            "chosenPath": "A_PMManualLocalExec",
+            "rationale": "User chose to install docker locally and run 8 mandatory tasks manually (preserves verification rigor over Path B Railway-fallback)",
+            "executedAt": "2026-06-12T03:30:00Z",
+            "executionChannel": "PowerShell (dockerDesktopLinuxEngine named pipe reachable; Git Bash cannot access)"
+          },
+          "blockedItemsResolved": [
+            "BLOCK-001 (pytest 8/8) → 8 passed in 6.50s via host venv + testcontainers",
+            "BLOCK-002 (Alembic up→down→up) → all three exit=0, head=20260610_120100 idempotent"
+          ],
+          "pipelineStatus": "APPROVED — code-review dispatched per dev-pipeline auto-string",
+          "status_was": "pm_review",
+          "approvedAt": "2026-06-12T03:35:00Z",
+          "approvedBy": "User (explicit confirm via /sdlc:next AskUserQuestion)"
         },
-        "code-review": { "status": "pending" },
+        "code-review": { "status": "in_progress", "startedAt": "2026-06-12T03:35:00Z" },
         "deploy": { "status": "pending" },
         "test": { "status": "pending" }
       },

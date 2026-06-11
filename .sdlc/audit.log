@@ -240,3 +240,24 @@
 [2026-06-10T19:07:11Z] Tester | TASK-002 | completed    | test-be L2=94 verdict=CONDITIONAL_PASS (0C/0M/3m/4I/2BLOCKED→build-gate) all 6 verification points PASS
 [2026-06-10T19:07:11Z] PM     | TASK-002 | auto_approved| test-fe + test-be (0 Critical, dev_pipeline auto-string)
 [2026-06-10T19:07:11Z] PM     | TASK-002 | dispatched   | build-gate (must run pytest 8/8 + Alembic up→down→up idempotency to resolve 2 BLOCKED)
+[2026-06-10T19:07:42Z] build-gate| TASK-002 | input_validate| PASS: passed=8 failed=0 warnings=0
+[2026-06-10T19:07:42Z] build-gate| TASK-002 | input_validate| PASS: passed=8 failed=0 warnings=0
+[2026-06-11T01:00:00Z] build-gate| TASK-002 | completed    | verdict=ENV_BLOCKED score=0 mandatoryTasks=0/8 cause=bash_denied_sandbox
+[2026-06-11T01:00:00Z] PM     | TASK-002 | pm_review    | build-gate (verdict=ENV_BLOCKED → pipeline HALTED, awaiting PM decision: A_manual_local / B_defer_to_deploy / C_upgrade_agent)
+[2026-06-11T01:05:00Z] User   | TASK-002 | pm_decision  | build-gate path=A_manual_local_exec (waiting for docker install)
+[2026-06-11T01:05:00Z] PM     | TASK-002 | pipeline_pause| build-gate halted; pipeline awaits user docker exec results
+[2026-06-12T01:15:00Z] PM     | TASK-002 | buildgate_resume_attempt | Docker installed locally; daemon "unable to start" (likely WSL2 missing or post-install reboot pending). User chose to install WSL2 / reboot; pipeline remains paused at build-gate pm_review.
+[2026-06-12T03:05:00Z] PM     | TASK-002 | buildgate_path_a_start | User confirmed Docker Desktop installed; PM switching to PowerShell channel (dockerDesktopLinuxEngine pipe reachable in PS, not Git Bash). Executing 8/8 mandatory.
+[2026-06-12T03:12:00Z] PM     | TASK-002 | implbug_found_fix     | IMPL_BUG-1 Dockerfile.task002 missing COPY alembic.ini → fixed
+[2026-06-12T03:15:00Z] PM     | TASK-002 | implbug_found_fix     | IMPL_BUG-2 migrations/env.py psycopg2 default → fixed (URL prefix normalize to postgresql+psycopg://)
+[2026-06-12T03:21:00Z] PM     | TASK-002 | implbug_found_fix     | IMPL_BUG-3 Dockerfile.task002 healthcheck /api/auth/me 405 → fixed (switch to GET /api/db/healthz)
+[2026-06-12T03:24:00Z] PM     | TASK-002 | implbug_found_fix     | IMPL_BUG-4 web/auth/database.py _build_dsn_from_env key-value form → fixed (return URL form)
+[2026-06-12T03:25:00Z] PM     | TASK-002 | envbug_found_fix      | ENV_BUG-5 alembic.ini Chinese comments + cp950 locale → fixed (ASCII comments)
+[2026-06-12T03:26:00Z] PM     | TASK-002 | block_resolved        | BLOCK-001 pytest 8/8 → 8 passed in 6.50s (host venv + testcontainers)
+[2026-06-12T03:27:00Z] PM     | TASK-002 | block_resolved        | BLOCK-002 Alembic up→down→up → three exit=0 idempotent
+[2026-06-12T03:28:00Z] PM     | TASK-002 | buildgate_8_of_8      | 8/8 mandatory PASS; cleanup down -v completed
+[2026-06-12T03:30:00Z] BuildGate v2 | TASK-002 | completed         | verdict=PASS score=92 (v1.0 ENV_BLOCKED 0 → v2.0 PASS 92) implBugsFixed=5 blocksResolved=2/2
+[2026-06-12T03:30:00Z] PM     | TASK-002 | pm_review             | build-gate (v2.0 verdict=PASS, awaiting user approve)
+[2026-06-12T03:35:00Z] User   | TASK-002 | approved              | build-gate (v2.0 PASS 92/100 via Path A, 5 IMPL_BUGs fixed + 2 BLOCKs resolved)
+[2026-06-12T03:35:00Z] PM     | TASK-002 | dev_pipeline_continue | build-gate PASS → auto-dispatch code-review
+[2026-06-12T03:35:00Z] PM     | TASK-002 | dispatched            | code-review
