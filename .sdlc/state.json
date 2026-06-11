@@ -158,7 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "code-review",
+      "currentPhase": "deploy",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -427,8 +427,37 @@
           "approvedAt": "2026-06-12T03:35:00Z",
           "approvedBy": "User (explicit confirm via /sdlc:next AskUserQuestion)"
         },
-        "code-review": { "status": "in_progress", "startedAt": "2026-06-12T03:35:00Z" },
-        "deploy": { "status": "pending" },
+        "code-review": {
+          "status": "approved",
+          "startedAt": "2026-06-12T03:35:00Z",
+          "completedAt": "2026-06-12T03:55:00Z",
+          "score": 86,
+          "verdict": "CONDITIONAL_PASS",
+          "findings": { "critical": 0, "major": 3, "minor": 5, "info": 6 },
+          "coverage": "~90% (below 95% pipeline gate)",
+          "scoreBreakdown": { "CR1_specCompliance": 88, "CR2_FEQuality": 95, "CR3_BEQuality": 82, "CR4_SecurityNFR": 90, "CR5_ContractAlignment": 80 },
+          "agentId": "ac9eb973851c0a62b",
+          "majorBlockers": [
+            "MAJ-1 (deploy SoT): .sdlc/tasks/TASK-002/deploy/Dockerfile.be not synced with build-gate IMPL_BUG-1 (missing COPY alembic.ini) + IMPL_BUG-3 (wrong healthcheck) — next deploy will replay bugs. Confidence 95. **Blocks deploy.**",
+            "MAJ-2 (BE quality): web/auth/repositories.py MOD-103 dead code (0 callers) + update_with_timestamp uses f-string SQL. Confidence 95.",
+            "MAJ-3 (framework gap): test-be static verification cannot catch runtime-only IMPL_BUGs — 4 build-gate findings expose this gap. Confidence 90."
+          ],
+          "pipelineStatus": "APPROVED_WITH_WAIVER — user explicit override of Step 6.4 gate",
+          "status_was": "pm_review",
+          "approvedAt": "2026-06-12T04:00:00Z",
+          "approvedBy": "User (waiver override of coverage <95% + 3 Major findings)",
+          "userWaiver": {
+            "rationale": "User accepts 86/100 score. Pipeline-gate override rationale (per user choice): build-gate v2.0 8/8 PASS already covers real integration risks; Railway prod uses nixpacks (not Dockerfile.be) so MAJ-1 is moot for prod; MAJ-2 dead code does not affect runtime; MAJ-3 framework gap is out-of-TASK scope.",
+            "knownRisks": [
+              "MAJ-1: Dockerfile.be SoT will replay IMPL_BUG-1 (alembic) + IMPL_BUG-3 (healthcheck) in any future Docker-based env (CI / staging / non-Railway prod). User explicitly accepted this risk pointing to Railway-only deployment.",
+              "MAJ-2: Dead code MOD-103 + f-string SQL in update_with_timestamp. User defer to follow-up TASK.",
+              "MAJ-3: test-be static verification gap. User defer to framework-level improvement.",
+              "Coverage 90% < 95%: Build-gate integration coverage (8/8 PASS including pytest + Alembic up/down/up) considered sufficient compensating control."
+            ],
+            "followUpTasks": ["MAJ-1 → future TASK to sync Dockerfile.be SoT", "MAJ-2 → future cleanup TASK", "MAJ-3 → SDLC framework PR"]
+          }
+        },
+        "deploy": { "status": "in_progress", "startedAt": "2026-06-12T04:00:00Z" },
         "test": { "status": "pending" }
       },
       "git": {

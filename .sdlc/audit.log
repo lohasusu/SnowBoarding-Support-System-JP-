@@ -261,3 +261,9 @@
 [2026-06-12T03:35:00Z] User   | TASK-002 | approved              | build-gate (v2.0 PASS 92/100 via Path A, 5 IMPL_BUGs fixed + 2 BLOCKs resolved)
 [2026-06-12T03:35:00Z] PM     | TASK-002 | dev_pipeline_continue | build-gate PASS → auto-dispatch code-review
 [2026-06-12T03:35:00Z] PM     | TASK-002 | dispatched            | code-review
+[2026-06-12T03:36:00Z] PM     | TASK-002 | git_commit            | build-gate v2.0 PASS commit sha=8439c38
+[2026-06-12T03:36:30Z] PM     | TASK-002 | git_push              | sdlc/TASK-002/sqlite-to-postgres → origin (cbf612c..8439c38)
+[2026-06-12T03:55:00Z] Tester (code-review) | TASK-002 | completed | verdict=CONDITIONAL_PASS score=86/100 (0C/3M/5m/6I) coverage~90% (<95% gate) agentId=ac9eb973851c0a62b
+[2026-06-12T03:55:00Z] PM     | TASK-002 | pm_review             | code-review (CONDITIONAL_PASS — pipeline HALTED per Step 6.4: coverage <95% + MAJ-1 blocks deploy)
+[2026-06-12T04:00:00Z] User   | TASK-002 | approved_with_waiver  | code-review (86/100 + waiver of <95% coverage + 3 Major findings; deferred to follow-up TASKs)
+[2026-06-12T04:00:00Z] PM     | TASK-002 | dispatched            | deploy(execute)
