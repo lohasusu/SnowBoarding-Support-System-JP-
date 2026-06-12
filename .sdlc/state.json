@@ -158,6 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
+      "status": "completed",
       "currentPhase": "completed",
       "completedAt": "2026-06-12T05:10:00Z",
       "completionNote": "All 16 phases approved (UIUX + test-uiux skipped per SA impact-assessment 6.1). TASK ready for user manual Railway cutover per deploy-guide.md sec.3. Pipeline stop point reached.",
