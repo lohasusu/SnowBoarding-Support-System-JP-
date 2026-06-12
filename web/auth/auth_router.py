@@ -120,7 +120,12 @@ async def api_register(body: RegisterBody):
         emsg = str(e)
         if "unique" in emsg.lower() or "UniqueViolation" in type(e).__name__:
             raise HTTPException(status_code=409, detail="Email 或用戶名稱已被使用")
-        raise HTTPException(status_code=500, detail="註冊失敗")
+        # DEBUG (temporary, post-cutover diagnosis): expose real error for next session removal
+        import sys, traceback
+        print(f"[REGISTER_ERROR] {type(e).__name__}: {e}", file=sys.stderr, flush=True)
+        traceback.print_exc(file=sys.stderr)
+        sys.stderr.flush()
+        raise HTTPException(status_code=500, detail=f"註冊失敗: {type(e).__name__}: {str(e)[:300]}")
     sent = await send_verification_email(body.email.lower().strip(), body.username.strip(), token)
     if sent:
         message = "帳號建立成功，驗證信已寄出，請在 24 小時內點擊信中連結"
