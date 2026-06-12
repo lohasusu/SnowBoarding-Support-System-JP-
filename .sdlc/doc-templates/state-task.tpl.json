@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Per-TASK state file at .sdlc/tasks/{TASK-ID}/state.json. Source of truth for THIS task's phase progress, git commits, scores, and history. Two devs working on different TASKs touch different files (no merge contention). The thin global index .sdlc/state.json holds only TASK-id → {name, status, currentPhase, createdAt} for fast project-wide listing.",
+
+  "version": "1.0",
+  "schemaVersion": "task-split-v1",
+
+  "taskId": "{TASK-ID}",
+  "_taskId_doc": "Owning TASK. Must equal the parent directory name (.sdlc/tasks/TASK-NNN/state.json → taskId = TASK-NNN). Validated by sdlc-state.sh.",
+
+  "name": "{task name}",
+  "createdAt": "{ISO8601}",
+  "lastUpdate": "{ISO8601}",
+
+  "status": "in_progress",
+  "_status_doc": "TASK lifecycle status. One of: in_progress | completed | abandoned | blocked. Mirrored to the global index for fast listing. abandoned status is also tracked in .sdlc/.abandoned-tasks.txt (Rule 10).",
+
+  "currentPhase": "ba",
+  "_currentPhase_doc": "The phase the TASK is currently in (matches one entry in phaseOrder). Mirrored to the global index for /sdlc:status display.",
+
+  "phaseOrder": [],
+  "_phaseOrder_doc": "Array of phases in execution order, determined by config.json.testMode. Set once at TASK creation and never mutated.",
+
+  "phases": {},
+  "_phases_doc": "Map of phase-name -> {status, startedAt, approvedAt, rejectedAt, score, revisions, ...}. Updated by sdlc-state.sh set-phase / increment-revision. status enum: pending | in_progress | pm_review | approved | rejected | invalidated.",
+
+  "git": {
+    "branch": null,
+    "commits": [],
+    "prs": {}
+  },
+  "_git_doc": "Per-TASK git state. branch=base/integration branch (Multi-PR model). commits=[{phase, sha, timestamp}]. prs={role: {number, url, status}} for {spec, infra, fe, be, deploy, task} sub-branches. ALL paths stored here MUST be repo-relative (e.g. '../.sdlc-worktrees/TASK-001/fe/') — never absolute.",
+
+  "scores": {},
+  "_scores_doc": "Map of phase-name -> selfReviewScore (numeric, 0-100). Mirrored from each phase's self-review.json after approval.",
+
+  "history": [],
+  "_history_doc": "Append-only list of significant TASK events: {event, at, note}. Examples: created, phase_approved, abandoned, unabandoned, rebased, blocked.",
+
+  "_paths_norm_doc": "Worktree paths and any filesystem paths stored anywhere in this file MUST be REPO-RELATIVE (resolvable from the repo root). NEVER store absolute paths like /Users/devA/repo/... — those break when another dev pulls. sdlc-state.sh.relativize_path() enforces this on writes.",
+
+  "_example": {
+    "taskId": "TASK-001",
+    "name": "User authentication feature",
+    "createdAt": "2026-05-05T10:00:00Z",
+    "lastUpdate": "2026-05-05T14:30:00Z",
+    "status": "in_progress",
+    "currentPhase": "sa",
+    "phaseOrder": ["ba", "sa", "uiux", "sd", "fe", "be", "test-fe", "test-be", "deploy"],
+    "phases": {
+      "ba": {
+        "status": "approved",
+        "startedAt": "2026-05-05T10:05:00Z",
+        "approvedAt": "2026-05-05T11:30:00Z",
+        "score": 95,
+        "revisions": 1
+      },
+      "sa": {
+        "status": "in_progress",
+        "startedAt": "2026-05-05T11:35:00Z"
+      }
+    },
+    "git": {
+      "branch": "sdlc/TASK-001",
+      "commits": [
+        {"phase": "ba", "sha": "abc123def", "timestamp": "2026-05-05T11:30:15Z"}
+      ],
+      "prs": {}
+    },
+    "scores": {
+      "ba": 95
+    },
+    "history": [
+      {"event": "created", "at": "2026-05-05T10:00:00Z", "note": "/sdlc:start \"user auth\""}
+    ]
+  }
+}

@@ -49,3 +49,52 @@
 - 啟動指令：`uvicorn web.main:app --host 0.0.0.0 --port $PORT`
 - 環境變數：`SERPAPI_API_KEY`（機票）、`SECRET_KEY`（JWT）
 - SQLite DB 在 Railway 重啟後**資料會消失**（ephemeral storage）
+
+<!-- SDLC-WORKFLOW-START -->
+# SDLC Workflow
+
+本專案使用 PM 中心制 SDLC 工作流，所有開發流程由 PM 角色統一派發和管理。
+
+## 狀態檔案
+- 專案設定: `.sdlc/config.json`
+- 任務狀態: `.sdlc/state.json`
+- 任務產出: `.sdlc/tasks/{TASK-ID}/{phase}/`
+- 共享層: `.sdlc/shared/` (跨 TASK 一致性索引)
+- 規範層: `.sdlc/conventions/` (api/db/code/i18n/branch — 已鎖定)
+- 多環境: `.sdlc/environments.json`
+
+## 可用命令
+| 命令 | 用途 |
+|------|------|
+| `/sdlc:start <需求>` | 開始新任務（PM 建立 + BA 需求分析） |
+| `/sdlc:next` | 通過當前階段，進入下一階段 |
+| `/sdlc:revise <意見>` | 退回修訂（同階段） |
+| `/sdlc:rollback-phase <階段>` | 跨階段回退 |
+| `/sdlc:status` | 查看專案狀態 |
+| `/sdlc:export` | 匯出正式報告 |
+| `/sdlc:resume` | 恢復中斷的任務 |
+
+## 專案配置
+- **技術棧**: Vue + Vite (前端，未來重構) / FastAPI Python (後端) / PostgreSQL (資料庫，現為 SQLite 待轉換)
+- **開發模式**: SDD + BDD + TDD
+- **測試頻率**: strict（每階段獨立測試）
+- **Git 管理**: docs-only（只 commit .sdlc/ 規格，程式碼分支自管）
+- **Registry**: ghcr.io（Buildx: linux/amd64 + linux/arm64）
+
+## 核心規則
+1. **反腦補**: 嚴禁自行補充使用者未提及的內容，額外建議必須標記 `[XX建議]`
+2. **來源引用**: 每個規格項目必須追溯到需求 ID 或使用者原文
+3. **文件先行**: 每階段先產出文件，通過審核才進下一階段
+4. **自我驗證**: 每個角色交付前 20 項檢查，≥ 90 分才通過
+5. **Conventions 已鎖定**: api/db/code/i18n/branch 5 個 conventions 已 lock，變更走 RFC
+
+## 角色流程
+```
+BA(需求) → SA(架構) → UIUX(設計) → SD(規格) → FE+BE(開發) → Testing(驗證) → Deploy(部署)
+```
+每個階段之間可能插入 Testing 驗證（依 testMode=strict 設定，每階段都跑）。
+
+## 已知缺口（init 時記錄）
+- Pencil MCP **尚未安裝** — UIUX 階段前必須安裝
+- Context7/Chrome/Notion MCP 尚未安裝（非必要，視 SD/FE/Tester 階段需要）
+<!-- SDLC-WORKFLOW-END -->

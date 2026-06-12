@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Per-TASK Pencil component sync registry. Tracks the provenance of each COMP (and its variants) inside the TASK's .pen file: was it copied from the canonical .sdlc/conventions/design-system.pen, or created locally for this TASK? Used by sdlc-pencil-sync.sh to (a) detect drift between TASK copies and DS source, (b) propagate DS changes into all TASKs that copied a given component. Pencil MCP does NOT support cross-file component reference (per Pencil schema docs: 'You cannot reference components across files. If you want to use a component from a different file you must copy it over'), so we maintain this provenance manifest to enable explicit, auditable propagation.",
+
+  "version": "1.0",
+  "schemaVersion": "pencil-sync-v1",
+
+  "taskId": "{TASK-ID}",
+  "_taskId_doc": "Owning TASK. Must equal parent dir name. Verified by sdlc-pencil-sync.sh.",
+
+  "createdAt": "{ISO8601}",
+  "lastUpdate": "{ISO8601}",
+
+  "designSystemRef": {
+    "path": ".sdlc/conventions/design-system.pen",
+    "lockedVersion": "{semver from design-system.pen frontmatter at /sdlc:start time}",
+    "lockedAt": "{ISO when this TASK booted from DS}"
+  },
+  "_designSystemRef_doc": "Snapshot of the DS state when this TASK was started. drifted=true means DS has bumped version since lockedVersion. sync.sh --check reports the diff.",
+
+  "components": {},
+  "_components_doc": "Map of {pencilNodeId in TASK.pen} → {compId, source, sourceCompId?, sourceVersion?, customizations?[]}. Created/updated by UIUX agent during TASK work. source enum: 'design-system' | 'local'. sourceCompId only present when source=design-system (the original COMP-NNN in DS). customizations is an audit trail of overrides applied to a copied DS component (so propagate can re-apply them after re-copy).",
+
+  "_components_example": {
+    "Bx7sP": {
+      "compId": "COMP-005",
+      "source": "design-system",
+      "sourceCompId": "COMP-005",
+      "sourceVersion": "1.2.0",
+      "syncedAt": "2026-05-06T10:00:00Z",
+      "customizations": [
+        {"target": "Bx7sP/label", "property": "content", "value": "Sign in"}
+      ]
+    },
+    "Mq3rT": {
+      "compId": "COMP-012",
+      "source": "local",
+      "createdAt": "2026-05-06T11:30:00Z",
+      "promotionCandidate": true
+    }
+  },
+
+  "promotedToDS": [],
+  "_promotedToDS_doc": "When a local COMP gets RFC-approved and promoted into design-system.pen, append an entry here so we don't double-propagate. Schema: {compId, promotedAt, dsVersion, byTask, rfcRef}.",
+
+  "drift": {
+    "lastChecked": null,
+    "outdated": [],
+    "missing": [],
+    "extra": []
+  },
+  "_drift_doc": "Updated by sdlc-pencil-sync.sh --check. outdated = TASK has older sourceVersion than DS now. missing = TASK references a COMP-ID DS no longer has. extra = TASK has a source=design-system COMP that DS never defined (corruption indicator)."
+}

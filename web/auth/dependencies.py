@@ -1,4 +1,8 @@
-"""FastAPI dependencies for auth."""
+"""FastAPI dependencies for auth.
+
+TASK-002 變更（FUNC-105）：SQL placeholder `?` → `%s`。
+NFR-002 保證：HTTP / Response 外部行為完全不變。
+"""
 from fastapi import Cookie, HTTPException, status
 from .security import decode_token
 from .database import get_conn
@@ -14,7 +18,10 @@ def get_current_user(access_token: str | None = Cookie(default=None)):
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token 無效")
     with get_conn() as conn:
-        row = conn.execute("SELECT id, email, username FROM users WHERE id = ?", (user_id,)).fetchone()
+        row = conn.execute(
+            "SELECT id, email, username FROM users WHERE id = %s",
+            (int(user_id),),
+        ).fetchone()
     if not row:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="使用者不存在")
     return dict(row)
@@ -30,5 +37,8 @@ def get_optional_user(access_token: str | None = Cookie(default=None)):
     if not user_id:
         return None
     with get_conn() as conn:
-        row = conn.execute("SELECT id, email, username FROM users WHERE id = ?", (user_id,)).fetchone()
+        row = conn.execute(
+            "SELECT id, email, username FROM users WHERE id = %s",
+            (int(user_id),),
+        ).fetchone()
     return dict(row) if row else None

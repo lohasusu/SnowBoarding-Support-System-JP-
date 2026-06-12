@@ -1,0 +1,102 @@
+# docker-compose.template.yml — TASK-002 Deploy(Init) 模板
+#
+# 本檔為 Deploy(Init) 規劃模板（含 ${PLACEHOLDER}）；Deploy(Execute) 階段會：
+#   1. 對比既有 docker-compose.yml（已存在於 repo root，採 SDLC PR 13c 通用 engine-agnostic 模板）
+#   2. 產出 [DELTA] 差異清單（見下方 §1）
+#   3. 視需要寫入最終 docker-compose.yml + docker-compose.dev.yml (override)
+#
+# 既有 docker-compose.yml 適配狀況：
+# - ✅ database service 已正確配置 postgres:16-alpine + named volume + healthcheck
+# - ⚠️ frontend service 存在但本 TASK 不適用（snowboarding_support 是 monolith；FE 為 static HTML）
+# - ⚠️ backend service 預期路徑為 ./be/Dockerfile，但本專案無 be/ 目錄（FastAPI app 在 web/）
+# - ⚠️ env vars 使用通用名（DB_HOST/DB_PORT/DB_USER）— 本 TASK service-contract.yaml 用 POSTGRES_*
+#
+# Deploy(Execute) 決策：採「附加 docker-compose.dev.yml override」策略
+#   - 不破壞既有 docker-compose.yml（仍可供未來 fe/be 拆分 Vue + Vite 重構使用）
+#   - dev 環境使用：docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#   - 本檔提供 docker-compose.dev.yml 的 Init 模板
+
+version: '3.8'
+
+services:
+  # === Override：移除 frontend service（本 TASK 為 monolith，無獨立 fe）===
+  frontend:
+    profiles:
+      - disabled  # 透過 profile 隱藏，保留 SDLC 模板供未來 Vue 重構啟用
+
+  # === Override：backend service 改為使用 monolith 路徑 ===
+  backend:
+    build:
+      context: .
+      dockerfile: ${BE_DOCKERFILE:-Dockerfile.be}  # 本 TASK Init 模板提供 Dockerfile.be.template
+    ports:
+      - "${BE_PORT:-8000}:${BE_PORT:-8000}"
+    environment:
+      # 覆寫通用 DB_* 為本 TASK 的 POSTGRES_* 命名（service-contract.yaml 真相）
+      POSTGRES_HOST: "${POSTGRES_HOST:-database}"
+      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
+      POSTGRES_USER: "${POSTGRES_USER:-snowtrip}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-changeme_in_dotenv}"
+      POSTGRES_DB: "${POSTGRES_DB:-snowtrip}"
+      POSTGRES_SSL_MODE: "${POSTGRES_SSL_MODE:-disable}"  # dev 預設 disable
+      POSTGRES_POOL_MIN: "${POSTGRES_POOL_MIN:-2}"
+      POSTGRES_POOL_MAX: "${POSTGRES_POOL_MAX:-10}"
+      POSTGRES_POOL_TIMEOUT_MS: "${POSTGRES_POOL_TIMEOUT_MS:-5000}"
+      DATABASE_URL: "${DATABASE_URL:-postgresql://${POSTGRES_USER:-snowtrip}:${POSTGRES_PASSWORD:-changeme_in_dotenv}@${POSTGRES_HOST:-database}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-snowtrip}?sslmode=disable}"
+      SECRET_KEY: "${SECRET_KEY:-CHANGE_ME_IN_DOTENV_min_32_chars_PATTERN_007_fail_fast}"
+      SERPAPI_API_KEY: "${SERPAPI_API_KEY:-}"
+      PORT: "${BE_PORT:-8000}"
+    # 本機開發：mount source code 支援 hot reload（uvicorn --reload）
+    volumes:
+      - ./web:/app/web:ro
+      - ./flight_search:/app/flight_search:ro
+      - ./http_scraper.py:/app/http_scraper.py:ro
+      - ./migrations:/app/migrations:ro  # FR-003 migration 目錄
+    command: uvicorn web.main:app --host 0.0.0.0 --port ${BE_PORT:-8000} --reload
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      # 本 TASK service-contract.yaml: health_check = /api/auth/me（未登入回 401 證明 app + DB 都活）
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${BE_PORT:-8000}/api/auth/me 2>&1 | grep -qE '(401|200)' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # === database service 沿用既有 docker-compose.yml 配置 ===
+  # 既有 docker-compose.yml line 86-136 已正確配置：
+  #   - image: postgres:16-alpine (engine-aware via DB_IMAGE)
+  #   - port: 5432
+  #   - named volume: sdlc-db-data → /var/lib/postgresql/data
+  #   - healthcheck: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+  # 本 TASK 唯一 override：確保 POSTGRES_DB default 為 snowtrip
+  database:
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-snowtrip}"  # 預設值對齊 service-contract.yaml
+      POSTGRES_USER: "${POSTGRES_USER:-snowtrip}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-changeme_in_dotenv}"
+
+# === [DELTA] 既有 docker-compose.yml 對本 TASK 的差異清單 ===
+#
+# 必須調整項（Execute 階段執行）：
+#   1. ⚠️ docker-compose.yml backend.build.context = ./be 不存在 → Execute 階段建立 Dockerfile.be 於 root
+#      或使用本 docker-compose.dev.yml override 改 context=. + dockerfile=Dockerfile.be
+#   2. ⚠️ docker-compose.yml backend.environment 用 DB_HOST/DB_USER 通用名 → 不符 service-contract.yaml
+#      → 本 docker-compose.dev.yml 已 override 為 POSTGRES_*
+#   3. ⚠️ docker-compose.yml backend.healthcheck 用 /health（不存在）→ override 為 /api/auth/me
+#   4. ✅ database service 既有配置正確，無需 override（除 default value）
+#   5. ✅ named volume sdlc-db-data 已就緒
+#
+# Execute 階段選擇（Deploy(Execute) E-7.5 設計確認）：
+#   選項 A: 採 docker-compose.dev.yml override 策略（本檔示範） — 推薦
+#   選項 B: 直接修改 docker-compose.yml — 不推薦（破壞 SDLC 通用模板）
+#
+# 使用方式（dev 環境）：
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#   或設 alias / Make target 簡化
+
+volumes:
+  sdlc-db-data:
+    external: true
+    name: sdlc-db-data  # 沿用既有 docker-compose.yml volume

@@ -1,0 +1,47 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/skills/sdlc/scripts/sdlc-git-guard.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "sdlc-(ba|sa|uiux|sd|fe|be|tester|deployer|build-gate)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/skills/sdlc/scripts/sdlc-input-validate-wrapper.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "sdlc-(ba|sa|uiux|sd|fe|be|tester|deployer|build-gate)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/skills/sdlc/scripts/sdlc-role-verify-wrapper.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read(.sdlc/**)",
+      "Write(.sdlc/**)",
+      "Glob(.sdlc/**)",
+      "Grep(.sdlc/**)",
+      "Bash(mkdir -p .sdlc/*)",
+      "Bash(bash ~/.claude/skills/sdlc/scripts/*)"
+    ]
+  }
+}

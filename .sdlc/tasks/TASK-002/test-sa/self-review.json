@@ -1,0 +1,223 @@
+{
+  "document_id": "REVIEW-TEST-SA-TASK-002-v1.0",
+  "task_id": "TASK-002",
+  "phase": "test-sa",
+  "agent": "tester",
+  "date": "2026-06-08",
+  "score": 95,
+  "passed": true,
+  "threshold": 90,
+  "verification_layer": "L1+L2 (combined)",
+  "verification_layer_note": "L1 sdlc-role-verify.sh sa TASK-002 重跑結果為 80/4-FAIL，Tester 獨立交叉驗證 3 失敗項均為 false positive（C4 model 命名 / template 多次引用 / heading 風格），詳見 test-report-sa.md §2；L2 為 Tester 對 20 項驗證清單的聲明式檢查。",
+  "independent_judgment": {
+    "sa_phase_result": "PASS",
+    "tester_independent_score": 91,
+    "sa_self_score": 93,
+    "score_gap_reason": "Tester 比 SA 自評低 2 分，主因 MOD-103 邊界模糊（Minor-1）+ NFR-002 缺逐 AC 影響表（Minor-2）；其他項目 Tester 與 SA 自評一致",
+    "critical_count": 0,
+    "major_count": 0,
+    "minor_count": 3,
+    "info_count": 5
+  },
+  "l1_false_positive_analysis": {
+    "pm_judgment_correct": true,
+    "false_positives_confirmed": 3,
+    "details": [
+      {
+        "l1_finding": "system-arch.md 缺少章節: 系統架構圖",
+        "actual_content": "SA 用「§2 系統邊界圖（C4-Container 風格）」+ 完整 mermaid 圖（13 節點 / 完整連線 / classDef）",
+        "tester_verdict": "FALSE POSITIVE — C4 model 命名業界標準，內容更完整；SA 不應改文件迎合 L1 字面檢查",
+        "l1_fix_suggestion": "regex 接受 (系統架構圖|系統邊界圖|系統上下文圖|Context Diagram|Container Diagram) 同義詞"
+      },
+      {
+        "l1_finding": "functional-flow.md 缺少章節: 功能模組",
+        "actual_content": "SA 用「§1 功能清單 + §2 功能流程」標準 template 結構",
+        "tester_verdict": "FALSE POSITIVE — L1 腳本誤把 system-arch 章節名套到 functional-flow 上；「功能模組」屬於 MOD 概念非 FUNC",
+        "l1_fix_suggestion": "對 functional-flow.md 改 grep (功能清單|功能流程|Functional Flow|Function List)"
+      },
+      {
+        "l1_finding": "field-spec.md ENTITY ID 重複: ENTITY-001",
+        "actual_content": "ENTITY-001 單一定義在 §2，但在摘要表 / ER 圖 / 追溯矩陣 9 處引用（template 設計即如此）",
+        "tester_verdict": "FALSE POSITIVE — 與 BA test-ba L1 FR 重複相同 false positive；應偵測 heading 重複而非總字串次數",
+        "l1_fix_suggestion": "regex 改為 ^### ENTITY-NNN[:\\s/] heading 偵測"
+      }
+    ]
+  },
+  "checklist": [
+    {"item": "測試報告格式正確", "passed": true, "score": 5},
+    {"item": "每個檢查項都有結果（無遺漏）", "passed": true, "score": 5},
+    {"item": "Critical/Major/Minor/Info 分級正確", "passed": true, "score": 5},
+    {"item": "每個發現都有位置和理由", "passed": true, "score": 5},
+    {"item": "追溯矩陣驗證完整（FR↔FUNC↔MOD↔ENTITY 雙向）", "passed": true, "score": 5},
+    {"item": "範圍邊界驗證完整（反腦補 — Tester 獨立 grep 8 FR 全部追溯）", "passed": true, "score": 5},
+    {"item": "一致性驗證完整（4 個 [CROSS-TASK] 標記跨 5 檔一致）", "passed": true, "score": 5},
+    {"item": "格式驗證完整（mermaid 8 圖語法 / ID 編號 / heading）", "passed": true, "score": 4, "deduction_reason": "PATTERN-101 heading 風格不一致（Minor-3 已記錄）— 扣 1 分"},
+    {"item": "測試決策邏輯正確（Critical=0 → PASS）", "passed": true, "score": 5},
+    {"item": "建議具體可行（3 Minor + 5 Info 都有具體建議行動）", "passed": true, "score": 5},
+    {"item": "無漏掉的被測文件（5 SA 檔 + self-review.json 全讀）", "passed": true, "score": 5},
+    {"item": "對照基準完整（BA / test-ba / conventions / shared / 現況 code 全讀）", "passed": true, "score": 5},
+    {"item": "發現清單編號連續（Minor-1/2/3 + Info-1..5）", "passed": true, "score": 5},
+    {"item": "測試方法適合被測階段（verify-architecture skill D1-D5 + Rule 6/8/11/13/18 protocols）", "passed": true, "score": 5},
+    {"item": "獨立性保證（未存取 SA agent 對話歷史；從規格推導）", "passed": true, "score": 5},
+    {"item": "每個測試案例可追溯到規格 ID（追溯矩陣完整）", "passed": true, "score": 5},
+    {"item": "結論與發現一致（Critical=0 + 3 Minor 不阻塞 → PASS）", "passed": true, "score": 5},
+    {"item": "報告日期和版本正確（2026-06-08 / v1.0）", "passed": true, "score": 5},
+    {"item": "Mermaid 語法正確（獨立檢視 SA 8 個圖均正確）", "passed": true, "score": 5},
+    {"item": "文件模板嚴格遵循（test-report.tpl.md 結構）", "passed": true, "score": 4, "deduction_reason": "本報告加入 PM 9 個重點關注項 §8 額外章節（template 未要求），但屬於合理擴展 — 扣 1 分"}
+  ],
+  "checklist_summary": {
+    "total_items": 20,
+    "passed_items": 20,
+    "total_score": 95,
+    "max_score": 100
+  },
+  "pm_focus_items_independent_evaluation": {
+    "1_l1_false_positive": {
+      "pm_judgment": "3 項為 false positive",
+      "tester_verdict": "AGREE — 3/3 確認 false positive",
+      "sa_should_modify_files": false,
+      "l1_script_improvement_recommended": true
+    },
+    "2_cross_task_markers_compliance": {
+      "marker_count": 4,
+      "three_elements_check": "4/4 PASS（源 TASK + 修改項目 + 原因 FR 號齊全）",
+      "impact_assessment_quality": "PASS（影響評估具體 — impact-assessment §1.1 列下游 SD/BE/Tester 責任）",
+      "rollback_plan_completeness": "PASS（FUNC-103/104 down 操作明確 / MOD-005 邊界不變保證）",
+      "downstream_api_comp_page_coverage": "PASS（28 endpoint 行為不變 + 無 UI 變更 + impact-assessment §6.1 涵蓋 UIUX/Deploy-init/SD 三個下游階段）"
+    },
+    "3_zero_new_entity_tbl": {
+      "tester_verdict": "REASONABLE — 0 新 ENTITY / 0 新 TBL 為正確設計",
+      "rationale": "符合 Rule 7「重用優先」；補欄位應視為 [REUSE + 擴充] 不應改 NEW ENTITY；若改 ENTITY-101 = users_v2 會造成 ID 一致性問題 + TASK-001/ENTITY-001 永遠殘留作廢 + 應用層 cross-task 修改範圍擴大",
+      "should_become_new_entity": false
+    },
+    "4_pattern_101_design": {
+      "is_truly_cross_file_pattern": true,
+      "should_split_into_two_patterns": false,
+      "rationale": "三大支柱（Versioning / Reversibility / Expand-Contract）邏輯緊密耦合；共用同一個 migration runner + 規範性範本；拆成 2 個 PATTERN 時 Reversibility 無處安放；後續 TASK 重用性高（6 個候選 TASK）",
+      "naming_keep_current": true
+    },
+    "5_func_107_irreversible_mitigation": {
+      "four_elements_complete": true,
+      "elements": {
+        "description": "PASS (FUNC-107 6 步驟流程詳細)",
+        "business_impact": "PASS (line 397-398 雙層說明 — 資料層 + 業務層)",
+        "when_triggered": "PASS (前置條件 5 項 + ROLE-004 發起時機明確)",
+        "mitigation": "PASS (14 天 emergency path + rollback plan + BF-003 三層)"
+      },
+      "fourteen_day_dual_coverage": "PASS (functional-flow.md 6 處 + impact-assessment §6.2)",
+      "rollback_trigger_conditions_clear": "PASS (4 觸發點明確 — auto rollback / smoke fail / 60min 5xx / 14 天後)",
+      "rollback_decision_owner_clear": "PASS (ROLE-004 主導 / ROLE-003 參與 60min 監控)"
+    },
+    "6_blocked_items_delegation": {
+      "blocked_on_sd_count": 8,
+      "blocked_on_deployer_count": 5,
+      "all_delegations_reasonable": true,
+      "sd_delegations": "8/8 PASS — 全部屬 SD 階段實作層決策（driver / migration tool / pool / 觸發策略 / migration 分拆 / updated_at trigger / SQL placeholder / lastrowid）",
+      "deployer_delegations": "5/5 PASS — 全部屬部署平台層決策（Railway addon / SSL / Backup / SLA dashboard / volume）",
+      "real_blockers": 0,
+      "rationale": "SA 規範行為（NFR / 介面契約），SD/Deployer 規範實作（具體 lib / 平台配置）— 邊界清晰"
+    },
+    "7_nfr_002_testability": {
+      "sa_provides_test_anchor": "PARTIAL",
+      "minor_finding": "Minor-2 — SA 缺逐 AC 影響評估表",
+      "automatic_test_coverage": "PASS (AC-045 既有 8 pytest 在 PG fixture 通過)",
+      "manual_test_anchor": "INSUFFICIENT (22 AC 的手動驗證項如 OAuth callback / Email 連結 / SameSite cookie 未逐項列出影響)",
+      "func_105_impact_analysis": {
+        "cookie_jwt_unaffected": "implicit (PATTERN-007 line 56 標明不變)",
+        "oauth_upsert_affected": "explicit (pattern-spec §1.2 標明)",
+        "email_token_crud_affected": "explicit (functional-flow §1.2)",
+        "login_select_user_affected": "implicit (未明示但屬 FUNC-105 範圍)",
+        "favorites_crud_affected": "implicit (未明示但屬 FUNC-105 範圍)"
+      }
+    },
+    "8_task_001_uiux_impact": {
+      "will_break_task_001_uiux": false,
+      "rationale": "TASK-001 uiux 為 brownfield-document mode（補追溯既有 8 PAGE，不寫新 UI 代碼）；補 timestamp 欄位為後端 schema 變更，不對應任何 UI 元件（既有 web/static/js/ + web/templates/ 無 timestamp 渲染；28 API response 不暴露 timestamp）；MOD-005 storage replacement 為內部實作替換，外部行為不變",
+      "sa_documented_this_in": "impact-assessment.md §6.1 (line 152-160)"
+    },
+    "9_ba_minor_info_handling": {
+      "claimed_handled_count": 5,
+      "tester_independently_verified": 5,
+      "verification_method": "Tester 逐項 grep 證實落實在 SA 對應位置（非表面提及）",
+      "details": {
+        "MINOR-1_type_literals": "PASS — field-spec.md §5 SQLite↔PG 對映表",
+        "MINOR-2_baseline_method": "PASS — system-arch.md §5.2 Baseline 取得方法行 + 5 個關鍵 endpoint 列出",
+        "INFO-1_docker_compose_30s": "PASS — system-arch.md §7.2 Onboarding 啟動時間行",
+        "INFO-2_sla_dashboard": "PASS — system-arch.md §5.5 Production 監控行 + 3 項指標",
+        "INFO-3_migration_trigger": "PASS — system-arch.md MOD-104 + pattern-spec.md §2.3 雙處 [BLOCKED_ON_SD]"
+      }
+    }
+  },
+  "rule_protocol_compliance": {
+    "rule_6_cross_task_modify": "PASS (4/4 markers 三要素齊全)",
+    "rule_8_id_naming": "PASS (3 位零填充 + TASK 內連續 + 起始 101 + 無子類誤用 + 永不重用 + 範圍合規)",
+    "rule_11_irreversible_operations": "PASS (FUNC-107 + FUNC-045 標記合規 + 緩解充足 + Rule 11.2 下游責任清晰)",
+    "rule_13_id_allocator": "PASS (MOD/FUNC/PATTERN 全在 101-200 範圍)",
+    "rule_18_parameter_registry": "PASS (預規劃 5 個 POSTGRES_* + 1 個 DATABASE_URL + SD 階段 mandatory 動作範本)"
+  },
+  "findings_summary": {
+    "critical": [],
+    "major": [],
+    "minor": [
+      {
+        "id": "Minor-1",
+        "location": "system-arch.md §3 MOD-103",
+        "issue": "MOD-103 邊界模糊（新目錄 vs inline helper）+ 允許整個 MOD-103 [DEFERRED]",
+        "recommendation": "SA 應給 SD 明確判斷標準（ORM 用 repository class / raw psycopg 用 inline）",
+        "blocking": false
+      },
+      {
+        "id": "Minor-2",
+        "location": "system-arch.md §3 MOD-005 + functional-flow.md §1.2 + impact-assessment.md",
+        "issue": "NFR-002 缺 22 個 AC 的逐項影響評估表",
+        "recommendation": "補「22 AC × MOD-005 query 適配影響」表，列出 影響 / 不影響 / 受影響但 fix 機制相同 三類",
+        "blocking": false
+      },
+      {
+        "id": "Minor-3",
+        "location": "pattern-spec.md line 62",
+        "issue": "PATTERN-101 用 ## 2. 二級 heading，與 MOD/FUNC 用 ### 三級 heading 風格不一致",
+        "recommendation": "加 ### PATTERN-101: Migration Versioning + Reversibility + Expand-Contract ★ NEW 三級 heading",
+        "blocking": false
+      }
+    ],
+    "info": [
+      {
+        "id": "Info-1",
+        "issue": "L1 sdlc-role-verify.sh sa 腳本誤判（系統架構圖 / 功能模組 / ENTITY 重複）影響所有 SA 階段 TASK",
+        "recommendation": "改 regex 接受 C4 命名同義詞 + 改用 heading 偵測 + 對 functional-flow 用對的 schema",
+        "blocking": false
+      },
+      {
+        "id": "Info-2",
+        "issue": "PostgreSQL 單實例為資料層 SPoF",
+        "recommendation": "本 TASK 範圍外（NFR 未要求 HA）；長期建議考慮 read replica",
+        "blocking": false
+      },
+      {
+        "id": "Info-3",
+        "issue": "FUNC-104 在「選項 A」下變 [DEFERRED]，類似 MOD-103 開放性問題",
+        "recommendation": "可考慮 SA 階段就決定預設選項",
+        "blocking": false
+      },
+      {
+        "id": "Info-4",
+        "issue": "ROLE-004 部署者未在 SA 文件中正式登記為 ROLE-XXX 章節",
+        "recommendation": "SA 可補一個 ROLE 引用區塊 [REUSE: from BA]，或標明「以 BA 為主」",
+        "blocking": false
+      },
+      {
+        "id": "Info-5",
+        "issue": "PATTERN-006 OAuth Upsert race condition 可在本 TASK 選 PG driver 時順帶處理",
+        "recommendation": "若 SD 選 SQLAlchemy 2.0 / psycopg3 評估 INSERT ... ON CONFLICT 改寫成本 < 半天可順帶做",
+        "blocking": false
+      }
+    ]
+  },
+  "artifacts": [
+    ".sdlc/tasks/TASK-002/test-sa/test-report-sa.md",
+    ".sdlc/tasks/TASK-002/test-sa/self-review.json"
+  ],
+  "tester_stance": "對抗心態 — 找 bug 即成功；SA score 93 自評不採信，獨立評分 91；雖比 SA 自評低 2 分但仍 PASS（無 Critical/Major）",
+  "timestamp": "2026-06-08T11:00:00Z"
+}

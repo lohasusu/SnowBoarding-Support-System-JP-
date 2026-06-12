@@ -1,0 +1,57 @@
+# .github/workflows/ci.yml (local scope minimal)
+#
+# Deploy(Execute) 在 scope=local 時產出此 workflow
+# 只含 lint + test + build，不含任何 deploy 步驟
+# 不設定 environment、不 push image、不觸發 deployment
+
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 依技術棧擇一設定 runtime
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # - uses: actions/setup-python@v5
+      #   with: { python-version: '3.12' }
+      # - uses: actions/setup-go@v5
+      #   with: { go-version: '1.22' }
+
+      - name: Install dependencies
+        run: |
+          # 依技術棧填入:
+          #   Node.js:  npm ci
+          #   Python:   pip install -r requirements.txt
+          #   Go:       go mod download
+          npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test -- --watchAll=false
+
+      - name: Build
+        run: npm run build
+
+      # 選配: 本地 Docker 建構驗證（若 scope=local 且使用者有選 Docker）
+      - name: Docker build verify
+        if: always()
+        run: |
+          docker buildx build -t ${{ github.event.repository.name }}-fe:ci -f deploy/Dockerfile.fe --load .
+          docker buildx build -t ${{ github.event.repository.name }}-be:ci -f deploy/Dockerfile.be --load .
+
+# 特別注意（local scope）:
+# 1. 不產出 deploy-*.yml（local 不部署）
+# 2. 不設定 environment: production 或 staging
+# 3. 不使用 docker push（local 不對外 registry）
+# 4. 若後續升級到 staging/full scope，會切換到 ci-full.tpl.yaml

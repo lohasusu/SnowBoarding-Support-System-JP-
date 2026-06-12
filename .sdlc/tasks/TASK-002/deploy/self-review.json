@@ -1,0 +1,104 @@
+{
+  "document_id": "DEPLOYEXECUTE-SELFREVIEW-TASK-002-v2.0",
+  "task_id": "TASK-002",
+  "role": "deployer",
+  "phase": "deploy",
+  "mode": "execute",
+  "date": "2026-06-12",
+  "author": "Deployer (Execute) + PM backfill (agent hit usage limit before final self-review write)",
+  "verdict": "PASS",
+  "score": 93,
+  "scoreNote": "L2 evaluation 93/100. All 7 Execute deliverables produced; MAJ-1 cross_phase_sync closed; SAST PASS (Crit=0/High=0). -5 because self-review.json v2 backfilled by PM (agent committed all artifacts before budget exhaustion but didn't rewrite this file). -2 because env-consistency-report script had false-positives requiring manual review (logged for follow-up).",
+
+  "previousInitVersion": {
+    "noticeFromInitToExecute": "v1 (deploy-init mode) self-review preserved in git history at commit before deploy phase dispatch. v2 (this file) covers Execute mode deliverables. Init verdict was approved score=90 per state.json (2026-06-09).",
+    "initApprovedAt": "2026-06-09T09:30:00Z",
+    "initScore": 90
+  },
+
+  "agent": {
+    "id": "a77f999533b82c992",
+    "completedAt": "2026-06-12T04:38:00Z",
+    "limitHitNote": "Agent completed 7 main artifacts (last was deploy-guide.md at 04:38), then ran out of token budget before overwriting self-review.json v2. PM backfilled this file in subsequent /sdlc:next based on actual produced artifacts."
+  },
+
+  "deliverables": {
+    "Dockerfile_be_synced": {
+      "path": ".sdlc/tasks/TASK-002/deploy/Dockerfile.be",
+      "modifiedAt": "2026-06-12T04:27:00Z",
+      "result": "PASS",
+      "notes": "MAJ-1 closure: L57 added 'COPY --chown=appuser:appuser alembic.ini ./' + L70-71 HEALTHCHECK switched to 'GET /api/db/healthz' with grep '\"status\":\"ok\"'. Comments explicitly mark this as cross_phase_sync (not a new IMPL_BUG), preserving v1 template alongside v2 patches."
+    },
+    "sast_scan": {
+      "path": ".sdlc/tasks/TASK-002/deploy/sast-report.md",
+      "raw_bandit": ".sdlc/tasks/TASK-002/deploy/bandit-raw.json",
+      "raw_pip_audit": ".sdlc/tasks/TASK-002/deploy/pip-audit-raw.json",
+      "modifiedAt": "2026-06-12T04:34:00Z",
+      "result": "PASS",
+      "gate": "scope=full, Critical=0 + High=0 -> PASS",
+      "findings": {
+        "critical": 0,
+        "high": 0,
+        "medium_prod_code": 2,
+        "low_prod_code": 4,
+        "dep_critical_high": 0,
+        "dep_medium": 1
+      },
+      "medium_acceptance_rationale": [
+        "B608 dead code MAJ-2 (web/auth/repositories.py update_with_timestamp f-string SQL) -- already waived in code-review, follow-up TASK",
+        "B104 bind to all interfaces -- required by Railway PaaS deploy (cannot bind to specific interface in PaaS container)"
+      ]
+    },
+    "cicd_workflow": {
+      "path": ".sdlc/tasks/TASK-002/deploy/cicd-workflow.yml",
+      "modifiedAt": "2026-06-12T04:35:00Z",
+      "result": "PASS",
+      "notes": "GitHub Actions workflow with Path-based CI triggers per Rule 19 / deploy-plan.md sec.1-2. Includes lint + pytest + bandit + pip-audit + Alembic up/down/up test. Railway redeploy via GitHub App on main branch push (no direct deploy in workflow -- preserves CLAUDE.md uvicorn entrypoint lock)."
+    },
+    "env_consistency": {
+      "path": ".sdlc/tasks/TASK-002/deploy/env-consistency-report.md",
+      "modifiedAt": "2026-06-12T04:36:00Z",
+      "result": "PASS_WITH_NOTE",
+      "notes": "Script reported 2 VIOLATIONs + 13 UNUSED. Deployer manual review confirmed all are script false-positives: VIOLATION (ARG/ENV) are Dockerfile keywords misparsed; UNUSED 13 are due to script not parsing os.environ.get('KEY') pattern. All 13 contract env_vars verified manually used in code. Aligns with code-review CR#5 section 5.3."
+    },
+    "deploy_guide": {
+      "path": ".sdlc/tasks/TASK-002/deploy/deploy-guide.md",
+      "modifiedAt": "2026-06-12T04:38:00Z",
+      "result": "PASS",
+      "sections": [
+        "sec.1 13 env vars Local/Prod table",
+        "sec.2 Railway GitHub Environment 'production' setup with manual approval per Rule 11 IRREVERSIBLE",
+        "sec.3 Self-hosted PG container provisioning + DATABASE_URL construction",
+        "sec.4 Migration trigger (startup-auto-with-advisory-lock 0xCAFE0102) verification per FUNC-101..104",
+        "sec.5 Healthz API-101 verification commands",
+        "sec.6 Rollback procedures (rolling deploy + SQLite emergency 14d window per SUG-006)",
+        "sec.7 Production cutover checklist",
+        "sec.8 MAJ-1 cross_phase_sync audit trail",
+        "sec.9 Post-deploy follow-up tracking (5 items)",
+        "sec.10 Traceability matrix"
+      ]
+    }
+  },
+
+  "MAJ_1_closure": {
+    "code_review_finding": "MAJ-1 confidence 95: Dockerfile.be SoT not synced with build-gate IMPL_BUG-1 + IMPL_BUG-3 fixes",
+    "user_waiver": "User waived because Railway prod uses nixpacks; MAJ-1 only impacts future Docker-based environments",
+    "deployer_execute_action": "Despite waiver, deployer chose to sync Dockerfile.be SoT during Execute phase to close the loop (cross_phase_sync, not a new IMPL_BUG). Documented in Dockerfile.be comments + deploy-guide.md sec.8.",
+    "result": "CLOSED -- Dockerfile.be SoT now matches build-gate v2.0 patches; any future Docker-based env safe"
+  },
+
+  "Rule_18_parameter_compliance": {
+    "RUN_DB_BOOTSTRAP": "NOT registered in service-contract.yaml -- MIN-4 from code-review. Tracked in deploy-guide sec.9 for follow-up TASK (deployer chose not to retroactively touch parameter-registry to avoid scope creep)",
+    "POSTGRES_x_12_params": "All registered via SD parameter_added events; verified in parameter-registry.md",
+    "PG_VOLUME_NAME + PG_DATA_PATH": "Registered via SD per Tester Major-5 fix"
+  },
+
+  "Rule_19_CI_compliance": {
+    "ci_workflow_installed": "DEFERRED -- workflow file produced at .sdlc/tasks/TASK-002/deploy/cicd-workflow.yml; install command: cp to .github/workflows/ci-be.yml (user manual step per CLAUDE.md docs-only mode; not auto-installed to avoid double-trigger before user verification)",
+    "path_filters_correct": "PASS -- backend paths + migrations + Dockerfile.task002 (gitignored excluded) + alembic.ini + cicd-workflow.yml itself",
+    "gate_severity": "PASS -- bandit Critical=0 + High=0 -> PASS; pytest 8/8 (mandated to re-run in CI per build-gate covered scope)"
+  },
+
+  "passedThreshold": true,
+  "passedThresholdNote": "score 93 >= 90 PASS threshold; verdict=PASS; SAST scope-aware gate PASS; MAJ-1 closed; 7/7 deliverables produced."
+}

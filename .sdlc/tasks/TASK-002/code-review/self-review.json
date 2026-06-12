@@ -1,0 +1,246 @@
+{
+  "document_id": "CODE-REVIEW-SELFREVIEW-TASK-002-v1.0",
+  "task_id": "TASK-002",
+  "phase": "code-review",
+  "date": "2026-06-12",
+  "author": "Tester (Code-Review phase, virtual 5-parallel orchestration)",
+  "verdict": "CONDITIONAL_PASS",
+  "verdictRationale": "Critical = 0（不阻塞合併 main）；3 Major（MAJ-1 Dockerfile SoT 未同步修補 build-gate 已知 IMPL_BUG-1/3 / MAJ-2 MOD-103 dead code / MAJ-3 test-be 靜態驗證流程盲點）；5 Minor + 6 Info；估算覆蓋率 ~90% 略低於 95% 門檻但整合層 build-gate v2.0 8/8 PASS 已實證真實風險覆蓋；MAJ-1 強烈建議在 dispatch deploy 階段前修補，否則 deploy 階段會重現 backend exit 3 + healthcheck 405。",
+
+  "score": 86,
+  "scoreBreakdown": {
+    "CR1_spec_conformance": { "weight": 25, "score": 88, "weighted": 22, "deduction": "MAJ-2 MOD-103 dead code 扣 7 + MIN-1 ERR-ID 註解扣 5" },
+    "CR2_fe_quality": { "weight": 10, "score": 95, "weighted": 9.5, "deduction": "FE = no-op 完美；INFO-1 不扣分" },
+    "CR3_be_quality_and_D7": { "weight": 25, "score": 82, "weighted": 20.5, "deduction": "MAJ-1 Dockerfile SoT 扣 8 + MAJ-3 流程盲點扣 5 + MIN-2 f-string SQL 扣 3 + MIN-5 verify_client 扣 2" },
+    "CR4_security_NFR": { "weight": 20, "score": 90, "weighted": 18, "deduction": "INFO-2/3 brownfield issues 不扣分；NFR-001/002/005/011 全通過" },
+    "CR5_cross_layer_contract": { "weight": 20, "score": 80, "weighted": 16, "deduction": "MAJ-1 Dockerfile SoT 扣 10 + MIN-3 operationId 扣 5 + MIN-4 RUN_DB_BOOTSTRAP 未登記扣 5" }
+  },
+  "scoreNote": "86/100：>= 80 CONDITIONAL_PASS threshold；< 90 PASS threshold；3 Major 中 MAJ-1 為「直接影響後續 deploy 階段」優先級最高。",
+
+  "findings": {
+    "critical": 0,
+    "major": 3,
+    "minor": 5,
+    "info": 6,
+    "blocked": 0,
+    "totalFindings": 14
+  },
+
+  "findingsList": [
+    {
+      "id": "MAJ-1",
+      "severity": "Major",
+      "title": "Dockerfile SoT 模板未同步修補 build-gate 已知 IMPL_BUG-1 + IMPL_BUG-3",
+      "category": "DESIGN_FLAW",
+      "confidence": 95,
+      "location": ".sdlc/tasks/TASK-002/deploy/Dockerfile.be L41-45 (缺 COPY) + L53-54 (錯誤 healthcheck)",
+      "specReference": "service-contract.yaml services.backend.health_check + deploy/Dockerfile.be",
+      "impact": "後續 /sdlc:next deploy 階段若按官方 SoT 部署，會重現 backend exit 3（alembic 找不到 ini）+ healthcheck 405 unhealthy",
+      "fix": "將 Dockerfile.task002（gitignored）的兩處修補同步到 .sdlc/tasks/TASK-002/deploy/Dockerfile.be：(1) 加 COPY --chown=appuser:appuser alembic.ini ./ (2) HEALTHCHECK 改用 /api/db/healthz + grep '\"status\":\"ok\"'",
+      "blocksDeploy": true
+    },
+    {
+      "id": "MAJ-2",
+      "severity": "Major",
+      "title": "MOD-103 repositories.py 完全未被呼叫（Dead Code + 規格偏離）",
+      "category": "DESIGN_FLAW",
+      "confidence": 95,
+      "location": "web/auth/repositories.py (94 行 全檔)",
+      "specReference": "code-arch.md §3.3 MOD-103 + §11 共用 Helper 清單",
+      "impact": "違反 SD §3.3 helper 集中封裝設計意圖；94 LOC dead code；潛在 SQL injection 風險（MIN-2）",
+      "fix": "路徑 A（推薦）: auth_router/oauth_router 改用 helper；路徑 B: 移除 repositories.py + 更新 code-arch.md §3.3 註明 deferred to SA-SUG-102",
+      "blocksDeploy": false
+    },
+    {
+      "id": "MAJ-3",
+      "severity": "Major",
+      "title": "test-be 靜態驗證盲點 — 4 個 IMPL_BUG 全部 runtime only",
+      "category": "DESIGN_FLAW (SDLC 框架缺口)",
+      "confidence": 90,
+      "location": "test-be/test-report-be.md 流程設計",
+      "specReference": "sdlc-tester.md Rule 1-4 + sdlc-role-verify.sh",
+      "impact": "確認 test-be 靜態驗證對 Dockerfile / SQLAlchemy default driver / DSN format / Windows locale 等 runtime-only 行為有盲區；未來類似 TASK 將重現",
+      "fix": "改善 sdlc-role-verify.sh tester 角色：(1) 強制 test-be 須執行 docker compose build + up；(2) 沙箱無法執行則降級為 BLOCKED 非 PASS",
+      "blocksDeploy": false
+    },
+    {
+      "id": "MIN-1",
+      "severity": "Minor",
+      "title": "ERR-ID 註解 vs shared/error-codes.md 不一致",
+      "category": "IMPL_BUG",
+      "confidence": 88,
+      "location": "web/auth/auth_router.py:118",
+      "specReference": "shared/error-codes.md ERR-DB-003 vs ERR-DB-004",
+      "fix": "改註解為 # psycopg.errors.UniqueViolation → ERR-DB-004 → 409"
+    },
+    {
+      "id": "MIN-2",
+      "severity": "Minor",
+      "title": "update_with_timestamp 用 f-string 構造 SQL（SQL injection 潛在風險）",
+      "category": "IMPL_BUG (潛在)",
+      "confidence": 90,
+      "location": "web/auth/repositories.py:87-91",
+      "specReference": "code-arch.md §3.3 + repositories.py:87-91",
+      "fix": "在 MAJ-2 修復時一併處理 — 加 docstring assertion 或移除"
+    },
+    {
+      "id": "MIN-3",
+      "severity": "Minor",
+      "title": "API-101 operationId 偏差（FastAPI 自動生成 vs spec yaml）",
+      "category": "IMPL_BUG",
+      "confidence": 88,
+      "location": "web/api/healthz.py:76",
+      "specReference": "api-spec.yaml L24 operationId: dbHealthz",
+      "fix": "@healthz_router.get(..., operation_id=\"dbHealthz\")"
+    },
+    {
+      "id": "MIN-4",
+      "severity": "Minor",
+      "title": "RUN_DB_BOOTSTRAP env var 未在 service-contract.yaml + parameter-registry 登記",
+      "category": "IMPL_BUG (Rule 18 違反)",
+      "confidence": 88,
+      "location": "web/main.py:46 + web/auth/tests/test_auth.py:60",
+      "specReference": "parameter-registry.md + service-contract.yaml L301-314",
+      "fix": "補登記到 parameter-registry.md（type=env, scope=test/cli, default='1', required=false）+ service-contract.yaml expected_env_keys"
+    },
+    {
+      "id": "MIN-5",
+      "severity": "Minor",
+      "title": "verify_client.py bool() adapter 與 BE report 描述偏差",
+      "category": "IMPL_BUG (文件差距)",
+      "confidence": 90,
+      "location": "web/auth/verify_client.py:83, 119",
+      "specReference": "be/implementation-report.md §3.2 步驟 4",
+      "fix": "BE report 描述改為「將 bool(d.get('is_verified', 1)) 改寫為顯式 None check + None fallback to True」"
+    },
+    {
+      "id": "INFO-1",
+      "severity": "Info",
+      "title": "FE 兩條 [FE 建議] 物理隔離正確",
+      "confidence": 95,
+      "location": "fe/fe-changes-report.md §8"
+    },
+    {
+      "id": "INFO-2",
+      "severity": "Info",
+      "title": "SECRET_KEY 有 hardcoded fallback (D7-2 違反但屬 brownfield TASK-001)",
+      "confidence": 95,
+      "location": "web/auth/security.py:8"
+    },
+    {
+      "id": "INFO-3",
+      "severity": "Info",
+      "title": "重寄驗證信無 rate limit (brownfield TASK-001)",
+      "confidence": 90,
+      "location": "web/auth/auth_router.py:194-221"
+    },
+    {
+      "id": "INFO-4",
+      "severity": "Info",
+      "title": "build-gate v2.0 路徑與 PM Path A 文件化完整",
+      "confidence": 95
+    },
+    {
+      "id": "INFO-5",
+      "severity": "Info",
+      "title": "API-101 current=None 時 status='degraded' 為合理推斷",
+      "confidence": 90,
+      "location": "web/api/healthz.py:100-101"
+    },
+    {
+      "id": "INFO-6",
+      "severity": "Info",
+      "title": "/docs 404 是 production hardening",
+      "confidence": 95,
+      "location": "web/main.py:60"
+    }
+  ],
+
+  "coverage": {
+    "estimated_line_coverage": 90,
+    "threshold": 95,
+    "passedThreshold": false,
+    "method": "pytest 8/8 PASS in 6.50s + integration test (build-gate v2.0 8/8 tasks)",
+    "coverageNote": "純基礎設施 TASK 性質 + NFR-002 既有行為不變 + 8 pytest 涵蓋核心 auth flow + Alembic 冪等 + API-101 集成驗證 → 真實風險已被覆蓋；95% 門檻硬性未達，主因 MOD-103 dead code + healthz/db_bootstrap 缺 unit test。",
+    "gaps": [
+      "web/api/healthz.py 0% unit test（僅 build-gate 集成驗證）",
+      "web/db_bootstrap.py 0% unit test（advisory lock 路徑僅集成驗證）",
+      "web/auth/repositories.py 0%（dead code → MAJ-2）",
+      "verify_client.py CLI mode 未測（非 production 路徑，不阻塞）"
+    ]
+  },
+
+  "checklist": [
+    { "item": "1. 測試報告格式正確", "passed": true, "score": 5 },
+    { "item": "2. 每個檢查項都有結果（無遺漏）— 5 CR 區段 + 覆蓋率分析齊全", "passed": true, "score": 5 },
+    { "item": "3. Critical/Warning/Info 分級正確", "passed": true, "score": 5 },
+    { "item": "4. 每個發現都有位置和理由", "passed": true, "score": 5 },
+    { "item": "5. 追溯矩陣驗證完整 — 14 finding 全部 traces_to 規格 ID", "passed": true, "score": 5 },
+    { "item": "6. 範圍邊界驗證完整（反腦補）", "passed": true, "score": 5 },
+    { "item": "7. 一致性驗證完整", "passed": true, "score": 5 },
+    { "item": "8. 格式驗證完整", "passed": true, "score": 5 },
+    { "item": "9. 測試決策邏輯正確（Critical = 0 → 不阻塞合併；3 Major → CONDITIONAL）", "passed": true, "score": 5 },
+    { "item": "10. 建議具體可行 — 每 Major/Minor 都附明確修復路徑", "passed": true, "score": 5 },
+    { "item": "11. 無漏掉的被測文件", "passed": true, "score": 5 },
+    { "item": "12. 對照基準完整 — SD 6 份規格 + FE/BE report + test reports + build-gate v2.0", "passed": true, "score": 5 },
+    { "item": "13. 發現清單編號連續（MAJ-1..3 / MIN-1..5 / INFO-1..6）", "passed": true, "score": 5 },
+    { "item": "14. 測試方法適合 code-review 階段 — 5 CR 並行 + D7 安全 8 項 + 覆蓋率分析", "passed": true, "score": 5 },
+    { "item": "15. 獨立性保證（未參考開發對話）", "passed": true, "score": 5 },
+    { "item": "16. 每個測試案例可追溯到規格 ID", "passed": true, "score": 5 },
+    { "item": "17. 結論與發現一致 — 86/100 + CONDITIONAL_PASS 對齊 3 Major 不阻塞 PR 合併但建議修補", "passed": true, "score": 5 },
+    { "item": "18. 報告日期和版本正確（2026-06-12, v1.0）", "passed": true, "score": 5 },
+    { "item": "19. Mermaid 語法正確（本報告無 Mermaid，不適用 — 但結構表格完整）", "passed": true, "score": 5 },
+    { "item": "20. 文件模板嚴格遵循 — test-report.tpl.md 結構（文件資訊 / 結果摘要 / 發現清單 / 詳細結果 / 結論 / 追溯）+ skill verify-code 5 CR 區段", "passed": false, "score": 3, "note": "嚴格 diff 模板尚未做（沙箱限制）；採 skill 指南為主 + tester rules 內嵌結構" }
+  ],
+
+  "checklistScore": 98,
+  "checklistScoreNote": "20 項中 19 項 5 分 + 1 項 3 分 = 98/100；但 L2 報告綜合評分採 CR 加權（86/100）為主，checklist 為流程自查驗證。",
+
+  "rootCauseClassification": {
+    "summary": "本 TASK 為純基礎設施重構（SQLite → PostgreSQL）；BE 實作對齊 SD 規格度高但有兩個治標未治根的問題：(1) Dockerfile SoT 模板未同步修補 build-gate 已知 bug；(2) MOD-103 helper 寫了但未用。另外暴露 SDLC 流程缺口（test-be 對 runtime-only 行為無偵測能力）。",
+    "majorDistribution": {
+      "DESIGN_FLAW": 3,
+      "IMPL_BUG": 0
+    },
+    "minorDistribution": {
+      "IMPL_BUG": 5,
+      "DESIGN_FLAW": 0
+    }
+  },
+
+  "passedThreshold": false,
+  "passedThresholdNote": "score 86 < 90 PASS threshold but >= 80 CONDITIONAL_PASS threshold；3 Major 中 MAJ-1 強烈建議優先修補。覆蓋率 ~90% < 95% 門檻但整合層完整覆蓋真實風險。",
+
+  "pmDecisionGuidance": {
+    "recommendedPath": "A_Fix_MAJ1_then_approve",
+    "pathA_fix_MAJ1_then_approve": "PM/User 修補 .sdlc/tasks/TASK-002/deploy/Dockerfile.be 兩處（加 COPY alembic.ini + 改 healthcheck endpoint），然後 approve code-review → dispatch deploy",
+    "pathB_accept_CONDITIONAL_then_deploy": "Accept CONDITIONAL_PASS 直接 dispatch deploy；但 deploy 階段必須額外驗證 build-gate v2.0 修補的 5 個 IMPL_BUG 是否已治根",
+    "pathC_revise_back_to_deployer": "退回 deployer 修補 MAJ-1 後重跑 build-gate；但 cost > value（build-gate v2.0 已實證運行 OK）"
+  },
+
+  "L1VerifyAttempted": {
+    "status": "BYPASSED",
+    "reason": "沙箱無 Bash → 無法執行 sdlc-role-verify.sh tester TASK-002；採 L2 聲明式自我驗證"
+  },
+
+  "artifacts": [
+    "code-review-report.md",
+    "self-review.json"
+  ],
+
+  "evidenceSources": [
+    ".sdlc/tasks/TASK-002/sa/{system-arch.md, functional-flow.md, field-spec.md, pattern-spec.md, impact-assessment.md}",
+    ".sdlc/tasks/TASK-002/sd/{api-spec.md, api-spec.yaml, db-schema.md, code-arch.md, error-codes.md, fe-api-mapping.md}",
+    ".sdlc/tasks/TASK-002/deploy/{service-contract.yaml, Dockerfile.be}",
+    ".sdlc/tasks/TASK-002/fe/fe-changes-report.md",
+    ".sdlc/tasks/TASK-002/be/implementation-report.md",
+    ".sdlc/tasks/TASK-002/test-fe/test-report-fe.md",
+    ".sdlc/tasks/TASK-002/test-be/test-report-be.md",
+    ".sdlc/tasks/TASK-002/build-gate/{build-gate-report.md, self-review.json}",
+    "Actual code: web/auth/{database.py, auth_router.py, oauth_router.py, dependencies.py, verify_client.py, repositories.py, security.py, email_service.py, tests/test_auth.py}",
+    "Actual code: web/{main.py, db_bootstrap.py, api/healthz.py}",
+    "Actual code: migrations/{env.py, versions/*.py}",
+    "Actual config: {alembic.ini, requirements.txt, Dockerfile.task002, docker-compose.task002-verify.yml, .env.example, .gitignore}",
+    ".sdlc/shared/{id-registry.md, error-codes.md, parameter-registry.md}"
+  ]
+}

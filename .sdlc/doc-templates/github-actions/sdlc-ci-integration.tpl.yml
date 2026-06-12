@@ -1,0 +1,173 @@
+# .github/workflows/sdlc-ci-integration.yml
+#
+# SDLC CI Integration — Cross-PR pre-merge conflict detection (Rule 19 / PR 8)
+#
+# Why: two open PRs may individually pass sdlc-ci-pr.yml but conflict
+# with each other (e.g., both add the same env var with different values,
+# both register COMP-005, etc.). This scheduled workflow takes pairs of
+# open PRs and pre-merges them in a temporary branch to detect cross-PR
+# issues before they reach the merge queue.
+#
+# Triggers:
+#   - schedule: every 30 minutes (adjust to project tempo)
+#   - pull_request synchronize: re-run when any open PR pushes
+#
+# Setup: requires actions:read + pull-requests:write permissions.
+
+name: SDLC CI Integration
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  pull_request:
+    # V1-W3: include opened/reopened so newly-opened PRs get pairwise check
+    types: [opened, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  SDLC_BOOTSTRAP_REPO: ${{ vars.SDLC_BOOTSTRAP_REPO || 'https://github.com/Sunyuezu0229/sdlc-workflow.git' }}
+  SDLC_BOOTSTRAP_REF: ${{ vars.SDLC_BOOTSTRAP_REF || 'main' }}
+
+jobs:
+  pairwise-conflict-check:
+    runs-on: ubuntu-latest
+    name: Pairwise pre-merge conflict detection
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install jq
+        run: which jq || sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Bootstrap SDLC scripts (vendored or pinned clone)
+        run: |
+          if [ -f "scripts/sdlc-sync.sh" ]; then
+            export SDLC_SCRIPTS=./scripts
+          else
+            git clone --depth=1 --branch "$SDLC_BOOTSTRAP_REF" \
+              "$SDLC_BOOTSTRAP_REPO" /tmp/sdlc-tools
+            export SDLC_SCRIPTS=/tmp/sdlc-tools/scripts
+          fi
+          echo "SDLC_SCRIPTS=$SDLC_SCRIPTS" >> $GITHUB_ENV
+
+      - name: List open PRs
+        id: prs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            const heads = prs.data.map(p => ({ number: p.number, branch: p.head.ref, sha: p.head.sha }));
+            return heads;
+
+      - name: Pairwise pre-merge + verify (record failures to JSON)
+        id: pairwise
+        run: |
+          # Build pairs of PR branches and try a 3-way merge in a temp branch.
+          # For each pair: checkout main, merge PR-A, merge PR-B, run all SDLC checks.
+          # Failures recorded to /tmp/integration-failures.json for the next step
+          # to comment on both PRs (V1-W5).
+
+          PRS='${{ steps.prs.outputs.result }}'
+          n=$(echo "$PRS" | jq 'length')
+          FAILS='[]'
+
+          if [ "$n" -lt 2 ]; then
+            echo "Less than 2 open PRs — nothing to pair-check"
+            echo "$FAILS" > /tmp/integration-failures.json
+            exit 0
+          fi
+
+          for i in $(seq 0 $((n-2))); do
+            for j in $(seq $((i+1)) $((n-1))); do
+              pr_a_num=$(echo "$PRS" | jq ".[$i].number")
+              pr_a_branch=$(echo "$PRS" | jq -r ".[$i].branch")
+              pr_b_num=$(echo "$PRS" | jq ".[$j].number")
+              pr_b_branch=$(echo "$PRS" | jq -r ".[$j].branch")
+
+              echo "=== Pair: PR #$pr_a_num + PR #$pr_b_num ==="
+
+              git fetch origin "$pr_a_branch" "$pr_b_branch" main 2>/dev/null || true
+              tmp_branch="integration-test-${pr_a_num}-${pr_b_num}"
+              if ! git checkout -b "$tmp_branch" origin/main 2>/dev/null; then
+                continue
+              fi
+
+              if ! git merge --no-edit "origin/$pr_a_branch" 2>/dev/null; then
+                git merge --abort 2>/dev/null
+                git checkout main
+                continue
+              fi
+
+              if ! git merge --no-edit "origin/$pr_b_branch" 2>/dev/null; then
+                # git-level conflict
+                FAILS=$(echo "$FAILS" | jq --argjson a "$pr_a_num" --argjson b "$pr_b_num" \
+                    '. + [{prA: $a, prB: $b, kind: "git-conflict"}]')
+                git merge --abort 2>/dev/null
+                git checkout main
+                continue
+              fi
+
+              # Both merged cleanly — run SDLC checks
+              if ! bash $SDLC_SCRIPTS/sdlc-id-guard.sh 2>/dev/null \
+                || ! bash $SDLC_SCRIPTS/sdlc-parameter-check.sh --quiet 2>/dev/null \
+                || ! bash $SDLC_SCRIPTS/sdlc-shared-rebuild.sh --check 2>/dev/null; then
+                echo "::warning::PR #$pr_a_num + #$pr_b_num integration FAILS SDLC checks"
+                FAILS=$(echo "$FAILS" | jq --argjson a "$pr_a_num" --argjson b "$pr_b_num" \
+                    '. + [{prA: $a, prB: $b, kind: "sdlc-violation"}]')
+              else
+                echo "PR #$pr_a_num + #$pr_b_num integration: clean"
+              fi
+
+              git checkout main
+              git branch -D "$tmp_branch" 2>/dev/null || true
+            done
+          done
+
+          echo "$FAILS" > /tmp/integration-failures.json
+          echo "Recorded $(echo "$FAILS" | jq 'length') failure(s) to /tmp/integration-failures.json"
+
+      - name: Comment on PRs that failed pairwise (V1-W5)
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let fails = [];
+            try {
+              fails = JSON.parse(fs.readFileSync('/tmp/integration-failures.json', 'utf8'));
+            } catch (e) {
+              console.log('No failures file or parse error — nothing to do');
+              return;
+            }
+            if (fails.length === 0) {
+              console.log('No integration failures to comment');
+              return;
+            }
+            for (const f of fails) {
+              const body = `⚠️ SDLC integration check: PR #${f.prA} and PR #${f.prB} ` +
+                           `**${f.kind}** when pre-merged together. ` +
+                           `Coordinate with the other PR's author before either merges to main.`;
+              for (const num of [f.prA, f.prB]) {
+                try {
+                  await github.rest.issues.createComment({
+                    issue_number: num,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body
+                  });
+                } catch (e) {
+                  console.log(`Failed to comment on PR #${num}: ${e.message}`);
+                }
+              }
+            }

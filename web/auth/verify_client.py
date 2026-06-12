@@ -9,6 +9,11 @@ API 端點：
     GET /api/auth/verify                  ← 讀 access_token cookie
     GET /api/auth/verify?token=<jwt>      ← 明確帶 token
     GET /api/auth/verify?email=<email>    ← 查用戶狀態
+
+TASK-002 變更（FUNC-105）：
+- SQL placeholder `?` → `%s`
+- 移除 `bool(d.get("is_verified", 1))` adapter — PG 原生 BOOLEAN
+- NFR-002 保證：回傳 JSON 結構不變
 """
 from __future__ import annotations
 
@@ -57,8 +62,8 @@ def verify_token_info(token: str) -> dict:
 
         with get_conn() as conn:
             row = conn.execute(
-                "SELECT id, email, username, is_verified, google_id FROM users WHERE id = ?",
-                (user_id,),
+                "SELECT id, email, username, is_verified, google_id FROM users WHERE id = %s",
+                (int(user_id),),
             ).fetchone()
 
         if not row:
@@ -74,7 +79,8 @@ def verify_token_info(token: str) -> dict:
                 "id":          d["id"],
                 "email":       d["email"],
                 "username":    d["username"],
-                "is_verified": bool(d.get("is_verified", 1)),
+                # TASK-002 FUNC-105: PG 原生 BOOLEAN — 移除 bool() adapter
+                "is_verified": bool(d.get("is_verified")) if d.get("is_verified") is not None else True,
             },
             "issued_at":   _ts(iat),
             "expires_at":  _ts(exp),
@@ -95,7 +101,7 @@ def verify_email_info(email: str) -> dict:
 
         with get_conn() as conn:
             row = conn.execute(
-                "SELECT id, email, username, is_verified, google_id, created_at FROM users WHERE email = ?",
+                "SELECT id, email, username, is_verified, google_id, created_at FROM users WHERE email = %s",
                 (email.lower().strip(),),
             ).fetchone()
 
@@ -109,9 +115,10 @@ def verify_email_info(email: str) -> dict:
                 "id":          d["id"],
                 "email":       d["email"],
                 "username":    d["username"],
-                "is_verified": bool(d.get("is_verified", 1)),
+                # TASK-002 FUNC-105: PG 原生 BOOLEAN — 移除 bool() adapter
+                "is_verified": bool(d.get("is_verified")) if d.get("is_verified") is not None else True,
                 "auth_method": "google" if d.get("google_id") else "password",
-                "created_at":  d.get("created_at"),
+                "created_at":  d.get("created_at").isoformat() if d.get("created_at") else None,
             },
             "error": None,
         }

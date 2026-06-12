@@ -1,0 +1,128 @@
+{
+  "_comment": "環境配置 — PR 17 V2 fixes 加入完整 schema（含 region / scaling / 多 baseUrls / db 細節 / monitoring object / Azure/Doppler secrets）。安裝後複製到 .sdlc/environments.json。對應 multi-env-deployment.tpl.md §2。",
+  "_status": "DOCS-ONLY (PR 17): schema only, not yet consumed by release.md / hotfix.md / scripts. Integration deferred to PR 17.1-17.5.",
+  "schemaVersion": "multi-env-v1",
+
+  "dev": {
+    "_comment": "Development env — 內部測試流量，假資料",
+    "baseUrls": ["https://dev.example.com"],
+    "region": "us-east-1",
+    "db": {
+      "host": "dev-db.internal",
+      "port": 5432,
+      "name": "myapp_dev",
+      "readReplicas": [],
+      "connectionStringRef": "aws-ssm:/myapp/dev/db/connection-string"
+    },
+    "secretsRef": "aws-ssm:/myapp/dev/*",
+    "deployTrigger": "auto-on-pr-push",
+    "monitoring": {
+      "dashboardUrl": "https://app.datadoghq.com/dashboard/abc-dev",
+      "alertChannel": "slack:#dev-alerts",
+      "logRetentionDays": 7
+    },
+    "scaling": {
+      "minReplicas": 1,
+      "maxReplicas": 2,
+      "cpuRequest": "100m",
+      "memoryRequest": "256Mi"
+    },
+    "smokeTestEndpoints": ["/health", "/api/v1/health"],
+    "rollbackPolicy": "immediate-on-fail",
+    "comment": "資料每週重置；可隨時 destroy/recreate"
+  },
+
+  "staging": {
+    "_comment": "Staging env — Prod-like，模擬 prod load",
+    "baseUrls": ["https://staging.example.com"],
+    "region": "us-east-1",
+    "db": {
+      "host": "staging-db.internal",
+      "port": 5432,
+      "name": "myapp_staging",
+      "readReplicas": ["staging-db-read-1.internal"],
+      "connectionStringRef": "aws-ssm:/myapp/staging/db/connection-string"
+    },
+    "secretsRef": "aws-ssm:/myapp/staging/*",
+    "deployTrigger": "auto-on-merge-to-main",
+    "monitoring": {
+      "dashboardUrl": "https://app.datadoghq.com/dashboard/abc-staging",
+      "alertChannel": "slack:#staging-alerts",
+      "logRetentionDays": 30
+    },
+    "scaling": {
+      "minReplicas": 2,
+      "maxReplicas": 4,
+      "cpuRequest": "200m",
+      "memoryRequest": "512Mi"
+    },
+    "smokeTestEndpoints": ["/health", "/api/v1/health"],
+    "rollbackPolicy": "immediate-on-fail",
+    "soakTimeHours": 24,
+    "maintenanceWindow": "Sun 02:00-04:00 UTC",
+    "comment": "Prod-like 環境；prod 部署前必經此階段 ≥ soakTimeHours 小時"
+  },
+
+  "prod": {
+    "_comment": "Production env — 真實使用者；rollback 走 rollback-runbook §3",
+    "baseUrls": [
+      "https://example.com",
+      "https://www.example.com"
+    ],
+    "region": "us-east-1",
+    "regionFailover": ["us-west-2"],
+    "db": {
+      "host": "prod-db.internal",
+      "port": 5432,
+      "name": "myapp_prod",
+      "readReplicas": [
+        "prod-db-read-1.internal",
+        "prod-db-read-2.internal"
+      ],
+      "connectionStringRef": "aws-ssm:/myapp/prod/db/connection-string"
+    },
+    "secretsRef": "aws-ssm:/myapp/prod/*",
+    "deployTrigger": "tag-based + github-environment-approval",
+    "monitoring": {
+      "dashboardUrl": "https://app.datadoghq.com/dashboard/abc-prod",
+      "alertChannel": "pagerduty:high-priority",
+      "logRetentionDays": 90,
+      "errorBudget": {
+        "slo": "99.9%",
+        "windowDays": 30
+      }
+    },
+    "scaling": {
+      "minReplicas": 4,
+      "maxReplicas": 20,
+      "cpuRequest": "500m",
+      "memoryRequest": "1Gi",
+      "autoscalingTargetCpuUtilization": 70
+    },
+    "smokeTestEndpoints": ["/health", "/api/v1/health"],
+    "rollbackPolicy": "auto-on-error-rate-1pct",
+    "monitorPeriodMinutes": 15,
+    "approvalReviewers": [
+      {"type": "github-team", "name": "@myorg/eng-leads"},
+      {"type": "github-username", "name": "@cto-username"}
+    ],
+    "maintenanceWindow": "no-scheduled-maintenance",
+    "comment": "真實使用者流量；rollback 走 rollback-runbook §3"
+  },
+
+  "_supportedSecretRefPrefixes": [
+    "aws-ssm:",
+    "aws-secretsmanager:",
+    "vault:",
+    "gcp-secret:",
+    "azure-keyvault:",
+    "doppler:"
+  ],
+
+  "_pathBasedRoutingExample": {
+    "_comment": "若 dev/staging/prod 使用 path-based routing 同個 domain，把 baseUrls 改為 path 陣列",
+    "dev": { "baseUrls": ["https://app.example.com/dev"] },
+    "staging": { "baseUrls": ["https://app.example.com/staging"] },
+    "prod": { "baseUrls": ["https://app.example.com/"] }
+  }
+}

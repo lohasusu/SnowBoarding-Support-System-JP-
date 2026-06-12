@@ -1,0 +1,164 @@
+{
+  "task_id": "TASK-002",
+  "phase": "ba",
+  "agent": "ba",
+  "score": 95,
+  "passed": true,
+  "verification_layer": "L2_declarative_only",
+  "verification_layer_note": "BA agent 無 Bash 工具，Layer 1 sdlc-role-verify.sh 未執行；以 Layer 2 聲明式檢查清單為準。建議 PM 在 approve 前手動執行 `bash $HOME/.claude/skills/sdlc/scripts/sdlc-role-verify.sh ba TASK-002` 補 Layer 1 驗證。",
+  "checklist": {
+    "completeness": {
+      "items": 4,
+      "passed": 4,
+      "details": [
+        "✅ 所有必填章節已填寫（無 TODO/TBD 殘留）",
+        "✅ 所有表格欄位已填入（追溯矩陣 / 異常流程 / NFR 量化值 / CONST 追溯）",
+        "✅ 文件頭 metadata 完整（document_id / version / date / source_documents 列 7 個來源）",
+        "✅ 每個 FR 都有驗收標準（FR-001~008 對應 AC-044~057 共 14 個 AC）"
+      ]
+    },
+    "traceability": {
+      "items": 3,
+      "passed": 3,
+      "details": [
+        "✅ 每個 FR 有唯一 ID（FR-001~008，TASK 內連續無跳號）",
+        "✅ 每個 FR 都有來源引用（enhanced-input.md / baseline / db-conventions 行段標記）",
+        "✅ 追溯矩陣完整（§11 含 FR/NFR/CONST/跨 TASK 修改預警 4 個子表）"
+      ]
+    },
+    "scope": {
+      "items": 4,
+      "passed": 4,
+      "details": [
+        "✅ 沒有超出 BA 職責的內容（不設計 schema 細節、driver 選型 / pool 參數委派 SD §7）",
+        "✅ 沒有自行補充使用者未提及的功能（6 個 [BA確認] 顯式決策；不納入清單覆蓋腦補候選）",
+        "✅ 所有建議在 [BA建議] §8 區塊獨立物理分離（7 個 SUG-NNN，未混入正式 FR/NFR）",
+        "✅ [待確認] §9 為空且明示理由（6 個 [BA確認] 已全部決策）"
+      ]
+    },
+    "consistency": {
+      "items": 4,
+      "passed": 4,
+      "details": [
+        "✅ 無內部矛盾（FR-004 補 deleted_at 欄位 + SUG-004 不改 hard-delete 邏輯：明確界線）",
+        "✅ 術語使用一致（既有術語 [REUSE: from TASK-001 terminology] 標記；新術語 §10 定義）",
+        "✅ ID 編號連續且不重複（FR/NFR/BR TASK 內連續；AC-044~057 全域連續續 TASK-001/AC-043；ROLE-004 全域連續續 TASK-001/ROLE-003）",
+        "✅ 業務流程圖與需求規格對應（BF-001/002/003 對應 FR-001/002/005/006/007/008 + CONST-009）"
+      ]
+    },
+    "format": {
+      "items": 5,
+      "passed": 5,
+      "details": [
+        "✅ 嚴格遵循 requirement-spec.tpl.md（章節結構 1~12 完整）",
+        "✅ Mermaid 流程圖語法正確（3 個 BF + 1 個流程關係圖，皆 flowchart TD/LR）",
+        "✅ 表格格式正確（pipe-table，欄位對齊一致）",
+        "✅ BDD 場景語法正確（FR-001 Gherkin Feature/Scenario/Given/When/Then/And）",
+        "✅ 引用格式正確（FR-NNN / AC-NNN / [REUSE: from TASK-NNN] / [CROSS-TASK] 標記）"
+      ]
+    }
+  },
+  "score_deduction_reasons": [
+    "扣 5 分：FR-006 Railway PostgreSQL addon vs 外部託管（Supabase / Neon）標記為中信心，留 deploy 階段技術決策。屬於合理委派而非腦補，但若 PM 要求 BA 鎖定可調整。"
+  ],
+  "ba_specific_checks": {
+    "anti_fabrication": "PASS — 6 個 [BA確認] 顯式列入決策表（§8）；不納入清單 (§1.4) 涵蓋 8 個腦補候選（如 caching / read replica / 業務功能新增）",
+    "scope_boundary": "PASS — driver 選型 / migration 工具 / connection pool 參數 / Railway addon vs 外部 4 個技術選型明確委派 §7 下游角色",
+    "question_discipline": "PASS — 6 個 [BA確認] 全部於 §8 表決策落地或委派；未自行假設答案",
+    "terminology_lock": "PASS — 沿用 TASK-001 已定義術語（ephemeral storage / 軟刪除等）；新術語 §10 9 條清楚定義；無替換為其他『專業術語』",
+    "nfr_quantification": "PASS — 12 個 NFR 全部有量化指標（時間 / 百分比 / pool 參數 / 編碼值 / 布林條件）；NFR-003/004 量化值附 [BA建議] SUG-003 理由",
+    "modal_language_check": "PASS — 主動搜尋『適當』『合理的』『視情況』『快速』『良好的』『盡量』『應該』『大量』；正式規格區無殘留（『合理』僅出現於 §8 [BA建議] 與 §10 術語表的解釋性段落，非規格陳述）",
+    "ba_suggestion_facets": "PASS — §8 7 個 SUG 涵蓋 7 個面向：流程優化(SUG-001) / conventions 合規(SUG-001/002) / 安全強化(SUG-002/005) / 效能(SUG-003) / 風險控制(SUG-004/006) / 擴充性(SUG-001) / 流程閉環(SUG-007) — 遠超『至少 3 個面向』門檻",
+    "system_language_captured": "PASS — NFR-012 明確記錄『系統語言 zh-TW（沿用 TASK-001/NFR-018）』；本 TASK 為後端重構無新 UI 文字"
+  },
+  "ba_confirm_decisions": {
+    "BC-1_existing_sqlite_data_migration": {
+      "decision": "不執行歷史資料遷移；提供腳本 fallback 供本機 / staging 使用",
+      "rationale": "Railway ephemeral 已導致 production SQLite 資料持續流失（CLAUDE.md / baseline-audit）；強制歷史遷移會引入空跑風險",
+      "landed_in": "FR-007 + ASSUME-002 + AC-056"
+    },
+    "BC-2_dev_staging_prod_db_strategy": {
+      "decision": "全環境統一 PostgreSQL；棄用 SQLite 開發路徑",
+      "rationale": "雙 driver 維護成本 > 統一一致；docker-compose.yml 已備 postgres:16-alpine",
+      "landed_in": "FR-008 + AC-057"
+    },
+    "BC-3_migration_tool_selection": {
+      "decision": "委派 SD 階段選型（規範行為不規範工具）",
+      "rationale": "Alembic / yoyo-migrations / 手寫 SQL 各有適用場景；BA 鎖定會限制 SD 技術判斷；重要的是規範 reversible + 檔名格式 + 三段式刪欄",
+      "landed_in": "FR-003 + BR-002 + BR-007 + §7 + AC-048 + AC-049"
+    },
+    "BC-4_connection_pooling": {
+      "decision": "NFR 量化指標 + 委派 SD 階段選定具體 pool library",
+      "rationale": "pool min/max 與 Railway 連線數限制掛鉤，屬 SD/Deployer 知識領域",
+      "landed_in": "NFR-005 + §7"
+    },
+    "BC-5_backfill_updated_deleted_at": {
+      "decision": "補齊（FR-004）— 三表都加 updated_at + deleted_at",
+      "rationale": "db-conventions §2/§8 強制規範；baseline-audit M-8；schema 重建時機補齊成本最低；不補則 brownfield 違規持續",
+      "landed_in": "FR-004 + BR-006 + SUG-001"
+    },
+    "BC-6_alter_table_hack_cleanup": {
+      "decision": "處理（FR-003 移除 database.py:44-52 hack）",
+      "rationale": "db-conventions §8 第 1 條禁止項；PostgreSQL 環境下 try/except 可能 silent fail；schema 重建一併移除最經濟",
+      "landed_in": "FR-003 + BR-002 + SUG-002 + AC-048"
+    }
+  },
+  "id_allocations_used": {
+    "FR": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008"],
+    "NFR": ["NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006", "NFR-007", "NFR-008", "NFR-009", "NFR-010", "NFR-011", "NFR-012"],
+    "BR": ["BR-001", "BR-002", "BR-003", "BR-004", "BR-005", "BR-006", "BR-007"],
+    "AC": ["AC-044", "AC-045", "AC-046", "AC-047", "AC-048", "AC-049", "AC-050", "AC-051", "AC-052", "AC-053", "AC-054", "AC-055", "AC-056", "AC-057"],
+    "BF": ["BF-001", "BF-002", "BF-003"],
+    "CONST": ["CONST-001", "CONST-002", "CONST-003", "CONST-004", "CONST-005", "CONST-006", "CONST-007", "CONST-008", "CONST-009"],
+    "ASSUME": ["ASSUME-001", "ASSUME-002", "ASSUME-003", "ASSUME-004"],
+    "ROLE_new": ["ROLE-004"],
+    "ROLE_reused": ["ROLE-001 [REUSE: from TASK-001]", "ROLE-002 [REUSE: from TASK-001]", "ROLE-003 [REUSE: from TASK-001]"],
+    "SUG": ["SUG-001", "SUG-002", "SUG-003", "SUG-004", "SUG-005", "SUG-006", "SUG-007"],
+    "ENTITY_reused": ["ENTITY-001 [REUSE: from TASK-001]", "ENTITY-002 [REUSE: from TASK-001]", "ENTITY-003 [REUSE: from TASK-001]"],
+    "TBL_reused": ["TBL-001 [REUSE: from TASK-001]", "TBL-002 [REUSE: from TASK-001]", "TBL-003 [REUSE: from TASK-001]"],
+    "MOD_reused": ["MOD-005 auth [REUSE: from TASK-001]"],
+    "new_ids_in_global_namespace": ["ROLE-004"],
+    "new_ids_within_TASK002_range": "本 TASK BA 階段無新增全域 ID（ENTITY/MOD/FUNC/PATTERN/API/TBL/COMP/PAGE/LAYOUT 範圍 101-200 全部未使用 — 將留 SA/SD 階段使用）"
+  },
+  "cross_task_modify_warnings": [
+    "SA 階段必須在 functional-flow.md 標 [CROSS-TASK: TASK-001 / TBL-001 補 updated_at + deleted_at 欄位 / 觸發 FR-004]",
+    "SA 階段必須標 [CROSS-TASK: TASK-001 / TBL-002 補 updated_at + deleted_at 欄位 / 觸發 FR-004]",
+    "SA 階段必須標 [CROSS-TASK: TASK-001 / TBL-003 補 updated_at + deleted_at 欄位 / 觸發 FR-004]",
+    "SA 階段必須標 [CROSS-TASK: TASK-001 / MOD-005 auth.database storage engine 替換 (sqlite3 → Postgres driver) / 觸發 FR-001]"
+  ],
+  "irreversible_operations": [
+    {
+      "id": "FR-007",
+      "marker": "[IRREVERSIBLE]",
+      "description": "Production 切換瞬間可能丟失少於 N 分鐘 SQLite 殘留資料；事前已知 ephemeral 性質",
+      "mitigation": "CONST-009 要求 deploy 階段提供 rollback plan + SUG-006 14 天 SQLite emergency path 保留"
+    }
+  ],
+  "parameter_registry_impacts": [
+    {
+      "trigger": "FR-005",
+      "expected_writes_at_phase": "sd",
+      "new_params": ["POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"],
+      "alternative": "DATABASE_URL (單一連線字串取代 5 個 POSTGRES_*)",
+      "ownerService": "be",
+      "scope": "all (deploy 全環境)",
+      "rule_reference": "Rule 18 parameter registry"
+    }
+  ],
+  "timestamp": "2026-06-07T00:00:00Z",
+  "ba_summary": {
+    "total_FR": 8,
+    "total_NFR": 12,
+    "total_BR": 7,
+    "total_AC": 14,
+    "total_BF": 3,
+    "total_CONST": 9,
+    "total_ASSUME": 4,
+    "total_new_ROLE": 1,
+    "total_reused_ROLE": 3,
+    "total_BA_suggestions": 7,
+    "total_pending_TBC": 0,
+    "ba_confirm_decisions_made": "6/6",
+    "blocked_items": 0
+  }
+}

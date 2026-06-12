@@ -1,0 +1,184 @@
+{
+  "document_id": "REVIEW-TEST-BA-TASK-002-v1.0",
+  "task_id": "TASK-002",
+  "phase": "test-ba",
+  "agent": "tester",
+  "date": "2026-06-08",
+  "score": 94,
+  "passed": true,
+  "threshold": 90,
+  "ba_phase_independent_verdict": "PASS",
+  "verification_layer": "L1_executable_plus_L2_declarative",
+  "verification_methodology": [
+    "~/.claude/skills/sdlc/tools/verify-requirement/SKILL.md (D1-D5)",
+    "sdlc-tester.md Rules 1-4 (獨立性 / 規格優先 / Critical 阻塞 / 100% 追溯)",
+    "L1 sdlc-role-verify.sh ba TASK-002 (報 85/FAIL 3 項 — 經獨立驗證皆為 false positive)",
+    "獨立 Grep 交叉驗證 (FR ID 重複 / 模糊用詞 / 完成標記)",
+    "diff 分析 enhanced-input.md vs requirement-spec.md (反腦補)",
+    "shared/ + conventions/ + baseline 交叉檢核"
+  ],
+  "findings_summary": {
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "info": 3,
+    "blocked": 0
+  },
+  "findings_detail": {
+    "critical": [],
+    "major": [],
+    "minor": [
+      {
+        "id": "MINOR-1",
+        "title": "FR-002 技術型別字面出現在需求規格",
+        "location": "requirement-spec.md line 146",
+        "description": "FR-002 提到 INTEGER PRIMARY KEY AUTOINCREMENT / BIGINT GENERATED ALWAYS AS IDENTITY / TIMESTAMPTZ DEFAULT NOW() 等型別字面",
+        "but_acceptable_because": "BA 明確標註『依 db-conventions §2』，屬 conventions 引用合規而非 BA 自行設計",
+        "recommendation": "可改為『依 db-conventions §2 對應 PG 等價型別』並把具體型別移至 SD db-schema.md",
+        "blocks_next_phase": false
+      },
+      {
+        "id": "MINOR-2",
+        "title": "NFR-004 baseline 取得方法未明示",
+        "location": "requirement-spec.md line 253 + §11 NFR 追溯矩陣",
+        "description": "『P95 ≤ SQLite baseline × 1.5』未指定 baseline 怎麼測（次數 / endpoint / 負載）",
+        "recommendation": "補一句『baseline 來源: test-be 階段以 8 個 pytest 量測平均 + 5 個關鍵 auth endpoints 用 ab -n 100 -c 1 取 P95』",
+        "blocks_next_phase": false
+      }
+    ],
+    "info": [
+      {
+        "id": "INFO-1",
+        "title": "BF-001 對既有開發者 onboarding 體驗的補充說明",
+        "recommendation": "可加一句『首次 setup 需 docker-compose up -d postgres 約 30s；後續開發 zero overhead』"
+      },
+      {
+        "id": "INFO-2",
+        "title": "production 切換後 SLA dashboard 建議（強化 BF-003 觸發前的早期偵測）",
+        "recommendation": "加 SUG『監控 5xx / connection error / migration log 異常 ≥ 24h』"
+      },
+      {
+        "id": "INFO-3",
+        "title": "Migration 觸發策略未明示（啟動自動 vs CI/CD 預先執行）",
+        "recommendation": "可考慮明示為 NFR 或 [BA確認]；屬 SD 階段技術決策，BA 委派可接受"
+      }
+    ]
+  },
+  "l1_false_positive_independent_verdict": {
+    "l1_score": 85,
+    "l1_failed_count": 3,
+    "tester_verdict": "ALL_3_ARE_FALSE_POSITIVE",
+    "details": [
+      {
+        "item": "包含未完成標記",
+        "verdict": "FALSE_POSITIVE",
+        "reason": "L1 grep `待確認` 字串抓到 template 必填章節標題 (§9) 與自查表引用文字 (§12)；未排除 template 結構性章節",
+        "l1_script_fix_suggestion": "regex 改為 `^\\s*-\\s*\\[(待確認|TBD|TODO|待補充)\\]` 偵測列表項，而非整檔 grep"
+      },
+      {
+        "item": "FR ID 重複: FR-001",
+        "verdict": "FALSE_POSITIVE",
+        "reason": "L1 計算 FR-001 字串出現次數，但 requirement-spec.tpl.md 模板設計即要求 FR 在三處出現（摘要表 / 細節章節 / 追溯矩陣）。獨立 grep `^### FR-[0-9]{3}:` 確認 FR-001~008 共 8 個獨立 heading 無重複",
+        "l1_script_fix_suggestion": "改為偵測 `^### FR-NNN:` heading 重複，而非總字串次數"
+      },
+      {
+        "item": "含禁止模糊用詞",
+        "verdict": "FALSE_POSITIVE",
+        "reason": "抓到的『合理』『快速』均出現在 (a) 量化值的人類解釋 line 253 (b) 標籤名 [BA合理推斷] line 254 (c) [BA建議] §8 區塊 line 440 (d) 自查表引用禁字字面 line 539；規格陳述 (§3 FR / §4 NFR 量化值區) 無模糊詞",
+        "l1_script_fix_suggestion": "regex 限定在 FR/NFR 規格區段內偵測，或排除 [BA建議]/[BA合理推斷]/自查表引文等 meta 上下文"
+      }
+    ],
+    "pm_judgment_correct": true,
+    "ba_does_not_need_to_modify": true
+  },
+  "pm_focus_points_independent_evaluation": {
+    "ba_confirm_decisions_6": {
+      "BC-1_no_historical_data_migration": "REASONABLE (CLAUDE.md/baseline 已認定 ephemeral；fallback 腳本覆蓋邊緣場景)",
+      "BC-2_unified_postgres_all_env": "REASONABLE (BF-001 onboarding 流程清楚；可加開發者體驗 Info-1)",
+      "BC-3_delegate_migration_tool_to_sd": "REASONABLE (規範行為而非工具；FR-003/BR-002/BR-007/AC-048/049 提供 SD 充分約束)",
+      "BC-4_delegate_pool_to_sd": "REASONABLE (NFR-005 量化值 min=2/max=10/timeout<5s 給 SD 充分依據)",
+      "BC-5_backfill_updated_deleted_at_with_cross_task_warning": "REASONABLE (§11 跨 TASK 修改預警 3 條明確；SA 階段落實 [CROSS-TASK:] 即可)",
+      "BC-6_remove_alter_table_hack_scope_clear": "REASONABLE (FR-003+BR-002+AC-048 嚴格限於 database.py:44-52 三行，不擴張)",
+      "overall_verdict": "6/6 合理且範圍清楚"
+    },
+    "cross_task_modification_impact_assessment": {
+      "task_001_status": "uiux phase, brownfield-document mode (補追溯既有 8 PAGE，不寫新代碼)",
+      "task_001_uiux_actual_output": "only pencil-component-sync.json initialized (no wireframes/component-spec yet)",
+      "tester_verdict": "不會破壞 TASK-001 uiux (補 timestamp 是 schema 層變更，無 UI 涉及)",
+      "ba_warning_sufficiency": "充足 — §11 跨 TASK 修改預警 + §1.4 不納入認證流程變更 + NFR-002 100% 既有 22 AC 通過 = 三層保護網",
+      "earlier_evaluation_necessity": "不需要 — BA 階段尚無 SA functional-flow.md / UIUX wireframes 工件可做頁面層級評估；BA 已盡 BA 階段該做的"
+    },
+    "rule11_irreversible_mitigation": {
+      "fr_007_irreversible_marker": "PRESENT (line 210, business impact statement complete)",
+      "const_009_mitigation": "強制 deploy 階段提供 rollback plan + 保留 SQLite 應用層代碼 N 天",
+      "sug_006_mitigation": "建議保留 database_sqlite.py 14 天 rollback window (PM 確認後可入 SD/Deploy)",
+      "bf_003_rollback_flow": "完整 6 步驟 + 3 行異常 + Mermaid 圖 + 涵蓋 5 個失敗根因",
+      "tester_verdict": "充足 (三層保護: CONST + SUG + BF)",
+      "improvement_suggestion": "Info-2 SLA dashboard 進一步降低延遲發現風險，不阻塞"
+    },
+    "rule18_parameter_registry_warning": {
+      "ba_announced_writes_at_sd": "5 POSTGRES_* (HOST/PORT/USER/PASSWORD/DB) or 1 DATABASE_URL alternative",
+      "owner_scope_required": "be / all / true",
+      "potentially_missing": {
+        "POSTGRES_SSL_MODE": "在 SUG-005 提及；PM 採納後 SD 補入即可，不算缺漏",
+        "Alembic_specific_env": "通常與應用共用 DATABASE_URL；不算新參數",
+        "DB_POOL_MIN/MAX/TIMEOUT": "隱含於 NFR-005；SD 決定 externalize 為 env vs hardcoded 由 SD 階段判斷",
+        "SSL_cert_path_vault": "Railway addon 用 DATABASE_URL 內嵌；自建 PG 才需獨立 cert env，屬 deploy 階段條件性"
+      },
+      "tester_verdict": "充足 — 主要參數涵蓋；條件性參數委派 SD/Deploy 合理"
+    },
+    "nfr_quantification_sampling": {
+      "total_nfr": 12,
+      "all_quantified": true,
+      "samples_verified": ["NFR-001=100%", "NFR-002=22 AC pass", "NFR-003 ≤ +2s/P95 ≤ 5s", "NFR-004 P95 ≤ 1.5x/≤500ms", "NFR-005 pool 2-10/20 並行", "NFR-009 UTF8", "NFR-010 paramKind=env+owner=be", "NFR-011 git grep 無密碼", "NFR-012 無新英文字串"],
+      "minor_issue": "NFR-004 baseline 取得方法未明示 → Minor-2"
+    },
+    "anti_fabrication_completeness": {
+      "candidates_checked": 15,
+      "covered_by_exclusion_list": 13,
+      "minor_supplements": 2,
+      "verdict": "完整 (Info-1/Info-3 為改善建議非腦補)"
+    }
+  },
+  "verification_dimensions_score": {
+    "D1_completeness": {"items": 9, "passed": 9, "score": 100},
+    "D2_anti_fabrication": {"items": 12, "passed": 12, "score": 100, "note": "CRITICAL 主戰場 — 0 個腦補 FR, 0 個紅旗"},
+    "D3_consistency": {"items": 6, "passed": 6, "score": 100},
+    "D4_testability": {"items": 7, "passed": 6, "score": 86, "minor_deduction": "NFR-004 baseline 取得方法未明示"},
+    "D5_business_flow": {"items": 5, "passed": 5, "score": 100}
+  },
+  "tester_self_check_20": {
+    "passed_items": 19,
+    "total_items": 20,
+    "checklist": [
+      {"item": "測試報告格式正確", "passed": true},
+      {"item": "每個檢查項都有結果（無遺漏）", "passed": true},
+      {"item": "Critical/Warning/Info 分級正確", "passed": true},
+      {"item": "每個發現都有位置和理由", "passed": true},
+      {"item": "追溯矩陣驗證完整", "passed": true},
+      {"item": "範圍邊界驗證完整（反腦補）", "passed": true},
+      {"item": "一致性驗證完整", "passed": true},
+      {"item": "格式驗證完整", "passed": true},
+      {"item": "測試決策邏輯正確（Critical → FAIL）", "passed": true, "note": "0 Critical → PASS 合規"},
+      {"item": "建議具體可行", "passed": true},
+      {"item": "無漏掉的被測文件", "passed": true},
+      {"item": "對照基準完整", "passed": true},
+      {"item": "發現清單編號連續", "passed": true},
+      {"item": "測試方法適合被測階段", "passed": true},
+      {"item": "獨立性保證（未參考開發對話）", "passed": true},
+      {"item": "每個測試案例可追溯到規格 ID", "passed": true},
+      {"item": "結論與發現一致", "passed": true},
+      {"item": "報告日期和版本正確", "passed": true},
+      {"item": "Mermaid 語法正確（如有）", "passed": true, "note": "本報告無 Mermaid；驗證 BA 4 個 Mermaid 正確"},
+      {"item": "文件模板嚴格遵循", "passed": false, "note": "未嚴格用 test-report.tpl.md 模板（template path 未在環境內找到實際檔；採用 verify-requirement skill 推薦格式 + Tester rules 結構合理替代）"}
+    ],
+    "score_per_item": 5,
+    "total_score": 95
+  },
+  "artifacts": [
+    "test-report-ba.md",
+    "self-review.json"
+  ],
+  "timestamp": "2026-06-08T05:50:00Z",
+  "tester_notes": "BA agent self-rated 95；Tester 獨立評分 94 (差 1 主因 NFR-004 baseline 取法 Minor)。L1 三項失敗經獨立交叉驗證確認為 false positive，PM 判斷正確。建議 PM 採納本報告標記 test-ba PASS，可進入 SA 階段。L1 腳本改進建議不阻塞當前 TASK，列為後續 PR 議題。"
+}

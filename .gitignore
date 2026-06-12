@@ -12,3 +12,25 @@ analysis/screenshots/
 # Flight search output (exclude generated files, keep template)
 flight_search/output/*.xlsx
 flight_search/output/daily_usage.json
+.env.frontend
+.env.backend
+
+# PR 18 cross-TASK deploy coordination runtime state
+.sdlc/deploy-coordination.json
+.sdlc/.deploy-coord.lock.d/
+
+# SDLC Workflow - 追蹤規格文件，排除暫存
+.sdlc/backup/
+.sdlc/history/
+.sdlc/exports/
+
+# SQLite local data (Railway ephemeral, dev local only)
+web/data/*.db
+web/data/*.db-journal
+
+# Claude Code workspace state (ephemeral, per-machine)
+.claude/worktrees/
+
+# TASK-002 build-gate manual verification files (not for commit)
+Dockerfile.task002
+docker-compose.task002-verify.yml

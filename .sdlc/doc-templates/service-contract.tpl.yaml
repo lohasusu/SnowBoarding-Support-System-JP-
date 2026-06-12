@@ -1,0 +1,97 @@
+# service-contract.yaml — 服務合約模板
+#
+# 此檔案是 env var 名稱、port 分配、服務依賴的**單一真相來源**
+# SD/FE/BE 引用環境變數時必須使用此檔案定義的 key 名稱
+#
+# Deploy(Init) 階段產出 — 依 SA 架構和使用者部署選擇填寫
+
+version: "1.0"
+generated_by: "deployer-init"
+generated_at: "{ISO時間}"
+
+services:
+  # 範例：前端服務
+  frontend:
+    port: 3000
+    health_check: "/health"
+    depends_on: ["backend"]
+    env_vars:
+      - key: "VITE_API_BASE_URL"
+        description: "後端 API 基礎路徑"
+        example: "http://localhost:{backend_port}/api"
+        required: true
+      # ... 其他 FE 環境變數（按 config.json 技術棧決定命名如 VITE_* / NEXT_PUBLIC_*）
+
+  # 範例：後端服務
+  backend:
+    port: 5000
+    health_check: "/api/health"
+    depends_on: ["database"]
+    env_vars:
+      - key: "DB_CONNECTION_STRING"
+        description: "資料庫連線字串"
+        example: "postgresql://user:pass@localhost:5432/dbname"
+        required: true
+        secret: true
+      - key: "JWT_SECRET"
+        description: "JWT 簽章密鑰"
+        required: true
+        secret: true
+      # ... 其他 BE 環境變數
+
+  # 範例：資料庫（依 SA field-spec 決定）
+  database:
+    image: "postgres:16-alpine"
+    port: 5432
+    env_vars:
+      - key: "POSTGRES_USER"
+        description: "資料庫使用者"
+        required: true
+      - key: "POSTGRES_PASSWORD"
+        description: "資料庫密碼"
+        required: true
+        secret: true
+      - key: "POSTGRES_DB"
+        description: "資料庫名稱"
+        required: true
+
+  # ... 其他服務（Redis、MQ 等，按 SA 架構決定）
+
+port_allocation:
+  frontend: 3000
+  backend: 5000
+  database: 5432
+  # 按需追加，範圍 3000-9999
+
+env_naming_convention: "UPPER_SNAKE_CASE"
+
+env_prefix_rules:
+  database: "DB_"
+  cache: "REDIS_"
+  auth: "JWT_"
+  api: "API_"
+  app: "APP_"
+  # 禁止模糊命名：URL、KEY、SECRET（必須有服務前綴）
+
+# Path-based CI 路徑映射（Execute 模式落實為最終 CI 配置）
+ci_path_filters:
+  frontend:
+    paths: ["frontend/**", "src/frontend/**", "client/**"]
+    triggers: ["lint:fe", "test:fe", "build:fe"]
+  backend:
+    paths: ["backend/**", "src/backend/**", "server/**", "api/**"]
+    triggers: ["lint:be", "test:be", "build:be"]
+  infra:
+    paths: ["docker-compose*.yml", "Dockerfile*", ".github/**", "nginx*", "k8s/**"]
+    triggers: ["validate:infra"]
+  shared:
+    paths: ["package.json", "*.lock", "tsconfig*.json"]
+    triggers: ["lint:fe", "lint:be", "test:fe", "test:be"]
+
+# 填寫原則
+# 1. 從 sa/system-arch.md 提取服務列表和技術棧
+# 2. 從 sa/field-spec.md 推斷 DB 類型和 env var
+# 3. 根據 config.json 技術棧決定 env var 名稱（React 用 VITE_* / NEXT_PUBLIC_*）
+# 4. 每個 env var 必須有 key + description + required + secret
+# 5. port 分配不可衝突，範圍 3000-9999
+# 6. ci_path_filters 為 Execute 模式的 path-based CI 設計基礎

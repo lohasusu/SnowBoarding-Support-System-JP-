@@ -1,0 +1,106 @@
+# .github/workflows/sdlc-ci-pr.yml
+#
+# SDLC CI — Per-PR validation (Rule 19 / PR 8)
+#
+# Runs on every PR push/synchronize. Verifies:
+#   - .sdlc/ structural invariants (id-guard / sync --check / parameter-check)
+#   - shared/ in sync with journals (no manual edit)
+#   - conventions/ locked + body has no [CUSTOMIZE] left for `prod` paths
+#   - state.json + per-TASK state files valid + no absolute paths
+#
+# This workflow ONLY validates SDLC consistency; application-level
+# lint/test/build is in your existing application CI workflow (or in
+# ci-local-minimal.tpl.yaml if you don't have one yet).
+#
+# Path filter ensures this workflow only triggers on .sdlc/ changes
+# (not on every frontend/backend code change).
+
+name: SDLC CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.sdlc/**'
+      - '.github/workflows/sdlc-*.yml'
+
+# V1-C2: GITHUB_TOKEN must have pull-requests:write to call createComment.
+permissions:
+  contents: read
+  pull-requests: write
+
+# V1-W1 + V3-#1 + V2: pin sdlc-workflow source. SDLC_BOOTSTRAP_REPO/REF can be
+# overridden via repo Variables (Settings → Secrets and variables → Variables).
+env:
+  SDLC_BOOTSTRAP_REPO: ${{ vars.SDLC_BOOTSTRAP_REPO || 'https://github.com/Sunyuezu0229/sdlc-workflow.git' }}
+  SDLC_BOOTSTRAP_REF: ${{ vars.SDLC_BOOTSTRAP_REF || 'main' }}
+
+jobs:
+  sdlc-validate:
+    runs-on: ubuntu-latest
+    name: SDLC consistency checks
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need full history for sync --strict-fetch
+
+      - name: Install jq + shasum
+        run: |
+          which jq || sudo apt-get update && sudo apt-get install -y jq
+          which shasum || which sha256sum  # one of them must exist
+
+      - name: Bootstrap SDLC scripts (vendored or pinned clone)
+        run: |
+          # V1-W2: dropped useless `-d` test (.sh is never a directory)
+          if [ -f "scripts/sdlc-sync.sh" ]; then
+            echo "Using vendored scripts/"
+            export SDLC_SCRIPTS=./scripts
+          else
+            echo "Cloning $SDLC_BOOTSTRAP_REPO @ $SDLC_BOOTSTRAP_REF"
+            git clone --depth=1 --branch "$SDLC_BOOTSTRAP_REF" \
+              "$SDLC_BOOTSTRAP_REPO" /tmp/sdlc-tools
+            export SDLC_SCRIPTS=/tmp/sdlc-tools/scripts
+          fi
+          echo "SDLC_SCRIPTS=$SDLC_SCRIPTS" >> $GITHUB_ENV
+
+      - name: id-guard (Rule 8 / 13)
+        run: bash $SDLC_SCRIPTS/sdlc-id-guard.sh
+
+      - name: sync --check --strict-fetch (Rule 16)
+        run: bash $SDLC_SCRIPTS/sdlc-sync.sh --check --strict-fetch
+        # Currently fail-open: allow PR to merge even if sync warns
+        # Remove `continue-on-error` once team is ready to enforce strictly
+        continue-on-error: true
+
+      - name: parameter-check (Rule 18)
+        run: bash $SDLC_SCRIPTS/sdlc-parameter-check.sh
+
+      - name: shared-rebuild --check (Rule 14 — view in sync with journals)
+        run: bash $SDLC_SCRIPTS/sdlc-shared-rebuild.sh --check
+
+      - name: pencil-sync --check (Rule 17 — DS lock + drift detection)
+        if: hashFiles('.sdlc/conventions/design-system.pen') != ''
+        run: bash $SDLC_SCRIPTS/sdlc-pencil-sync.sh --check
+        # Pencil .pen drift is currently a warning, not blocker — adjust later
+        continue-on-error: true
+
+      # PR 12 V3.C1 / V3.W3 fix: trigger-matrix-check wired into CI (was orphaned)
+      # V1-redo D1 fix: name string MUST be quoted because it contains "on:" (YAML keyword collision)
+      - name: "trigger-matrix-check (PR 12 — matrix vs workflows on-block)"
+        if: hashFiles('.sdlc/conventions/cicd-trigger-matrix.md') != '' || hashFiles('.sdlc/cicd-trigger-matrix.md') != '' || hashFiles('doc-templates/cicd-trigger-matrix.tpl.md') != ''
+        run: bash $SDLC_SCRIPTS/sdlc-trigger-matrix-check.sh
+        # Per-PR is fail-open (warn only); merge-gate will be strict.
+        continue-on-error: true
+
+      - name: Comment on PR with SDLC status
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ SDLC CI failed — see workflow logs for which check (id-guard / sync / parameter-check / shared-rebuild) reported issues. Run locally: `bash scripts/sdlc-sync.sh --check`'
+            })

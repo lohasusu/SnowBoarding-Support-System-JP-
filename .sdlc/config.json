@@ -1,0 +1,86 @@
+{
+  "version": "1.0",
+  "project": {
+    "name": "snowboarding_support",
+    "modes": ["SDD", "BDD", "TDD"],
+    "testMode": "strict",
+    "techStack": {
+      "frontend": {
+        "framework": "vue",
+        "envPrefix": "VUE_APP_",
+        "buildImage": "node:22-alpine",
+        "serveImage": "nginx:alpine",
+        "buildCmd": "npm run build"
+      },
+      "backend": {
+        "framework": "fastapi",
+        "language": "python",
+        "runtime": "python:3.12-slim",
+        "pkgManager": "pip"
+      },
+      "database": {
+        "engine": "postgres",
+        "image": "postgres:16-alpine",
+        "port": "5432",
+        "envPrefix": "POSTGRES_",
+        "healthcheck": "pg_isready -U $DB_USER -d $DB_NAME"
+      }
+    },
+    "pencilMcp": false,
+    "mcpStatus": {
+      "pencil": false,
+      "claudePreview": true,
+      "context7": false,
+      "chrome": false,
+      "notion": false
+    },
+    "containerStrategy": {
+      "devcontainer": true,
+      "registry": "ghcr.io",
+      "registryUrl": "ghcr.io",
+      "buildxPlatforms": ["linux/amd64", "linux/arm64"],
+      "imageNaming": "ghcr.io/{org}/snowboarding_support-{service}:{tag}"
+    },
+    "gitStrategy": {
+      "enabled": true,
+      "mode": "docs-only",
+      "branchPrefix": "sdlc",
+      "autoCommit": true,
+      "mergeStrategy": "squash",
+      "baseBranch": "main",
+      "hierarchical": {
+        "enabled": false,
+        "taskBranchPattern": "sdlc/{TASK-ID}"
+      },
+      "subBranches": {
+        "enabled": false,
+        "pattern": "sdlc/{TASK-ID}/{role}",
+        "roles": ["spec", "infra", "fe", "be", "deploy"],
+        "worktreeBase": "../.sdlc-worktrees",
+        "autoMergeSubToTask": true,
+        "autoMergeTaskToMain": false
+      },
+      "multiPR": {
+        "enabled": false,
+        "gitHost": "github",
+        "autoCreatePR": false,
+        "pathBasedCI": true,
+        "ciScope": {
+          "subBranch": "ci-only",
+          "taskBranch": "ci-cd-staging",
+          "main": "ci-cd-production"
+        }
+      },
+      "pushStrategy": {
+        "enabled": true,
+        "mode": "every-approved",
+        "pushRemote": "origin"
+      }
+    },
+    "createdAt": "2026-06-03T07:54:14Z",
+    "sharedLayer": {
+      "enabled": true,
+      "apps": ["snowboarding_support"]
+    }
+  }
+}
