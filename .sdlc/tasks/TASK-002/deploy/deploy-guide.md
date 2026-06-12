@@ -418,6 +418,12 @@ alembic downgrade -1
 | MIN-4 RUN_DB_BOOTSTRAP 未登記 | 下次 TASK 順手 | 補到 service-contract.yaml + parameter-registry |
 | deep-translator 漏洞追蹤（PYSEC-2022-252） | 下次 TASK 順手 | 升級版本或替換套件 |
 | pip 25.0.1 → 26.1 | CI/CD 環境維護 | workflow setup-python action 內加 `pip install --upgrade pip` |
+| **MAJ-AC1** docker-compose.yml Init 模板 healthcheck 殘留 | 下次 TASK 順手（同 MAJ-1 處置 pattern）| 把 `/api/auth/me --spider grep '(401\|200)'` 改成 `/api/db/healthz` 並 grep `"status":"ok"`；Railway prod 不受影響（nixpacks 不讀 compose）|
+| **MIN-AC1** deploy-guide §3 缺 cicd-workflow.yml manual cp 指引 | 下次 SDLC TASK | 在 §3 加 step：`cp .sdlc/tasks/TASK-002/deploy/cicd-workflow.yml .github/workflows/ci-be.yml` |
+| **MIN-AC2** §6.4 Alembic prod downgrade 缺 `railway run` 指引 | 下次 SDLC TASK | 加註：「prod PG 在 Railway internal network，需用 `railway run alembic downgrade -1`」|
+| **MIN-AC3/AC4** implementation-report 文字微差 + API-101 operationId 偏差 | 下次 SDLC TASK 順手 | report 校正 + operationId 標準化 |
+
+> 以上 4 個新項目來自最終驗收測試（test acceptance 2026-06-12，CONDITIONAL_PASS 91/100，agentId a4891009efe441ec0）。User 同意 follow-up 不阻塞本 TASK closure。
 
 ---
 

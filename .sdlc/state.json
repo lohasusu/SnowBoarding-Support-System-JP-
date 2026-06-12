@@ -158,7 +158,9 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "test",
+      "currentPhase": "completed",
+      "completedAt": "2026-06-12T05:10:00Z",
+      "completionNote": "All 16 phases approved (UIUX + test-uiux skipped per SA impact-assessment 6.1). TASK ready for user manual Railway cutover per deploy-guide.md sec.3. Pipeline stop point reached.",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -487,7 +489,24 @@
           "approvedAt": "2026-06-12T04:51:00Z",
           "approvedBy": "PM dev-pipeline auto-string (verdict=PASS)"
         },
-        "test": { "status": "in_progress", "startedAt": "2026-06-12T04:51:00Z" }
+        "test": {
+          "status": "approved",
+          "startedAt": "2026-06-12T04:51:00Z",
+          "completedAt": "2026-06-12T05:05:00Z",
+          "score": 91,
+          "verdict": "CONDITIONAL_PASS",
+          "findings": { "critical": 0, "major": 1, "minor": 4, "info": 6 },
+          "agentId": "a4891009efe441ec0",
+          "scoreBreakdown": { "D1_traceability": 95, "D2_chain_closure": 95, "D3_deploy_guide_executability": 85, "D4_MAJ_1_closure": 95, "D5_followup_reasonability": 88, "D6_cross_phase_residual_risk": 95, "D7_task_goal_achievement": 95, "D9_IRREVERSIBLE_compliance": 95 },
+          "majAC1": "deploy/docker-compose.yml Init template healthcheck still '/api/auth/me --spider grep (401|200)' — inconsistent with Dockerfile.be MAJ-1 closure (/api/db/healthz). Confidence 90. PROD UNAFFECTED (Railway uses nixpacks). Same class as MAJ-1 (template residual).",
+          "newMinors": [
+            "MIN-AC1: deploy-guide sec.3 missing cicd-workflow.yml manual cp step (self-review states NOT auto-installed but guide implies ready)",
+            "MIN-AC2: deploy-guide sec.6.4 Alembic downgrade against prod missing 'railway run' guidance (PG internal network only)",
+            "MIN-AC3/MIN-AC4: implementation-report text drift + API-101 operationId offset not in follow-ups"
+          ],
+          "pipelineStatus": "AWAITING_USER_FINAL_APPROVE — Step 6.6 stop point reached",
+          "userReadyToCutover": true
+        }
       },
       "git": {
         "slug": "sqlite-to-postgres",
