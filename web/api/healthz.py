@@ -27,7 +27,13 @@ healthz_router = APIRouter(tags=["healthz"])
 def _read_pool_stats() -> dict | None:
     """讀 psycopg_pool 統計。回 None 表示 pool 未就緒。"""
     try:
-        from web.auth.database import get_pool
+        # IMPORTANT: align with auth_router/db_bootstrap on module path
+        # (see comment in db_bootstrap.py) -- import via short "auth.database"
+        # so all consumers see the same module object + same _pool state.
+        try:
+            from auth.database import get_pool
+        except ImportError:
+            from web.auth.database import get_pool  # fallback
         pool = get_pool()
         # psycopg_pool 的 stats key（每個 release 略有不同）
         stats = pool.get_stats()
@@ -81,8 +87,11 @@ async def db_healthz():
     """
     pool_stats = _read_pool_stats()
 
-    # 嘗試取連線
-    from web.auth.database import get_conn
+    # 嘗試取連線 — same module path alignment as _read_pool_stats above
+    try:
+        from auth.database import get_conn
+    except ImportError:
+        from web.auth.database import get_conn  # fallback
     try:
         with get_conn() as conn:
             current = _read_alembic_current(conn)

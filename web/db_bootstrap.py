@@ -17,7 +17,15 @@ from pathlib import Path
 
 from psycopg import connect
 
-from .auth.database import init_pool, close_pool, _build_dsn_from_env
+# IMPORTANT: import absolute "auth.database" (not ".auth.database") so this
+# matches the module object that auth_router/oauth_router/verify_client see.
+# Otherwise Python treats web.auth.database and auth.database as two distinct
+# modules with separate _pool state -> init runs against one, request handlers
+# see the other (uninitialized) -> RuntimeError "pool not initialized".
+try:
+    from auth.database import init_pool, close_pool, _build_dsn_from_env
+except ImportError:  # fallback if executed as a package (e.g. unit test)
+    from .auth.database import init_pool, close_pool, _build_dsn_from_env  # type: ignore
 
 logger = logging.getLogger(__name__)
 
