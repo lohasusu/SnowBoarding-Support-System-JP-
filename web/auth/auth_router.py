@@ -131,13 +131,24 @@ async def api_register(body: RegisterBody):
 
 @auth_router.post("/api/auth/login")
 async def api_login(body: LoginBody):
-    with get_conn() as conn:
-        row = conn.execute(
-            "SELECT id, hashed_password, is_verified FROM users WHERE email = %s",
-            (body.email.lower().strip(),)
-        ).fetchone()
+    # body.email 可以是 email 或 username — 以是否含 "@" 判定
+    raw = body.email.strip()
+    if "@" in raw:
+        # 視為 email（保留大小寫不敏感）
+        with get_conn() as conn:
+            row = conn.execute(
+                "SELECT id, hashed_password, is_verified FROM users WHERE email = %s",
+                (raw.lower(),),
+            ).fetchone()
+    else:
+        # 視為 username（schema 為大小寫敏感）
+        with get_conn() as conn:
+            row = conn.execute(
+                "SELECT id, hashed_password, is_verified FROM users WHERE username = %s",
+                (raw,),
+            ).fetchone()
     if not row or not verify_password(body.password, row["hashed_password"]):
-        raise HTTPException(status_code=401, detail="Email 或密碼錯誤")
+        raise HTTPException(status_code=401, detail="Email/使用者名稱 或密碼錯誤")
     # is_verified 為 PG 原生 BOOLEAN（不再是 SQLite 的 0/1 整數）
     if not row["is_verified"]:
         raise HTTPException(status_code=403, detail="請先驗證您的 Email 後再登入。未收到信？請點選下方「重寄驗證信」")

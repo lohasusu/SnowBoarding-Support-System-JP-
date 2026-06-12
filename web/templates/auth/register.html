@@ -10,7 +10,7 @@
 <div class="container py-5" style="max-width:420px">
   <div class="card shadow-sm border-0">
     <div class="card-body p-4">
-      <h1 class="h4 fw-bold mb-4 text-center">
+      <h1 id="register-title" class="h4 fw-bold mb-4 text-center">
         <i class="bi bi-snow text-primary me-2"></i>建立帳號
       </h1>
       <form id="register-form" novalidate>
@@ -27,11 +27,29 @@
           <input type="password" id="reg-password" class="form-control" required minlength="8" autocomplete="new-password">
         </div>
         <div id="register-error" class="alert alert-danger d-none"></div>
-        <div id="register-ok" class="alert alert-success d-none"></div>
         <button type="submit" class="btn btn-primary w-100">建立帳號</button>
       </form>
-      <hr class="my-3">
-      <p class="text-center small mb-0">
+
+      <!-- 註冊成功後顯示「請收信」面板（取代 form）。點完信中連結後 verify-email 會 302 到 /login?verified=1 -->
+      <div id="register-check-email" class="d-none">
+        <div class="text-center mb-3">
+          <div style="font-size: 3rem;">📧</div>
+          <h2 class="h5 fw-bold mt-2">驗證信已寄出</h2>
+        </div>
+        <div class="alert alert-info mb-3">
+          <p class="mb-2">已寄驗證信到：<br><strong id="check-email-addr" class="text-break"></strong></p>
+          <p class="mb-0 small">請至信箱點擊「驗證我的帳號」按鈕，完成後系統會自動帶你回到登入頁。</p>
+        </div>
+        <ul class="small text-muted mb-3">
+          <li>連結有效期 <strong>24 小時</strong></li>
+          <li>沒收到？檢查垃圾信件夾、或<a href="/login">到登入頁</a>用「重寄驗證信」按鈕</li>
+          <li>已驗證後可以用 Email <em>或</em>使用者名稱登入</li>
+        </ul>
+        <a href="/login" class="btn btn-outline-secondary w-100">回登入頁</a>
+      </div>
+
+      <hr class="my-3" id="register-divider">
+      <p class="text-center small mb-0" id="register-login-link">
         已有帳號？<a href="/login">立即登入</a>
       </p>
     </div>

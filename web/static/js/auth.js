@@ -10,7 +10,9 @@
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email    = document.getElementById('login-email').value.trim();
+      // 支援 Email 或 username — 都塞進 email 欄送出（後端會判斷）
+      const idEl     = document.getElementById('login-identifier') || document.getElementById('login-email');
+      const email    = idEl.value.trim();
       const password = document.getElementById('login-password').value;
       const errEl    = document.getElementById('login-error');
       errEl.classList.add('d-none');
@@ -50,9 +52,7 @@
       const username = document.getElementById('reg-username').value.trim();
       const password = document.getElementById('reg-password').value;
       const errEl    = document.getElementById('register-error');
-      const okEl     = document.getElementById('register-ok');
       errEl.classList.add('d-none');
-      okEl.classList.add('d-none');
       registerForm.querySelector('[type=submit]').disabled = true;
 
       try {
@@ -63,13 +63,23 @@
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.detail || '註冊失敗');
-        okEl.textContent = '註冊成功！3 秒後跳轉登入頁…';
-        okEl.classList.remove('d-none');
-        setTimeout(() => location.href = '/login', 3000);
+
+        // 註冊成功 → 不要自動跳登入頁。
+        // 顯示「請收信並點驗證連結」面板；點信中連結後 verify-email 會 302 到 /login?verified=1
+        const checkPanel = document.getElementById('register-check-email');
+        const emailAddr  = document.getElementById('check-email-addr');
+        if (checkPanel && emailAddr) {
+          emailAddr.textContent = email;
+          registerForm.classList.add('d-none');
+          document.getElementById('register-divider')?.classList.add('d-none');
+          document.getElementById('register-login-link')?.classList.add('d-none');
+          checkPanel.classList.remove('d-none');
+          const title = document.getElementById('register-title');
+          if (title) title.textContent = '註冊成功';
+        }
       } catch (err) {
         errEl.textContent = err.message;
         errEl.classList.remove('d-none');
-      } finally {
         registerForm.querySelector('[type=submit]').disabled = false;
       }
     });

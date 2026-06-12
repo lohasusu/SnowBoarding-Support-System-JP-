@@ -30,13 +30,13 @@
         </a>
       </div>
       <div class="d-flex align-items-center mb-3">
-        <hr class="flex-grow-1"><span class="mx-2 text-muted small">或使用 Email 登入</span><hr class="flex-grow-1">
+        <hr class="flex-grow-1"><span class="mx-2 text-muted small">或使用帳號登入</span><hr class="flex-grow-1">
       </div>
 
       <form id="login-form" novalidate>
         <div class="mb-3">
-          <label for="login-email" class="form-label fw-semibold">Email</label>
-          <input type="email" id="login-email" class="form-control" required autocomplete="email">
+          <label for="login-identifier" class="form-label fw-semibold">Email 或使用者名稱</label>
+          <input type="text" id="login-identifier" class="form-control" required autocomplete="username" placeholder="輸入 Email 或使用者名稱">
         </div>
         <div class="mb-3">
           <label for="login-password" class="form-label fw-semibold">密碼</label>
@@ -78,9 +78,10 @@
   const resendArea = document.getElementById('resend-area');
   if (resendBtn) {
     resendBtn.addEventListener('click', async function() {
-      const email = document.getElementById('login-email').value.trim();
-      if (!email) {
-        alert('請先在上方輸入您的 Email');
+      const idEl  = document.getElementById('login-identifier') || document.getElementById('login-email');
+      const email = idEl.value.trim();
+      if (!email || !email.includes('@')) {
+        alert('請在上方輸入您的 Email（重寄驗證信需要 Email，不是使用者名稱）');
         return;
       }
       resendBtn.disabled = true;
