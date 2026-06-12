@@ -278,3 +278,12 @@
 [2026-06-12T05:05:00Z] PM     | TASK-002 | pm_review            | test (acceptance; pipeline auto-string Step 6.6 stop point reached, awaiting user)
 [2026-06-12T05:10:00Z] User   | TASK-002 | approved              | test (acceptance 91/100 + MAJ-AC1 + 4 Minor moved to deploy-guide sec.9 follow-up)
 [2026-06-12T05:10:00Z] PM     | TASK-002 | task_completed        | All 16 phases approved (UIUX/test-uiux skipped per SA impact-assessment 6.1). Ready for user manual Railway cutover.
+[2026-06-12T18:20:00Z] PM     | TASK-002 | railway_setup_start  | created postgres:16-alpine service + volume + 12 env vars + rotated SECRET_KEY
+[2026-06-12T18:25:40Z] PM     | TASK-002 | merged_to_main       | sha=3b2ce24 (--no-ff merge TASK-002 -> main)
+[2026-06-12T18:25:48Z] Railway| TASK-002 | deploy_failed        | build 6637af03 FAILED: psycopg-binary==3.1.18 no Python 3.13 wheel (Railway nixpacks default)
+[2026-06-12T18:44:54Z] PM     | TASK-002 | hotfix_pushed        | sha=7daf263 .python-version=3.12 (pin to build-gate verified Python)
+[2026-06-12T18:45:03Z] Railway| TASK-002 | deploy_crashed       | build 49c631da CRASHED: PoolTimeout init_pool; postgres failing initdb on volume mount point (lost+found conflict)
+[2026-06-12T18:57:00Z] PM     | TASK-002 | hotfix_pgdata        | set PGDATA=/var/lib/postgresql/data/pgdata on postgres service (subdir under mount point)
+[2026-06-12T18:58:25Z] Railway| TASK-002 | postgres_healthy     | postgres ad0354db SUCCESS, listening 0.0.0.0:5432 + ::5432
+[2026-06-12T18:59:30Z] Railway| TASK-002 | be_deploy_success    | backend 9a868863 SUCCESS, pool open=2, Alembic up_to_date=20260610_120100
+[2026-06-12T19:00:00Z] PM     | TASK-002 | cutover_complete     | healthz=200 status=ok db.connected=true migration.up_to_date=true. Old JWTs invalidated (SECRET_KEY rotated). SQLite emergency path retained 14d per SUG-006.
