@@ -158,7 +158,7 @@
       "requirement": "SQLite → Postgres 遷移",
       "app": "snowboarding_support",
       "createdAt": "2026-06-06T14:02:17Z",
-      "currentPhase": "deploy",
+      "currentPhase": "test",
       "phaseOrder": [
         "ba",
         "test-ba",
@@ -457,8 +457,37 @@
             "followUpTasks": ["MAJ-1 → future TASK to sync Dockerfile.be SoT", "MAJ-2 → future cleanup TASK", "MAJ-3 → SDLC framework PR"]
           }
         },
-        "deploy": { "status": "in_progress", "startedAt": "2026-06-12T04:00:00Z" },
-        "test": { "status": "pending" }
+        "deploy": {
+          "status": "approved",
+          "mode": "execute",
+          "startedAt": "2026-06-12T04:00:00Z",
+          "completedAt": "2026-06-12T04:38:00Z",
+          "selfReviewBackfilledAt": "2026-06-12T04:50:00Z",
+          "selfReviewBackfilledBy": "PM (agent hit usage limit after writing 7 artifacts but before refreshing self-review.json)",
+          "score": 93,
+          "verdict": "PASS",
+          "agentId": "a77f999533b82c992",
+          "deliverables": {
+            "Dockerfile.be (MAJ-1 sync)": "PASS — COPY alembic.ini + healthcheck /api/db/healthz applied",
+            "sast-report.md + bandit + pip-audit": "PASS — Critical=0, High=0",
+            "cicd-workflow.yml": "PASS — GitHub Actions with Path-based triggers (NOT auto-installed; user must cp to .github/workflows/)",
+            "env-consistency-report.md": "PASS_WITH_NOTE — all 13 contract env_vars verified used; script false-positives documented",
+            "deploy-guide.md": "PASS — 10 sections covering Railway PG provisioning, GitHub Environment approval, migration trigger, healthz, rollback, MAJ-1 audit, follow-ups",
+            "self-review.json v2": "BACKFILLED by PM"
+          },
+          "MAJ_1_closure": "CLOSED — Dockerfile.be SoT synced with build-gate IMPL_BUG-1 + IMPL_BUG-3 patches (cross_phase_sync)",
+          "followUpItems": [
+            "MAJ-2 dead code MOD-103 (next TASK)",
+            "MAJ-3 test-be framework gap (SDLC framework PR)",
+            "MIN-4 RUN_DB_BOOTSTRAP not in parameter-registry (next TASK)",
+            "deep-translator PYSEC-2022-252 (next TASK upgrade)",
+            "14-day SQLite emergency window cleanup after prod cutover"
+          ],
+          "pipelineStatus": "APPROVED — dev-pipeline auto-dispatched test",
+          "approvedAt": "2026-06-12T04:51:00Z",
+          "approvedBy": "PM dev-pipeline auto-string (verdict=PASS)"
+        },
+        "test": { "status": "in_progress", "startedAt": "2026-06-12T04:51:00Z" }
       },
       "git": {
         "slug": "sqlite-to-postgres",
