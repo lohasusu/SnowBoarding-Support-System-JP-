@@ -356,3 +356,10 @@
 [2026-06-15T08:00:20Z] uiux  | TASK-001 | journal_id_added| id=COMP-037 name=RegisterForm filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-037
 [2026-06-15T08:00:20Z] uiux  | TASK-001 | journal_id_added| id=COMP-038 name=CheckEmailPanel filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-038
 [2026-06-15T08:00:55Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0
+[2026-06-15T08:00:00Z] PM     | TASK-001 | git_commit   | uiux | role=spec sha=13e5f85
+[2026-06-15T08:00:30Z] PM     | TASK-001 | git_push     | uiux | role=spec → origin/main
+[2026-06-15T08:11:02Z] state | TASK-001 | phase_in_progress| phase=test-uiux
+[2026-06-15T08:01:00Z] PM     | TASK-001 | dispatched   | test-uiux (sdlc-tester, brownfield UIUX verification)
+[2026-06-15T08:12:00Z] Tester | TASK-001 | completed    | test-uiux score=88 verdict=PASS (0C/2M/5I) — brownfield no-Pencil mode
+[2026-06-15T08:12:30Z] PM     | TASK-001 | pm_review    | test-uiux (paused for user goal pivot to register→login flow)
+[2026-06-15T08:30:00Z] PM     | direct | feat_auth_drop_verify_gate | commit=b54da89 → main pushed. Railway auto-deploy will run migration 20260615_080000 on startup (db_bootstrap.run_migrations). User-scoped goal: register→login full loop, ski/flight untouched.

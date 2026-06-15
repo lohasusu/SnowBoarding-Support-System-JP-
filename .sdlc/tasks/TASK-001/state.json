@@ -2,14 +2,14 @@
   "version": "1.0",
   "schemaVersion": "task-split-v1",
   "taskId": "TASK-001",
-  "lastUpdate": "2026-06-15T07:54:38Z",
+  "lastUpdate": "2026-06-15T08:11:02Z",
   "name": "brownfield-document",
   "requirement": "補追溯既有 28 API + 3 ENTITY (users / favorites / email_verification_tokens) + 8 PAGE 到 .sdlc/shared/，不寫新代碼，純規格產出（brownfield-document mode）",
   "app": "snowboarding_support",
   "mode": "brownfield-document",
   "createdAt": "2026-06-03T13:15:15Z",
   "status": "in_progress",
-  "currentPhase": "uiux",
+  "currentPhase": "test-uiux",
   "phaseOrder": [
     "ba",
     "test-ba",
@@ -73,7 +73,14 @@
       "status": "pending"
     },
     "test-uiux": {
-      "status": "pending"
+      "status": "pm_review",
+      "startedAt": "2026-06-15T08:11:02Z",
+      "completedAt": "2026-06-15T08:12:00Z",
+      "score": 88,
+      "verdict": "PASS",
+      "findings": { "critical": 0, "major": 2, "minor": 0, "info": 5 },
+      "agentId": "acbb8a204c24bd063",
+      "notes": "WARN-001 PAGE-005 missing FUNC-031 / WARN-002 PAGE-001 FeatureCard hover claim. 5 brownfield GAPs verified real. Paused for user goal pivot to register→login flow."
     },
     "test-deploy-init": {
       "status": "pending"

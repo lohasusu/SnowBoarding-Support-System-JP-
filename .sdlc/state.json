@@ -5,7 +5,7 @@
     "TASK-001": {
       "name": "brownfield-document",
       "status": "in_progress",
-      "currentPhase": "uiux",
+      "currentPhase": "test-uiux",
       "createdAt": "2026-06-03T13:15:15Z"
     },
     "TASK-002": {
