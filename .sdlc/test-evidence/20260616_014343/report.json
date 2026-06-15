@@ -1,0 +1,149 @@
+{
+  "run_dir": ".sdlc\\test-evidence\\20260616_014343",
+  "steps": [
+    {
+      "step": "01-home",
+      "ok": true,
+      "screenshot": "01-home.png",
+      "ts": 1781545425,
+      "has_kaishishisuan": true,
+      "has_old": false
+    },
+    {
+      "step": "02-register-blank",
+      "ok": true,
+      "screenshot": "02-register-blank.png",
+      "ts": 1781545425
+    },
+    {
+      "step": "03-register-filled",
+      "ok": true,
+      "screenshot": "03-register-filled.png",
+      "ts": 1781545426
+    },
+    {
+      "step": "04-register-submit",
+      "ok": true,
+      "screenshot": "04-login-with-success-alert.png",
+      "ts": 1781545427,
+      "url": "https://snowboarding-support-system-jp-production.up.railway.app/login?registered=1",
+      "duration_s": 0.703,
+      "no_email_send_indicator": true,
+      "success_alert_count": 1
+    },
+    {
+      "step": "05-login-filled",
+      "ok": true,
+      "screenshot": "05-login-filled.png",
+      "ts": 1781545427
+    },
+    {
+      "step": "06-login-submit",
+      "ok": true,
+      "screenshot": "06-profile-after-login.png",
+      "ts": 1781545429,
+      "url": "https://snowboarding-support-system-jp-production.up.railway.app/profile"
+    },
+    {
+      "step": "07-profile-empty",
+      "ok": true,
+      "screenshot": "07-profile-empty.png",
+      "ts": 1781545429,
+      "empty_alert": 1
+    },
+    {
+      "step": "08-ski-search-page",
+      "ok": true,
+      "screenshot": "08-ski-search-page.png",
+      "ts": 1781545430
+    },
+    {
+      "step": "09-ski-results",
+      "ok": true,
+      "screenshot": "09-ski-results.png",
+      "ts": 1781545439,
+      "row_count": 51
+    },
+    {
+      "step": "10-ski-favorite",
+      "ok": true,
+      "screenshot": "10-ski-favorited.png",
+      "ts": 1781545440,
+      "fav_btn_count": 51
+    },
+    {
+      "step": "11-flight-search-page",
+      "ok": true,
+      "screenshot": "11-flight-search-page.png",
+      "ts": 1781545441
+    },
+    {
+      "step": "12-flight-results",
+      "ok": true,
+      "screenshot": "12-flight-results.png",
+      "ts": 1781545441,
+      "row_count": 9
+    },
+    {
+      "step": "13-flight-favorite",
+      "ok": true,
+      "screenshot": "13-flight-favorited.png",
+      "ts": 1781545442,
+      "fav_btn_count": 9
+    },
+    {
+      "step": "14-plan-page",
+      "ok": true,
+      "screenshot": "14-plan-page.png",
+      "ts": 1781545442
+    },
+    {
+      "step": "15-plan-results",
+      "ok": true,
+      "screenshot": "15-plan-results.png",
+      "ts": 1781545444,
+      "tables_rendered": 2
+    },
+    {
+      "step": "16-profile-with-favs",
+      "ok": true,
+      "screenshot": "16-profile-with-favs.png",
+      "ts": 1781545445,
+      "fav_cards": 2,
+      "location_labels": 2,
+      "time_labels": 2
+    },
+    {
+      "step": "17-delete-favorite",
+      "ok": true,
+      "screenshot": "17-profile-after-delete.png",
+      "ts": 1781545447,
+      "before": 2,
+      "after": 1
+    },
+    {
+      "step": "18-logout",
+      "ok": true,
+      "screenshot": "18-after-logout.png",
+      "ts": 1781545449,
+      "url": "https://snowboarding-support-system-jp-production.up.railway.app/",
+      "me_status": 401
+    },
+    {
+      "step": "19-relogin-by-username",
+      "ok": true,
+      "screenshot": "19-relogin-profile.png",
+      "ts": 1781545451,
+      "url": "https://snowboarding-support-system-jp-production.up.railway.app/profile",
+      "persistent_favs": 1
+    },
+    {
+      "step": "20-removed-routes-404",
+      "ok": true,
+      "screenshot": "",
+      "ts": 1781545451,
+      "verify_email": 404,
+      "resend_verification": 404
+    }
+  ]
+}
