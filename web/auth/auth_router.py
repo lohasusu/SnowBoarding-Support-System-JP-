@@ -163,9 +163,12 @@ async def api_me(current_user=Depends(get_current_user)):
 # ── API: 收藏 ─────────────────────────────────────────────────────────────────
 
 class FavoriteBody(BaseModel):
-    type: str   # 'ski' or 'flight'
-    data: dict
-    label: str = ""
+    type: str             # 'ski' or 'flight'
+    location: str         # 人類可讀地點摘要（必填）— 例: "Rusutsu 北海道" / "TPE → CTS"
+    time: str             # 人類可讀時間摘要（必填）— 例: "26/27 season" / "2027-01-15 → 2027-01-22"
+    params: dict = {}     # 使用者搜尋表單原始輸入（region/name 或 origin/destination/departure/ret_date/adults）
+    data: dict = {}       # 結果原始欄位（resort/price/airline 等）— 留給未來顯示
+    label: str = ""       # 使用者自訂標籤（可空）
 
 
 @auth_router.get("/api/favorites")
@@ -190,11 +193,23 @@ async def api_get_favorites(current_user=Depends(get_current_user)):
 async def api_add_favorite(body: FavoriteBody, current_user=Depends(get_current_user)):
     if body.type not in ("ski", "flight"):
         raise HTTPException(status_code=400, detail="type 必須是 ski 或 flight")
+    if not body.location.strip():
+        raise HTTPException(status_code=400, detail="缺少地點 (location)")
+    if not body.time.strip():
+        raise HTTPException(status_code=400, detail="缺少時間 (time)")
+    # 把 location/time/params/data 全部合併到 data JSON column（無 schema 變更，向後相容舊紀錄）
+    merged = {
+        "location": body.location.strip(),
+        "time": body.time.strip(),
+        "params": body.params or {},
+        **(body.data or {}),
+    }
+    # label 預設為 location（讓 list 視覺上有東西）
+    label = body.label.strip() or body.location.strip()
     with get_conn() as conn:
-        # TASK-002 FUNC-105: lastrowid → RETURNING id
         cur = conn.execute(
             "INSERT INTO favorites (user_id, type, data, label) VALUES (%s, %s, %s, %s) RETURNING id",
-            (current_user["id"], body.type, json.dumps(body.data), body.label),
+            (current_user["id"], body.type, json.dumps(merged, ensure_ascii=False), label),
         )
         fav_id = cur.fetchone()["id"]
     return {"ok": True, "id": fav_id}

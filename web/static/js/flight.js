@@ -110,15 +110,50 @@
       const stopsBadge = r.stops === 0
         ? '<span class="badge bg-success">直飛</span>'
         : `<span class="badge bg-warning text-dark">${r.stops}&nbsp;轉</span>`;
+      const airline = extractAirline(r);
+      // 收藏 payload — location = 出發→目的地、time = 出發日期 (+ 回程)
+      const timeStr = searchMeta.ret_date
+        ? `${searchMeta.departure} → ${searchMeta.ret_date}`
+        : searchMeta.departure;
+      const favPayload = {
+        type: 'flight',
+        location: `${searchMeta.origin} → ${searchMeta.destination} (${searchMeta.dest_name || ''})`.trim(),
+        time: timeStr,
+        params: {
+          origin: searchMeta.origin,
+          destination: searchMeta.destination,
+          dest_name: searchMeta.dest_name,
+          departure: searchMeta.departure,
+          ret_date: searchMeta.ret_date,
+          adults: searchMeta.adults,
+        },
+        data: {
+          airline,
+          flights_str: r.flights_str ?? '',
+          dep_time: fmtTime(r.dep_time),
+          arr_time: fmtTime(r.arr_time),
+          duration: r.duration ?? '',
+          stops: r.stops ?? 0,
+          price: Number(r.price ?? 0),
+        },
+        label: `${airline}・${searchMeta.departure || ''}`,
+      };
+      const favJson = escHtml(JSON.stringify(favPayload));
       return `
         <tr>
-          <td class="fw-semibold">${escHtml(extractAirline(r))}</td>
+          <td class="fw-semibold">${escHtml(airline)}</td>
           <td class="text-muted small" title="${escHtml(r.flights_str ?? '')}">${escHtml(r.flights_str ?? '')}</td>
           <td class="fw-semibold">${fmtTime(r.dep_time)}</td>
           <td>${fmtTime(r.arr_time)}</td>
           <td class="text-muted small">${escHtml(r.duration ?? '—')}</td>
           <td>${stopsBadge}</td>
           <td class="fw-bold text-danger">NT$&nbsp;${Number(r.price ?? 0).toLocaleString()}</td>
+          <td class="text-center">
+            <button type="button" class="btn btn-outline-danger btn-sm py-0 fav-btn"
+                    data-fav="${favJson}" title="加入收藏" aria-label="加入收藏">
+              <i class="bi bi-heart" aria-hidden="true"></i>
+            </button>
+          </td>
         </tr>`;
     }).join('');
 
@@ -183,9 +218,10 @@
               <th>飛行時間</th>
               <th>轉機</th>
               <th>票價 <i class="bi bi-sort-up small text-warning" title="同時間依票價排序"></i></th>
+              <th class="text-center">收藏</th>
             </tr>
           </thead>
-          <tbody>${rows || '<tr><td colspan="7" class="text-center text-muted py-3">沒有符合篩選條件的航班</td></tr>'}</tbody>
+          <tbody>${rows || '<tr><td colspan="8" class="text-center text-muted py-3">沒有符合篩選條件的航班</td></tr>'}</tbody>
         </table>
       </div>`;
 
@@ -200,6 +236,36 @@
           activeAirlines.add(airline);
         }
         renderFlights();
+      });
+    });
+
+    // 收藏按鈕（事件代理）
+    resultsEl.querySelectorAll('.fav-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const payload = JSON.parse(btn.dataset.fav);
+        btn.disabled = true;
+        try {
+          const res = await fetch('/api/favorites', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (res.status === 401) {
+            if (confirm('請先登入才能收藏。前往登入頁？')) location.href = '/login?next=/flight';
+            btn.disabled = false;
+            return;
+          }
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.detail || '收藏失敗');
+          btn.classList.remove('btn-outline-danger');
+          btn.classList.add('btn-danger');
+          btn.innerHTML = '<i class="bi bi-heart-fill" aria-hidden="true"></i>';
+          btn.title = `已收藏（id=${json.id}）`;
+          btn.setAttribute('aria-label', '已收藏');
+        } catch (err) {
+          alert('收藏失敗：' + err.message);
+          btn.disabled = false;
+        }
       });
     });
 

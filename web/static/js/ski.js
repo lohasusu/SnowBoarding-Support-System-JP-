@@ -5,6 +5,7 @@
   const resultsEl   = document.getElementById('results-container');
   const downloadBtn = document.getElementById('download-btn');
   let lastParams    = '';
+  let lastSearch    = { region: '', name: '' };  // 使用者本次搜尋輸入的參數
   let eventSource   = null;
   let resultCount   = 0;
   let resortTotal   = 0;
@@ -48,6 +49,7 @@
               <th scope="col">票價</th>
               <th scope="col">雪季</th>
               <th scope="col">官網</th>
+              <th scope="col" class="text-center">收藏</th>
             </tr>
           </thead>
           <tbody id="results-tbody"></tbody>
@@ -55,6 +57,7 @@
       </div>`;
   }
 
+  // 用 data-* 把該列的資料完整序列化到按鈕上，等 click 才送 /api/favorites
   function appendRow(r) {
     const tbody = document.getElementById('results-tbody');
     if (!tbody) return;
@@ -65,6 +68,24 @@
            <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
          </a>`
       : '—';
+    // 收藏 payload — location = 雪場+地區、time = 雪季
+    const favPayload = {
+      type: 'ski',
+      location: `${r.resort ?? ''} ${r.region ?? ''}`.trim() || '未命名雪場',
+      time: r.season || (lastSearch.region || lastSearch.name || '未知雪季'),
+      params: { ...lastSearch },
+      data: {
+        resort: r.resort ?? '',
+        region: r.region ?? '',
+        ticket_type: r.ticket_type ?? '',
+        ticket_type_zh: r.ticket_type_zh ?? '',
+        price: r.price ?? '',
+        season: r.season ?? '',
+        source_url: r.source_url ?? '',
+      },
+      label: `${r.resort ?? ''}・${r.ticket_type_zh || r.ticket_type || ''}`.trim(),
+    };
+    const favJson = escHtml(JSON.stringify(favPayload));
     tbody.insertAdjacentHTML('beforeend', `
       <tr>
         <td class="fw-semibold">${escHtml(r.resort ?? '')}</td>
@@ -74,6 +95,12 @@
         <td class="fw-bold">${escHtml(r.price ?? '')}</td>
         <td>${escHtml(r.season ?? '')}</td>
         <td>${link}</td>
+        <td class="text-center">
+          <button type="button" class="btn btn-outline-danger btn-sm py-0 fav-btn"
+                  data-fav="${favJson}" title="加入收藏" aria-label="加入收藏">
+            <i class="bi bi-heart" aria-hidden="true"></i>
+          </button>
+        </td>
       </tr>`);
   }
 
@@ -115,6 +142,7 @@
     if (region) params.append('region', region);
     if (name)   params.append('name', name);
     lastParams  = params.toString();
+    lastSearch  = { region, name };  // 保存使用者輸入，給收藏用
 
     setQuerying(true);
     resultCount = 0;
@@ -177,5 +205,36 @@
 
   downloadBtn.addEventListener('click', () => {
     window.location.href = `/api/ski/download?${lastParams}`;
+  });
+
+  // 收藏按鈕（事件代理 — 動態新增的 row 也適用）
+  resultsEl.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('.fav-btn');
+    if (!btn) return;
+    const payload = JSON.parse(btn.dataset.fav);
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.status === 401) {
+        if (confirm('請先登入才能收藏。前往登入頁？')) location.href = '/login?next=/ski';
+        btn.disabled = false;
+        return;
+      }
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || '收藏失敗');
+      // 視覺反饋：愛心填滿 + 變紅
+      btn.classList.remove('btn-outline-danger');
+      btn.classList.add('btn-danger');
+      btn.innerHTML = '<i class="bi bi-heart-fill" aria-hidden="true"></i>';
+      btn.title = `已收藏（id=${json.id}）— 至我的帳號查看`;
+      btn.setAttribute('aria-label', '已收藏');
+    } catch (err) {
+      alert('收藏失敗：' + err.message);
+      btn.disabled = false;
+    }
   });
 })();

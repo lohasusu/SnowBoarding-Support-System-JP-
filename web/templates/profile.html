@@ -16,7 +16,7 @@
   <h2 class="h5 fw-bold mb-3"><i class="bi bi-heart me-2 text-danger"></i>收藏清單</h2>
 
   {% if not favorites %}
-    <div class="alert alert-info">尚無收藏。在雪票或機票查詢結果中按下 ♡ 即可收藏。</div>
+    <div class="alert alert-info">尚無收藏。在雪票或機票查詢結果右側按下紅色 ♡ 即可收藏（會記下地點 + 時間）。</div>
   {% else %}
     <div class="row g-3">
       {% for fav in favorites %}
@@ -34,14 +34,22 @@
                 <i class="bi bi-trash"></i>
               </button>
             </div>
-            <div class="mt-2 small text-muted">
-              {% if fav.type == 'ski' %}
-                {{ fav.data.resort }} ／ {{ fav.data.region }} ／ {{ fav.data.price }}
-              {% else %}
-                {{ fav.data.dep_time }} → {{ fav.data.arr_time }} ／ NT$ {{ fav.data.price }}
+            <div class="mt-2">
+              {% if fav.data.location %}
+              <div class="small"><i class="bi bi-geo-alt-fill text-secondary me-1"></i><span class="fw-semibold">地點：</span>{{ fav.data.location }}</div>
               {% endif %}
+              {% if fav.data.time %}
+              <div class="small"><i class="bi bi-calendar-event-fill text-secondary me-1"></i><span class="fw-semibold">時間：</span>{{ fav.data.time }}</div>
+              {% endif %}
+              <div class="small text-muted mt-1">
+                {% if fav.type == 'ski' %}
+                  {% if fav.data.ticket_type_zh or fav.data.price %}{{ fav.data.ticket_type_zh or fav.data.ticket_type or '' }}　{{ fav.data.price or '' }}{% endif %}
+                {% else %}
+                  {% if fav.data.airline or fav.data.dep_time %}{{ fav.data.airline or '' }}　{{ fav.data.dep_time or '' }}{% if fav.data.arr_time %} → {{ fav.data.arr_time }}{% endif %}　{% if fav.data.price %}NT$ {{ fav.data.price }}{% endif %}{% endif %}
+                {% endif %}
+              </div>
             </div>
-            <div class="mt-1 text-muted" style="font-size:.75rem">{{ fav.created_at }}</div>
+            <div class="mt-2 text-muted" style="font-size:.7rem">收藏於 {{ fav.created_at }}</div>
           </div>
         </div>
       </div>
