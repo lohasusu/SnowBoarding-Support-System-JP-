@@ -92,6 +92,8 @@ class LoginBody(BaseModel):
 
 @auth_router.post("/api/auth/register")
 async def api_register(body: RegisterBody):
+    # 2026-06-15 user directive: 拿掉 email 驗證閘 — is_verified 預設 TRUE，註冊後即可登入
+    # email_verification_tokens 表保留作日後 opt-in 確認信使用；register 不再寫入 token
     if len(body.password) < 8:
         raise HTTPException(status_code=400, detail="密碼至少 8 個字元")
     if not re.match(r"[^@]+@[^@]+\.[^@]+", body.email):
@@ -99,34 +101,19 @@ async def api_register(body: RegisterBody):
     hashed = hash_password(body.password)
     try:
         with get_conn() as conn:
-            # TASK-002 FUNC-105: lastrowid → RETURNING id
-            cur = conn.execute(
-                "INSERT INTO users (email, username, hashed_password, is_verified) "
-                "VALUES (%s, %s, %s, FALSE) RETURNING id",
-                (body.email.lower().strip(), body.username.strip(), hashed),
-            )
-            user_id = cur.fetchone()["id"]
-            token = secrets.token_urlsafe(32)
-            expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
             conn.execute(
-                "INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)",
-                (user_id, token, expires_at),
+                "INSERT INTO users (email, username, hashed_password, is_verified) "
+                "VALUES (%s, %s, %s, TRUE) RETURNING id",
+                (body.email.lower().strip(), body.username.strip(), hashed),
             )
     except HTTPException:
         raise
     except Exception as e:
-        # psycopg.errors.UniqueViolation → ERR-DB-003 → 409
-        # 既有 NFR-002 行為：訊息維持中文「Email 或用戶名稱已被使用」
         emsg = str(e)
         if "unique" in emsg.lower() or "UniqueViolation" in type(e).__name__:
             raise HTTPException(status_code=409, detail="Email 或用戶名稱已被使用")
         raise HTTPException(status_code=500, detail="註冊失敗")
-    sent = await send_verification_email(body.email.lower().strip(), body.username.strip(), token)
-    if sent:
-        message = "帳號建立成功，驗證信已寄出，請在 24 小時內點擊信中連結"
-    else:
-        message = "帳號建立成功，但寄信失敗，請至登入頁點選「重寄驗證信」"
-    return {"ok": True, "message": message}
+    return {"ok": True, "message": "帳號建立成功，請使用此帳號登入"}
 
 
 @auth_router.post("/api/auth/login")
@@ -149,9 +136,7 @@ async def api_login(body: LoginBody):
             ).fetchone()
     if not row or not verify_password(body.password, row["hashed_password"]):
         raise HTTPException(status_code=401, detail="Email/使用者名稱 或密碼錯誤")
-    # is_verified 為 PG 原生 BOOLEAN（不再是 SQLite 的 0/1 整數）
-    if not row["is_verified"]:
-        raise HTTPException(status_code=403, detail="請先驗證您的 Email 後再登入。未收到信？請點選下方「重寄驗證信」")
+    # 2026-06-15: is_verified 閘已移除 — 不再回 403
     token = create_access_token({"sub": str(row["id"])})
     resp  = JSONResponse({"ok": True, "message": "登入成功"})
     resp.set_cookie(

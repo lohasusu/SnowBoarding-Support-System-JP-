@@ -91,51 +91,52 @@ def test_db(_pg_container):
         close_pool()
 
 
-# ── 1. 註冊寄出驗證信 ─────────────────────────────────────────────────────────
+# ── 1. 註冊建立 is_verified=TRUE 帳號（2026-06-15 移除驗證閘） ──────────────
 
 @pytest.mark.asyncio
-async def test_register_sends_verification_email(test_db):
+async def test_register_creates_verified_user(test_db):
     from web.auth.auth_router import api_register, RegisterBody
-    with patch(
-        "web.auth.auth_router.send_verification_email",
-        new_callable=AsyncMock, return_value=True,
-    ) as mock_send:
-        resp = await api_register(
-            RegisterBody(email="test@example.com", username="testuser", password="password123")
-        )
-        assert resp["ok"] is True
-        mock_send.assert_called_once()
-        assert mock_send.call_args[0][0] == "test@example.com"
-    # 確認 is_verified = False（PG BOOLEAN）
+    resp = await api_register(
+        RegisterBody(email="test@example.com", username="testuser", password="password123")
+    )
+    assert resp["ok"] is True
     from web.auth.database import get_conn
     with get_conn() as conn:
         user = conn.execute(
             "SELECT is_verified FROM users WHERE email = %s",
             ("test@example.com",),
         ).fetchone()
-    assert user["is_verified"] is False
+    assert user["is_verified"] is True
+    # 不再寫 email_verification_tokens
+    with get_conn() as conn:
+        token_count = conn.execute(
+            "SELECT COUNT(*) AS c FROM email_verification_tokens"
+        ).fetchone()["c"]
+    assert token_count == 0
 
 
 # ── 2. 有效 token 驗證成功 ────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
 async def test_verify_email_valid_token(test_db):
+    # 2026-06-15: register 不再寫 token；此測試直接手動 insert，驗證 verify-email 路由仍 OK
+    # （保留作為日後 opt-in 確認信用）
     from web.auth.database import get_conn
-    from web.auth.auth_router import api_register, RegisterBody
-    with patch(
-        "web.auth.auth_router.send_verification_email",
-        new_callable=AsyncMock, return_value=True,
-    ):
-        await api_register(
-            RegisterBody(email="v@example.com", username="vuser", password="password123")
-        )
     with get_conn() as conn:
-        row = conn.execute(
-            "SELECT token FROM email_verification_tokens LIMIT 1"
-        ).fetchone()
-        token = row["token"]
+        cur = conn.execute(
+            "INSERT INTO users (email, username, hashed_password, is_verified) "
+            "VALUES (%s, %s, %s, FALSE) RETURNING id",
+            ("v@example.com", "vuser", "hash"),
+        )
+        uid = cur.fetchone()["id"]
+        future = datetime.now(timezone.utc) + timedelta(hours=24)
+        conn.execute(
+            "INSERT INTO email_verification_tokens (user_id, token, expires_at) "
+            "VALUES (%s, %s, %s)",
+            (uid, "validtoken", future),
+        )
     from web.auth.auth_router import api_verify_email
-    resp = await api_verify_email(token=token)
+    resp = await api_verify_email(token="validtoken")
     assert resp.headers["location"].endswith("/login?verified=1")
     with get_conn() as conn:
         user = conn.execute(
@@ -192,25 +193,27 @@ async def test_verify_email_used_token(test_db):
     assert "token_used" in resp.headers["location"]
 
 
-# ── 5. 未驗證用戶不能登入 ─────────────────────────────────────────────────────
+# ── 5. 登入不再受 is_verified 阻擋（2026-06-15 移除驗證閘） ──────────────────
 
 @pytest.mark.asyncio
-async def test_login_unverified_user(test_db):
+async def test_login_succeeds_for_unverified_user(test_db):
     from web.auth.database import get_conn
     from web.auth.security import hash_password
     from web.auth.auth_router import api_login, LoginBody
-    from fastapi import HTTPException
+    # 手動 insert is_verified=FALSE 模擬殘留舊資料（migration backfill 之外的 legacy 場景）
     with get_conn() as conn:
         conn.execute(
             "INSERT INTO users (email, username, hashed_password, is_verified) "
             "VALUES (%s, %s, %s, FALSE)",
-            ("unverified@example.com", "unver", hash_password("password123")),
+            ("legacy-unverified@example.com", "legacyunver", hash_password("password123")),
         )
-    with pytest.raises(HTTPException) as exc_info:
-        await api_login(
-            LoginBody(email="unverified@example.com", password="password123")
-        )
-    assert exc_info.value.status_code == 403
+    resp = await api_login(
+        LoginBody(email="legacy-unverified@example.com", password="password123")
+    )
+    # 期望 200 + access_token cookie（不再 403）
+    assert resp.status_code == 200
+    cookies = resp.headers.get("set-cookie", "")
+    assert "access_token=" in cookies
 
 
 # ── 6. 重寄驗證信：舊 token 失效，新 token 產生 ───────────────────────────────

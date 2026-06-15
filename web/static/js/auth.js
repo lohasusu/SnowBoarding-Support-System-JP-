@@ -64,19 +64,8 @@
         const json = await res.json();
         if (!res.ok) throw new Error(json.detail || '註冊失敗');
 
-        // 註冊成功 → 不要自動跳登入頁。
-        // 顯示「請收信並點驗證連結」面板；點信中連結後 verify-email 會 302 到 /login?verified=1
-        const checkPanel = document.getElementById('register-check-email');
-        const emailAddr  = document.getElementById('check-email-addr');
-        if (checkPanel && emailAddr) {
-          emailAddr.textContent = email;
-          registerForm.classList.add('d-none');
-          document.getElementById('register-divider')?.classList.add('d-none');
-          document.getElementById('register-login-link')?.classList.add('d-none');
-          checkPanel.classList.remove('d-none');
-          const title = document.getElementById('register-title');
-          if (title) title.textContent = '註冊成功';
-        }
+        // 2026-06-15: 驗證閘已移除 — 註冊成功直接跳登入頁，使用者可立即登入
+        location.href = '/login?registered=1';
       } catch (err) {
         errEl.textContent = err.message;
         errEl.classList.remove('d-none');

@@ -63,7 +63,9 @@
   const params = new URLSearchParams(window.location.search);
   const alertArea = document.getElementById('login-alert');
 
-  if (params.get('verified') === '1') {
+  if (params.get('registered') === '1') {
+    alertArea.innerHTML = '<div class="alert alert-success">&#x2705; 註冊成功！請使用剛建立的帳號登入。</div>';
+  } else if (params.get('verified') === '1') {
     alertArea.innerHTML = '<div class="alert alert-success">&#x2705; Email 驗證成功！請登入您的帳號。</div>';
   } else if (params.get('error') === 'invalid_token' || params.get('error') === 'token_used') {
     alertArea.innerHTML = '<div class="alert alert-danger">&#x274C; 驗證連結已失效或已使用，請重新寄送驗證信。</div>';
