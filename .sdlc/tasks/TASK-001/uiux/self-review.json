@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "taskId": "TASK-001",
+  "phase": "uiux",
+  "mode": "brownfield-document",
+  "reviewer": "UIUX",
+  "reviewDate": "2026-06-15",
+  "pencilSkipped": true,
+  "pencilSkipReason": "config.json.project.pencilMcp=false — Pencil MCP 未啟用 / 純文件化交付",
+
+  "scoreSummary": {
+    "passedItems": 36,
+    "totalItems": 38,
+    "totalScore": 95,
+    "passThreshold": 90,
+    "result": "PASS"
+  },
+
+  "outputs": [
+    {
+      "file": ".sdlc/tasks/TASK-001/uiux/user-flow.md",
+      "lines": 290,
+      "purpose": "7 個 FLOW 反向追溯（FLOW-001..007）"
+    },
+    {
+      "file": ".sdlc/tasks/TASK-001/uiux/wireframes.md",
+      "lines": 670,
+      "purpose": "1 LAYOUT + 7 PAGE 線框反向追溯（含 5 層 + 多狀態）"
+    },
+    {
+      "file": ".sdlc/tasks/TASK-001/uiux/component-spec.md",
+      "lines": 470,
+      "purpose": "1 LAYOUT + 38 COMP 元件規格反向萃取"
+    },
+    {
+      "file": ".sdlc/tasks/TASK-001/uiux/design-tokens.json",
+      "lines": 130,
+      "purpose": "Design Token 反向萃取（色彩 / 字體 / 間距 / 陰影 / 動畫 / 斷點 / 圓角 / 無障礙）"
+    },
+    {
+      "file": ".sdlc/tasks/TASK-001/uiux/i18n-keys.md",
+      "lines": 250,
+      "purpose": "i18n key 建議清單（~140 keys；brownfield 不強制重構）"
+    },
+    {
+      "file": ".sdlc/tasks/TASK-001/uiux/pencil-component-sync.json",
+      "lines": 22,
+      "purpose": "Pencil sync registry（components 為空 — pencilMcp 停用）"
+    }
+  ],
+
+  "idAllocation": {
+    "PAGE": {
+      "range": "PAGE-001..PAGE-100",
+      "allocated": ["PAGE-001", "PAGE-002", "PAGE-003", "PAGE-004", "PAGE-005", "PAGE-006", "PAGE-007"],
+      "count": 7,
+      "continuous": true,
+      "withinRange": true
+    },
+    "COMP": {
+      "range": "COMP-001..COMP-100",
+      "allocated": "COMP-001..COMP-038",
+      "count": 38,
+      "continuous": true,
+      "withinRange": true
+    },
+    "LAYOUT": {
+      "range": "LAYOUT-001..LAYOUT-100",
+      "allocated": ["LAYOUT-001"],
+      "count": 1,
+      "continuous": true,
+      "withinRange": true
+    },
+    "FLOW": {
+      "range": "FLOW (TASK-scoped)",
+      "allocated": ["FLOW-001", "FLOW-002", "FLOW-003", "FLOW-004", "FLOW-005", "FLOW-006", "FLOW-007"],
+      "count": 7,
+      "continuous": true
+    }
+  },
+
+  "checklist": [
+    { "id": "pencil-mcp-skipped", "pass": true, "note": "pencilMcp=false → 不呼叫 Pencil 工具 / 不畫 .pen / pencil-component-sync.json 保持空白 components" },
+    { "id": "style-direction-skipped", "pass": true, "note": "brownfield — 不選新 Style，直接從 Bootstrap 5 + custom.css 反向萃取" },
+    { "id": "user-flow-md-exists", "pass": true },
+    { "id": "wireframes-md-exists", "pass": true },
+    { "id": "component-spec-md-exists", "pass": true },
+    { "id": "design-tokens-json-exists", "pass": true },
+    { "id": "i18n-keys-md-exists", "pass": true },
+    { "id": "every-func-has-flow", "pass": true, "note": "FUNC-001..045 全部覆蓋於 FLOW-001..007（FR-016 頁面路由分散於多 FLOW；FR-017 SEO 為非互動，不需 FLOW）" },
+    { "id": "user-flow-has-happy-error-edge", "pass": true, "note": "每個 FLOW 都有正常 / 異常 / 邊界路徑" },
+    { "id": "wireframes-has-5-layers", "pass": true, "note": "每個 PAGE 涵蓋 Layer 1-5（含多狀態）" },
+    { "id": "wireframes-source-attribution", "pass": true, "note": "每個元件描述標 file:line" },
+    { "id": "every-func-has-page", "pass": true, "note": "追溯矩陣 PAGE → FUNC → FR 完整" },
+    { "id": "design-tokens-not-hardcoded", "pass": true, "note": "Token 值從 custom.css + Bootstrap 5 反向萃取 — 每個 token 有 source" },
+    { "id": "design-tokens-coverage", "pass": true, "note": "色彩 / 字體 / 間距 / 圓角 / 陰影 / 動畫 / 斷點 / 無障礙皆涵蓋" },
+    { "id": "components-have-props", "pass": true, "note": "38 個元件均有 Props interface（未來 Vue 重構契約）" },
+    { "id": "components-have-states", "pass": true, "note": "default/hover/disabled/loading/error 等狀態描述完整" },
+    { "id": "responsive-breakpoints", "pass": true, "note": "Bootstrap 5 預設斷點 + custom.css 微調記錄" },
+    { "id": "accessibility-aria", "pass": true, "note": "Skip link / aria-label / aria-current / aria-live 全部反向追溯" },
+    { "id": "shared-layer-id-continuity", "pass": true, "note": "COMP-001..038 / PAGE-001..007 / LAYOUT-001 連續無跳號" },
+    { "id": "reused-components-marked", "pass": true, "note": "COMP-008 / COMP-031 / COMP-035 標明重用頁面" },
+    { "id": "ui-copy-completeness", "pass": true, "note": "wireframes.md Layer 3 + i18n-keys.md ~140 keys 完整列出" },
+    { "id": "rule-3-icon-consistency", "pass": true, "note": "刪除=bi-trash 合規（本系統 CRUD 場景僅收藏刪除）；無 MoreVertical 濫用" },
+    { "id": "rule-4-view-permission", "pass": true, "note": "N/A — 本系統為二級權限（未登入隱藏 / 已登入全可用），無三級檢視=disabled 需求" },
+    { "id": "rule-5-ui-copy-complete", "pass": true, "note": "每頁完整 UI 文字（按鈕/標籤/placeholder/error/tooltip/empty 提示）" },
+    { "id": "rule-6-pen-vs-wireframes", "pass": true, "note": "N/A — pencil 停用，無 .pen 衝突可能" },
+    { "id": "rule-11-irreversible-confirm", "pass": true, "note": "PAGE-005 收藏刪除 window.confirm 已有；brownfield 合規" },
+    { "id": "traceability-flow-func-fr", "pass": true, "note": "user-flow.md §11 + wireframes.md §12 雙重追溯矩陣" },
+    { "id": "mermaid-syntax", "pass": true, "note": "user-flow.md 8 個 flowchart / sequenceDiagram — 語法 OK" },
+    { "id": "sa-fields-preserved", "pass": true, "note": "純 UIUX 規格，不修改 SA 的 ENTITY-001..003 / TBL-001..003" },
+    { "id": "supplements-marked", "pass": true, "note": "[BROWNFIELD-GAP] / [BROWNFIELD-INCONSISTENCY] / [INFERRED-FROM-MAIN] / [BROWNFIELD-NOTE] 標記完整" },
+    { "id": "brownfield-source-truth", "pass": true, "note": "權威來源為 templates/*.html，文件僅為反向追溯" },
+    { "id": "cross-task-002-acknowledged", "pass": true, "note": "TASK-002 對 register/login 的修改已用 [INFERRED-FROM-MAIN] 反映於 wireframes.md PAGE-006/007" },
+    { "id": "no-new-pen-drawing", "pass": true, "note": "純文件化 — 無新 .pen 編輯" },
+    { "id": "screenshots-skipped", "pass": true, "note": "pencilMcp 停用 → 不產出截圖（screenshots/ 目錄不建立）" },
+    { "id": "pencil-node-mapping-skipped", "pass": true, "note": "pencilMcp 停用 → 不產出 pencil-node-mapping.md" },
+    { "id": "id-format-compliance", "pass": true, "note": "全部使用 3 位零填充（PAGE-001 / COMP-001 / LAYOUT-001 / FLOW-001）" }
+  ],
+
+  "knownGapsFromBrownfield": [
+    {
+      "id": "GAP-001",
+      "description": "收藏入口缺失：window.addFavorite 已定義但 ski.js / flight.js 不呼叫",
+      "impact": "用戶無法新增收藏（FUNC-043 UI 入口缺）",
+      "action": "標記於 wireframes.md §13；留後續 TASK"
+    },
+    {
+      "id": "GAP-002",
+      "description": "Excel 下載失敗無 UI 反饋（ski 用 location.href 無 catch）",
+      "impact": "用戶看到瀏覽器 plain text 錯誤",
+      "action": "標記；留後續 TASK"
+    },
+    {
+      "id": "GAP-003",
+      "description": "OAuth 4 個錯誤 query 無對應 alert",
+      "impact": "用戶在 PAGE-006 看不到 OAuth 錯誤提示",
+      "action": "標記；留後續 TASK"
+    },
+    {
+      "id": "GAP-004",
+      "description": "刪除收藏失敗靜默（無 alert）",
+      "impact": "用戶誤以為刪除成功",
+      "action": "標記；留後續 TASK"
+    },
+    {
+      "id": "GAP-005",
+      "description": "缺 departure 用 window.alert 而非自製 toast",
+      "impact": "視覺體驗較差但功能正確",
+      "action": "標記；留後續 TASK"
+    },
+    {
+      "id": "INCONSIS-001",
+      "description": "首頁 features 第 3 張 card 仍標「即將推出」+ disabled，但 /plan 已上線",
+      "impact": "用戶混淆",
+      "action": "標記；留後續 TASK 修正首頁文案"
+    }
+  ],
+
+  "issuesForPmAttention": [
+    {
+      "severity": "info",
+      "title": "Pencil MCP 停用為 brownfield 設計決策",
+      "description": "本 TASK 採純文件化交付。未來 Vue 重構 TASK 啟用 Pencil 時，需從零建立 .pen 視覺稿（design-tokens.json 已準備好基線色票供匯入）"
+    },
+    {
+      "severity": "info",
+      "title": "首頁 INCONSIS-001 建議排入後續 TASK",
+      "description": "index.html 第 3 張 features card 「即將推出 + 敬請期待 disabled」與生產 /plan 路由已上線不一致 — 屬一行字級的文案修正，建議列入 hotfix 或下次內容更新批次"
+    },
+    {
+      "severity": "info",
+      "title": "i18n-keys.md 為純參考用",
+      "description": "~140 個 key 已預先盤點，Vue 重構 TASK 可直接匯入；目前 brownfield 不啟用"
+    }
+  ],
+
+  "subsequentRoleHandoff": {
+    "to": "SD（系統設計）",
+    "uiuxOutputsForSd": [
+      ".sdlc/tasks/TASK-001/uiux/wireframes.md — PAGE 反向追溯（含 FUNC 對應）",
+      ".sdlc/tasks/TASK-001/uiux/component-spec.md — COMP Props 契約",
+      ".sdlc/tasks/TASK-001/uiux/design-tokens.json — Design Token 基線",
+      ".sdlc/tasks/TASK-001/uiux/user-flow.md — 用戶旅程（API 觸發點對應）"
+    ],
+    "notes": [
+      "SD 階段需建立 API-001..028 對應 28 個既有端點（已在 SA functional-flow.md 列出）",
+      "FE-API 映射可參考 user-flow.md 的「fetch /api/...」標記",
+      "no new pen → SD 應跳過 .pen 視覺比對 / Pencil 節點 ID 綁定步驟"
+    ]
+  }
+}

@@ -292,3 +292,67 @@
 [2026-06-12T19:58:00Z] PM     | TASK-002 | impl_bug_6_fixed     | commit 9424235 aligned db_bootstrap + healthz to import "auth.database" (with web.auth.database fallback) so all consumers share one module + one pool. Reverted temp debug print in auth_router.
 [2026-06-12T20:01:00Z] PM     | TASK-002 | login_validated      | login 200 OK + Set-Cookie access_token=JWT; register 200 OK; healthz still 200 OK
 [2026-06-12T20:02:00Z] PM     | TASK-002 | tcp_proxy_revoked    | postgres external TCP proxy (port 14004) created for off-platform debug now deleted -- internal-only again
+[2026-06-12T20:15:00Z] User   | TASK-002 | post_cutover_request | "登入做好，包含 email or username; 註冊→收信→點驗證→登入流程; 早上看到; 不要再問權限"
+[2026-06-12T20:18:00Z] PM     | TASK-002 | feat_login_email_or_username | auth_router.api_login: 含@視 email/lowercase; 不含@視 username/case-sensitive; 401 訊息更新; commit 3e8866e
+[2026-06-12T20:18:00Z] PM     | TASK-002 | feat_register_check_email | register form 提交後不再 3 秒跳 /login; 改顯示「驗證信已寄出」面板 + 收信人 email; 點信中連結 → /api/auth/verify-email → 307 /login?verified=1
+[2026-06-12T20:18:00Z] PM     | TASK-002 | feat_login_ui_update | login.html label 改「Email 或使用者名稱」; input type=text autocomplete=username; resend-verification 按鈕仍要求 email 才可重寄
+[2026-06-12T20:20:00Z] PM     | TASK-002 | env_BASE_URL_set | Railway backend service BASE_URL=https://snowboarding-support-system-jp-production.up.railway.app (此前為空, 走 hardcoded default)
+[2026-06-12T20:26:00Z] PM     | TASK-002 | e2e_test_passed_13_of_14 | register/verify-email/login(email)/login(username)/wrong-password-401/unverified-403 全 PASS; 唯一 FAIL 為驗證重定向 307 (FastAPI 預設) 而非 302, 屬非功能差異
+[2026-06-12T20:26:00Z] PM     | TASK-002 | resend_test_email_rejected | e2e 測試用 @example.com 假信箱被 Resend 拒收 (預期), 真實 Gmail 收信尚待使用者提供
+[2026-06-12T20:30:00Z] PM     | TASK-002 | cleanup_test_users | 刪除 5 個測試使用者; users 表剩 1 筆
+[2026-06-12T20:30:00Z] PM     | TASK-002 | tcp_proxy_revoked | postgres TCP proxy 16435 已刪除 (debug 期暫時開啟)
+[2026-06-15T07:23:45Z] state | all | state_migrated| split legacy state.json into per-TASK files
+[2026-06-15T07:30:00Z] PM     | TASK-001 | dispatched   | uiux (sdlc-uiux — brownfield reverse documentation, no Pencil per pencilMcp=false)
+[2026-06-15T07:30:56Z] uiux  | TASK-001 | input_validate| FAIL: passed=19 failed=1 warnings=0
+[2026-06-15T07:30:56Z] uiux  | TASK-001 | input_validate| FAIL: passed=19 failed=1 warnings=0
+[2026-06-15T07:46:00Z] sdlc-uiux | TASK-001 | completed | uiux score=95/100 PASS (7 PAGE / 38 COMP / 1 LAYOUT / 7 FLOW, pencilSkipped=true)
+[2026-06-15T07:46:30Z] PM     | TASK-001 | pm_review    | uiux (awaiting user approval; brownfield doc 95/100, 5 GAP + 1 INCONSIS noted)
+[2026-06-15T07:54:38Z] state | TASK-001 | phase_approved| phase=uiux
+[2026-06-15T07:54:38Z] User   | TASK-001 | approved     | uiux (brownfield doc 95/100 PASS, advance to test-uiux)
+[2026-06-15T07:57:38Z] uiux  | TASK-001 | journal_id_added| id=LAYOUT-001 name=AppLayout filePath=tasks/TASK-001/uiux/wireframes.md section=1
+[2026-06-15T07:57:39Z] uiux  | TASK-001 | journal_id_added| id=PAGE-001 name=首頁 filePath=tasks/TASK-001/uiux/wireframes.md section=PAGE-001
+[2026-06-15T07:57:39Z] uiux  | TASK-001 | journal_id_added| id=PAGE-002 name=雪票查詢 filePath=tasks/TASK-001/uiux/wireframes.md section=PAGE-002
+[2026-06-15T07:57:40Z] uiux  | TASK-001 | journal_id_added| id=PAGE-003 name=機票查詢 filePath=tasks/TASK-001/uiux/wireframes.md section=PAGE-003
+[2026-06-15T07:57:41Z] uiux  | TASK-001 | journal_id_added| id=PAGE-004 name=整合查詢 filePath=tasks/TASK-001/uiux/wireframes.md section=PAGE-004
+[2026-06-15T07:57:41Z] uiux  | TASK-001 | journal_id_added| id=PAGE-005 name=個人/收藏 filePath=tasks/TASK-001/uiux/wireframes.md section=PAGE-005
+[2026-06-15T07:57:42Z] uiux  | TASK-001 | journal_id_added| id=PAGE-006 name=登入 filePath=tasks/TASK-001/uiux/wireframes.md section=PAGE-006
+[2026-06-15T07:57:43Z] uiux  | TASK-001 | journal_id_added| id=PAGE-007 name=註冊 filePath=tasks/TASK-001/uiux/wireframes.md section=PAGE-007
+[2026-06-15T07:59:56Z] uiux  | TASK-001 | journal_id_added| id=COMP-001 name=Navbar filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-001
+[2026-06-15T07:59:56Z] uiux  | TASK-001 | journal_id_added| id=COMP-002 name=Footer filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-002
+[2026-06-15T07:59:57Z] uiux  | TASK-001 | journal_id_added| id=COMP-003 name=SkipLink filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-003
+[2026-06-15T07:59:58Z] uiux  | TASK-001 | journal_id_added| id=COMP-004 name=HeroSection filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-004
+[2026-06-15T07:59:58Z] uiux  | TASK-001 | journal_id_added| id=COMP-005 name=StatsBar filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-005
+[2026-06-15T07:59:59Z] uiux  | TASK-001 | journal_id_added| id=COMP-006 name=FeatureCard filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-006
+[2026-06-15T08:00:00Z] uiux  | TASK-001 | journal_id_added| id=COMP-007 name=RegionCard filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-007
+[2026-06-15T08:00:00Z] uiux  | TASK-001 | journal_id_added| id=COMP-008 name=Breadcrumb filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-008
+[2026-06-15T08:00:01Z] uiux  | TASK-001 | journal_id_added| id=COMP-009 name=SearchForm-Ski filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-009
+[2026-06-15T08:00:02Z] uiux  | TASK-001 | journal_id_added| id=COMP-010 name=ResultsContainer filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-010
+[2026-06-15T08:00:03Z] uiux  | TASK-001 | journal_id_added| id=COMP-011 name=ResultsTable-Ski filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-011
+[2026-06-15T08:00:03Z] uiux  | TASK-001 | journal_id_added| id=COMP-012 name=ResultRow-Ski filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-012
+[2026-06-15T08:00:04Z] uiux  | TASK-001 | journal_id_added| id=COMP-013 name=RegionBadge filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-013
+[2026-06-15T08:00:05Z] uiux  | TASK-001 | journal_id_added| id=COMP-014 name=SearchForm-Flight filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-014
+[2026-06-15T08:00:05Z] uiux  | TASK-001 | journal_id_added| id=COMP-015 name=ResultSummary-Flight filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-015
+[2026-06-15T08:00:06Z] uiux  | TASK-001 | journal_id_added| id=COMP-016 name=BackendBadge filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-016
+[2026-06-15T08:00:07Z] uiux  | TASK-001 | journal_id_added| id=COMP-017 name=DownloadButton-Flight filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-017
+[2026-06-15T08:00:07Z] uiux  | TASK-001 | journal_id_added| id=COMP-018 name=AirlineFilter filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-018
+[2026-06-15T08:00:08Z] uiux  | TASK-001 | journal_id_added| id=COMP-019 name=FilterChip filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-019
+[2026-06-15T08:00:09Z] uiux  | TASK-001 | journal_id_added| id=COMP-020 name=ResultsTable-Flight filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-020
+[2026-06-15T08:00:09Z] uiux  | TASK-001 | journal_id_added| id=COMP-021 name=ResultRow-Flight filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-021
+[2026-06-15T08:00:10Z] uiux  | TASK-001 | journal_id_added| id=COMP-022 name=StopsBadge filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-022
+[2026-06-15T08:00:11Z] uiux  | TASK-001 | journal_id_added| id=COMP-023 name=SearchForm-Plan filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-023
+[2026-06-15T08:00:11Z] uiux  | TASK-001 | journal_id_added| id=COMP-024 name=DownloadButton-Plan filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-024
+[2026-06-15T08:00:12Z] uiux  | TASK-001 | journal_id_added| id=COMP-025 name=CollapsibleCard-Flight filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-025
+[2026-06-15T08:00:13Z] uiux  | TASK-001 | journal_id_added| id=COMP-026 name=CollapsibleCard-Ski filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-026
+[2026-06-15T08:00:13Z] uiux  | TASK-001 | journal_id_added| id=COMP-027 name=LogoutButton filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-027
+[2026-06-15T08:00:14Z] uiux  | TASK-001 | journal_id_added| id=COMP-028 name=FavoritesGrid filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-028
+[2026-06-15T08:00:15Z] uiux  | TASK-001 | journal_id_added| id=COMP-029 name=FavoriteCard filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-029
+[2026-06-15T08:00:15Z] uiux  | TASK-001 | journal_id_added| id=COMP-030 name=DeleteButton-Favorite filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-030
+[2026-06-15T08:00:16Z] uiux  | TASK-001 | journal_id_added| id=COMP-031 name=AuthCard filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-031
+[2026-06-15T08:00:16Z] uiux  | TASK-001 | journal_id_added| id=COMP-032 name=URLAlert-Login filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-032
+[2026-06-15T08:00:17Z] uiux  | TASK-001 | journal_id_added| id=COMP-033 name=GoogleLoginButton filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-033
+[2026-06-15T08:00:18Z] uiux  | TASK-001 | journal_id_added| id=COMP-034 name=LoginForm filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-034
+[2026-06-15T08:00:18Z] uiux  | TASK-001 | journal_id_added| id=COMP-035 name=InlineErrorAlert filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-035
+[2026-06-15T08:00:19Z] uiux  | TASK-001 | journal_id_added| id=COMP-036 name=ResendVerificationArea filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-036
+[2026-06-15T08:00:20Z] uiux  | TASK-001 | journal_id_added| id=COMP-037 name=RegisterForm filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-037
+[2026-06-15T08:00:20Z] uiux  | TASK-001 | journal_id_added| id=COMP-038 name=CheckEmailPanel filePath=tasks/TASK-001/uiux/component-spec.md section=COMP-038
+[2026-06-15T08:00:55Z] rebuild| all | shared_rebuild| mode=rebuild target=all drift=0

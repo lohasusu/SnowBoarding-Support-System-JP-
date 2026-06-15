@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "TASK-001 brownfield-document — Design Tokens reverse-extracted from existing CSS / Bootstrap 5 config. Pencil MCP skipped. Sources: web/static/css/custom.css, web/templates/base.html, Bootstrap 5.3.3 defaults.",
+  "version": "1.0",
+  "taskId": "TASK-001",
+  "mode": "brownfield-document",
+  "pencilSkipped": true,
+  "sourceFiles": [
+    "web/static/css/custom.css",
+    "web/templates/base.html",
+    "web/templates/*.html",
+    "Bootstrap 5.3.3 CDN defaults"
+  ],
+  "color": {
+    "$comment": "色彩 token — 來自 custom.css + Bootstrap 5 預設變數 + 地區 badge",
+    "brand": {
+      "primary": {
+        "value": "#1565c0",
+        "source": "custom.css:18 hero gradient start; region-badge-北海道",
+        "usedBy": ["LAYOUT-001 navbar.bg-primary", "btn-primary", "PAGE-002 region badge"]
+      },
+      "primary-dark": {
+        "value": "#0d47a1",
+        "source": "custom.css:18 hero gradient mid",
+        "usedBy": ["PAGE-001 hero-section"]
+      },
+      "primary-darkest": {
+        "value": "#1a237e",
+        "source": "custom.css:18 hero gradient end",
+        "usedBy": ["PAGE-001 hero-section"]
+      }
+    },
+    "bootstrap": {
+      "$comment": "直接引用 Bootstrap 5.3.3 預設 — 模板大量使用 .text-primary .bg-primary .btn-info 等",
+      "primary": { "value": "#0d6efd", "source": "Bootstrap 5 default $primary" },
+      "info": { "value": "#0dcaf0", "source": "Bootstrap 5 default $info; PAGE-003 機票查詢主色" },
+      "success": { "value": "#198754", "source": "Bootstrap 5; btn-success 下載 Excel" },
+      "warning": { "value": "#ffc107", "source": "Bootstrap 5; badge bg-warning 轉機標記" },
+      "danger": { "value": "#dc3545", "source": "Bootstrap 5; btn-outline-danger 登出 / 錯誤" },
+      "secondary": { "value": "#6c757d", "source": "Bootstrap 5; btn-outline-secondary 次要按鈕" },
+      "dark": { "value": "#212529", "source": "Bootstrap 5; bg-dark footer / table.table-dark" },
+      "light": { "value": "#f8f9fa", "source": "Bootstrap 5; bg-light 區塊背景" }
+    },
+    "regionBadge": {
+      "$comment": "地區色碼 badge — custom.css:48-53 — 6 個雪場地區唯一識別色",
+      "hokkaido-北海道": { "value": "#1565c0", "source": "custom.css:48" },
+      "nagano-長野":   { "value": "#2e7d32", "source": "custom.css:49" },
+      "niigata-新潟":  { "value": "#6a1b9a", "source": "custom.css:50" },
+      "yamagata-山形": { "value": "#e65100", "source": "custom.css:51" },
+      "aomori-青森":   { "value": "#00695c", "source": "custom.css:52" },
+      "fukushima-福島":{ "value": "#4e342e", "source": "custom.css:53" }
+    },
+    "text": {
+      "default":  { "value": "#212529", "source": "Bootstrap 5 $body-color" },
+      "muted":    { "value": "#6c757d", "source": "Bootstrap 5 .text-muted" },
+      "white":    { "value": "#ffffff", "source": "Bootstrap 5 .text-white" },
+      "white-50": { "value": "rgba(255,255,255,0.5)", "source": "Bootstrap 5 .text-white-50（footer 文字）" }
+    }
+  },
+  "typography": {
+    "$comment": "字體 token — Bootstrap 5 預設 + headings 透過 .h{1-6} / .display-4 / .lead 控制",
+    "fontFamily": {
+      "value": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif",
+      "source": "Bootstrap 5 $font-family-sans-serif default"
+    },
+    "lang": { "value": "zh-TW", "source": "base.html:2" },
+    "scale": {
+      "display-4": { "value": "3.5rem (responsive 2rem @ <576px)", "source": "Bootstrap + custom.css:97" },
+      "h2":  { "value": "2rem",   "source": "Bootstrap 5 default" },
+      "h4":  { "value": "1.5rem", "source": "Bootstrap 5; login/register page title" },
+      "h5":  { "value": "1.25rem","source": "Bootstrap 5; section heading 雪票/機票/整合搜尋條件" },
+      "h6":  { "value": "1rem",   "source": "Bootstrap 5; footer column title" },
+      "body":{ "value": "1rem (16px)", "source": "Bootstrap 5 $font-size-base" },
+      "small":{"value": "0.875rem (14px)", "source": "Bootstrap 5 .small / .text-muted" },
+      "lead":{ "value": "1.25rem", "source": "Bootstrap 5 .lead（hero subtitle）" }
+    },
+    "weight": {
+      "normal":   { "value": "400", "source": "Bootstrap 5 $font-weight-normal" },
+      "semibold": { "value": "600", "source": "Bootstrap 5 .fw-semibold（form label）" },
+      "bold":     { "value": "700", "source": "Bootstrap 5 .fw-bold（page title）" }
+    },
+    "tableScale": {
+      "$comment": "table 字級 — custom.css:56-63 顯式覆寫",
+      "th": { "value": "0.875rem, white-space: nowrap", "source": "custom.css:57-59" },
+      "td": { "value": "0.9rem,   vertical-align: middle", "source": "custom.css:60-63" }
+    }
+  },
+  "spacing": {
+    "$comment": "間距 token — Bootstrap 5 spacer scale（0.25rem base × multiplier）",
+    "0": "0",
+    "1": "0.25rem",
+    "2": "0.5rem",
+    "3": "1rem",
+    "4": "1.5rem",
+    "5": "3rem",
+    "container-padding-y": { "value": "py-4 / py-5 = 1.5rem~3rem", "source": "所有頁面 container py-{4|5}" },
+    "card-body-padding": { "value": "p-4 = 1.5rem", "source": "搜尋表單 card .card-body p-4" }
+  },
+  "radius": {
+    "$comment": "圓角 token — Bootstrap 5 預設 + region badge 自訂",
+    "default": { "value": "0.375rem (6px)", "source": "Bootstrap 5 $border-radius" },
+    "sm":      { "value": "0.25rem",        "source": "Bootstrap 5 .rounded-sm" },
+    "regionBadge": { "value": "0.35rem", "source": "custom.css:48-53 padding: .2em .55em" },
+    "circle":  { "value": "50%", "source": "Bootstrap 5 .rounded-circle（步驟數字泡泡 / feature-icon）" }
+  },
+  "shadow": {
+    "$comment": "陰影 token — Bootstrap 5 預設 + hover 自訂",
+    "sm":   { "value": "0 .125rem .25rem rgba(0,0,0,.075)", "source": "Bootstrap 5 .shadow-sm（card / navbar）" },
+    "default":{"value": "0 .5rem 1rem rgba(0,0,0,.15)",     "source": "Bootstrap 5 .shadow" },
+    "cardHover": { "value": "0 8px 24px rgba(0,0,0,0.12)", "source": "custom.css:36 .card-hover:hover" }
+  },
+  "motion": {
+    "$comment": "動畫 token — custom.css 自訂",
+    "cardHoverTransition": { "value": "transform 0.18s ease, box-shadow 0.18s ease", "source": "custom.css:32" },
+    "featureIconTransition": { "value": "transform 0.2s ease", "source": "custom.css:41" },
+    "cardHoverTranslateY":   { "value": "-4px", "source": "custom.css:35" },
+    "featureIconScale":      { "value": "1.1",  "source": "custom.css:44" },
+    "reducedMotion": {
+      "value": "@media (prefers-reduced-motion: reduce) → animation: none; transition: none",
+      "source": "custom.css:87-93 — 無障礙減少動態"
+    }
+  },
+  "breakpoints": {
+    "$comment": "響應式斷點 — Bootstrap 5 預設（template 使用 col-sm- / col-md- 前綴）",
+    "sm": { "value": "576px", "source": "Bootstrap 5 $grid-breakpoints" },
+    "md": { "value": "768px", "source": "Bootstrap 5 $grid-breakpoints" },
+    "lg": { "value": "992px", "source": "Bootstrap 5 $grid-breakpoints" },
+    "xl": { "value": "1200px","source": "Bootstrap 5 $grid-breakpoints" },
+    "xxl":{ "value": "1400px","source": "Bootstrap 5 $grid-breakpoints" }
+  },
+  "components": {
+    "$comment": "Bootstrap 元件版本 + CDN integrity（FE 必須鎖版本）",
+    "bootstrap": { "version": "5.3.3", "source": "base.html:61" },
+    "bootstrapIcons": { "version": "1.11.3", "source": "base.html:66" },
+    "integrity": {
+      "css": "sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH",
+      "js":  "sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmF1Qu2jPMuBnRv/D/8DYOLhO0E"
+    }
+  },
+  "accessibility": {
+    "skipLink": {
+      "$comment": "跳到主要內容 — custom.css:2-14 + base.html:76",
+      "position": "absolute, left: -9999px (focus → left: 0)",
+      "background": "#000",
+      "color": "#fff",
+      "padding": ".4rem 1rem",
+      "zIndex": "9999"
+    },
+    "ariaLandmarks": ["header", "main#main-content", "footer", "nav[aria-label]"],
+    "ariaLive": "polite (results sections)",
+    "reducedMotion": "supported via @media prefers-reduced-motion"
+  }
+}

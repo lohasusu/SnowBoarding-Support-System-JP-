@@ -1,0 +1,163 @@
+{
+  "version": "1.0",
+  "schemaVersion": "task-split-v1",
+  "taskId": "TASK-001",
+  "lastUpdate": "2026-06-15T07:54:38Z",
+  "name": "brownfield-document",
+  "requirement": "補追溯既有 28 API + 3 ENTITY (users / favorites / email_verification_tokens) + 8 PAGE 到 .sdlc/shared/，不寫新代碼，純規格產出（brownfield-document mode）",
+  "app": "snowboarding_support",
+  "mode": "brownfield-document",
+  "createdAt": "2026-06-03T13:15:15Z",
+  "status": "in_progress",
+  "currentPhase": "uiux",
+  "phaseOrder": [
+    "ba",
+    "test-ba",
+    "sa",
+    "test-sa",
+    "uiux",
+    "deploy-init",
+    "test-uiux",
+    "test-deploy-init",
+    "sd",
+    "test-sd",
+    "fe",
+    "be",
+    "test-fe",
+    "test-be",
+    "build-gate",
+    "code-review",
+    "deploy",
+    "test"
+  ],
+  "phases": {
+    "ba": {
+      "status": "approved",
+      "startedAt": "2026-06-03T13:15:15Z",
+      "completedAt": "2026-06-03T13:44:00Z",
+      "score": 95,
+      "approvedAt": "2026-06-04T09:08:24Z"
+    },
+    "test-ba": {
+      "status": "approved",
+      "startedAt": "2026-06-04T09:08:24Z",
+      "score": 89,
+      "completedAt": "2026-06-04T09:20:42Z",
+      "notes": "3 Major fixed inline (NFR-007->NFR-006 / NFR-011->BR-009 / NFR-016 split -> NFR-019 + CONST-010)"
+    },
+    "sa": {
+      "status": "approved",
+      "startedAt": "2026-06-04T11:49:26Z",
+      "completedAt": "2026-06-04T12:08:49Z",
+      "score": 96,
+      "approvedAt": "2026-06-04T12:52:26Z"
+    },
+    "test-sa": {
+      "status": "approved",
+      "startedAt": "2026-06-05T16:05:06Z",
+      "score": 88,
+      "completedAt": "2026-06-05T16:55:37Z",
+      "notes": "3 Major fixed inline by PM (M-1 PATTERN-004 ABC / M-2 MOD-005 endpoint count 11->12 / M-3 PATTERN-008 reframed as PATTERN-001 scope constraint)"
+    },
+    "uiux": {
+      "status": "approved",
+      "startedAt": "2026-06-15T07:30:00Z",
+      "completedAt": "2026-06-15T07:46:00Z",
+      "score": 95,
+      "pencilSkipped": true,
+      "agentId": "a8c6d50b65b963421",
+      "notes": "Brownfield reverse documentation, no Pencil. 7 PAGE / 38 COMP / 1 LAYOUT / 7 FLOW. 5 GAP + 1 INCONSIS noted for follow-up.",
+      "approvedAt": "2026-06-15T07:54:38Z"
+    },
+    "deploy-init": {
+      "status": "pending"
+    },
+    "test-uiux": {
+      "status": "pending"
+    },
+    "test-deploy-init": {
+      "status": "pending"
+    },
+    "sd": {
+      "status": "pending"
+    },
+    "test-sd": {
+      "status": "pending"
+    },
+    "fe": {
+      "status": "pending"
+    },
+    "be": {
+      "status": "pending"
+    },
+    "test-fe": {
+      "status": "pending"
+    },
+    "test-be": {
+      "status": "pending"
+    },
+    "build-gate": {
+      "status": "pending"
+    },
+    "code-review": {
+      "status": "pending"
+    },
+    "deploy": {
+      "status": "pending"
+    },
+    "test": {
+      "status": "pending"
+    }
+  },
+  "git": {
+    "slug": "brownfield-document",
+    "branch": "sdlc/TASK-001/brownfield-document",
+    "baseBranch": "sdlc/init",
+    "dependsOn": [],
+    "createdAt": "2026-06-03T13:15:15Z",
+    "commits": [],
+    "subBranches": {
+      "enabled": false,
+      "branches": {},
+      "worktrees": {}
+    }
+  },
+  "idAllocations": {
+    "ENTITY": [
+      1,
+      100
+    ],
+    "MOD": [
+      1,
+      100
+    ],
+    "FUNC": [
+      1,
+      100
+    ],
+    "PATTERN": [
+      1,
+      100
+    ],
+    "API": [
+      1,
+      100
+    ],
+    "TBL": [
+      1,
+      100
+    ],
+    "COMP": [
+      1,
+      100
+    ],
+    "PAGE": [
+      1,
+      100
+    ],
+    "LAYOUT": [
+      1,
+      100
+    ]
+  }
+}

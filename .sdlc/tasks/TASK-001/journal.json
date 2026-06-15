@@ -4,7 +4,7 @@
   "version": "1.0",
   "taskId": "TASK-001",
   "createdAt": "2026-06-03T13:22:59Z",
-  "lastUpdate": "2026-06-04T12:41:36Z",
+  "lastUpdate": "2026-06-15T08:00:20Z",
   "entries": [
     {
       "term": "雪場",
@@ -798,6 +798,420 @@
       "type": "id_added",
       "phase": "sa",
       "addedAt": "2026-06-04T12:41:36Z"
+    },
+    {
+      "id": "LAYOUT-001",
+      "name": "AppLayout",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "1",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:38Z"
+    },
+    {
+      "id": "PAGE-001",
+      "name": "首頁",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "PAGE-001",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:38Z"
+    },
+    {
+      "id": "PAGE-002",
+      "name": "雪票查詢",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "PAGE-002",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:39Z"
+    },
+    {
+      "id": "PAGE-003",
+      "name": "機票查詢",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "PAGE-003",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:40Z"
+    },
+    {
+      "id": "PAGE-004",
+      "name": "整合查詢",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "PAGE-004",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:40Z"
+    },
+    {
+      "id": "PAGE-005",
+      "name": "個人/收藏",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "PAGE-005",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:41Z"
+    },
+    {
+      "id": "PAGE-006",
+      "name": "登入",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "PAGE-006",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:42Z"
+    },
+    {
+      "id": "PAGE-007",
+      "name": "註冊",
+      "filePath": "tasks/TASK-001/uiux/wireframes.md",
+      "section": "PAGE-007",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:57:42Z"
+    },
+    {
+      "id": "COMP-001",
+      "name": "Navbar",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-001",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:59:56Z"
+    },
+    {
+      "id": "COMP-002",
+      "name": "Footer",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-002",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:59:56Z"
+    },
+    {
+      "id": "COMP-003",
+      "name": "SkipLink",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-003",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:59:57Z"
+    },
+    {
+      "id": "COMP-004",
+      "name": "HeroSection",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-004",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:59:57Z"
+    },
+    {
+      "id": "COMP-005",
+      "name": "StatsBar",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-005",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:59:58Z"
+    },
+    {
+      "id": "COMP-006",
+      "name": "FeatureCard",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-006",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:59:59Z"
+    },
+    {
+      "id": "COMP-007",
+      "name": "RegionCard",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-007",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T07:59:59Z"
+    },
+    {
+      "id": "COMP-008",
+      "name": "Breadcrumb",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-008",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:00Z"
+    },
+    {
+      "id": "COMP-009",
+      "name": "SearchForm-Ski",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-009",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:01Z"
+    },
+    {
+      "id": "COMP-010",
+      "name": "ResultsContainer",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-010",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:02Z"
+    },
+    {
+      "id": "COMP-011",
+      "name": "ResultsTable-Ski",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-011",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:02Z"
+    },
+    {
+      "id": "COMP-012",
+      "name": "ResultRow-Ski",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-012",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:03Z"
+    },
+    {
+      "id": "COMP-013",
+      "name": "RegionBadge",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-013",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:04Z"
+    },
+    {
+      "id": "COMP-014",
+      "name": "SearchForm-Flight",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-014",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:04Z"
+    },
+    {
+      "id": "COMP-015",
+      "name": "ResultSummary-Flight",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-015",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:05Z"
+    },
+    {
+      "id": "COMP-016",
+      "name": "BackendBadge",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-016",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:06Z"
+    },
+    {
+      "id": "COMP-017",
+      "name": "DownloadButton-Flight",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-017",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:06Z"
+    },
+    {
+      "id": "COMP-018",
+      "name": "AirlineFilter",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-018",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:07Z"
+    },
+    {
+      "id": "COMP-019",
+      "name": "FilterChip",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-019",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:08Z"
+    },
+    {
+      "id": "COMP-020",
+      "name": "ResultsTable-Flight",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-020",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:08Z"
+    },
+    {
+      "id": "COMP-021",
+      "name": "ResultRow-Flight",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-021",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:09Z"
+    },
+    {
+      "id": "COMP-022",
+      "name": "StopsBadge",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-022",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:10Z"
+    },
+    {
+      "id": "COMP-023",
+      "name": "SearchForm-Plan",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-023",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:10Z"
+    },
+    {
+      "id": "COMP-024",
+      "name": "DownloadButton-Plan",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-024",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:11Z"
+    },
+    {
+      "id": "COMP-025",
+      "name": "CollapsibleCard-Flight",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-025",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:12Z"
+    },
+    {
+      "id": "COMP-026",
+      "name": "CollapsibleCard-Ski",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-026",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:12Z"
+    },
+    {
+      "id": "COMP-027",
+      "name": "LogoutButton",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-027",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:13Z"
+    },
+    {
+      "id": "COMP-028",
+      "name": "FavoritesGrid",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-028",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:14Z"
+    },
+    {
+      "id": "COMP-029",
+      "name": "FavoriteCard",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-029",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:14Z"
+    },
+    {
+      "id": "COMP-030",
+      "name": "DeleteButton-Favorite",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-030",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:15Z"
+    },
+    {
+      "id": "COMP-031",
+      "name": "AuthCard",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-031",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:16Z"
+    },
+    {
+      "id": "COMP-032",
+      "name": "URLAlert-Login",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-032",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:16Z"
+    },
+    {
+      "id": "COMP-033",
+      "name": "GoogleLoginButton",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-033",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:17Z"
+    },
+    {
+      "id": "COMP-034",
+      "name": "LoginForm",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-034",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:17Z"
+    },
+    {
+      "id": "COMP-035",
+      "name": "InlineErrorAlert",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-035",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:18Z"
+    },
+    {
+      "id": "COMP-036",
+      "name": "ResendVerificationArea",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-036",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:19Z"
+    },
+    {
+      "id": "COMP-037",
+      "name": "RegisterForm",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-037",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:19Z"
+    },
+    {
+      "id": "COMP-038",
+      "name": "CheckEmailPanel",
+      "filePath": "tasks/TASK-001/uiux/component-spec.md",
+      "section": "COMP-038",
+      "type": "id_added",
+      "phase": "uiux",
+      "addedAt": "2026-06-15T08:00:20Z"
     }
   ]
 }
