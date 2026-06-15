@@ -12,19 +12,16 @@ TASK-002 變更（FUNC-105 SQLite → PG dialect 適配）：
 """
 import json
 import re
-import secrets
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse as _Redirect, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from .database import get_conn
 from .dependencies import get_current_user, get_optional_user
 from .security import create_access_token, hash_password, verify_password
-from .email_service import send_verification_email
 
 auth_router = APIRouter()
 TEMPLATE_DIR = Path(__file__).parent.parent / "templates"
@@ -152,69 +149,6 @@ async def api_logout():
     resp = JSONResponse({"ok": True})
     resp.delete_cookie("access_token")
     return resp
-
-
-@auth_router.get("/api/auth/verify-email")
-async def api_verify_email(token: str):
-    # TASK-002 FUNC-105: 改用 datetime 物件比較（PG TIMESTAMPTZ 原生）
-    now = datetime.now(timezone.utc)
-    with get_conn() as conn:
-        row = conn.execute(
-            "SELECT id, user_id, expires_at, used_at FROM email_verification_tokens WHERE token = %s",
-            (token,)
-        ).fetchone()
-    if not row:
-        return _Redirect(url="/login?error=invalid_token")
-    if row["used_at"]:
-        return _Redirect(url="/login?error=token_used")
-    # row["expires_at"] 為 psycopg 回傳的 datetime（含 tz）
-    if row["expires_at"] < now:
-        return _Redirect(url="/login?error=token_expired")
-    with get_conn() as conn:
-        # TASK-002 FUNC-105: UPDATE 補 updated_at = NOW() (決策 #6)
-        conn.execute(
-            "UPDATE users SET is_verified = TRUE, updated_at = NOW() WHERE id = %s",
-            (row["user_id"],),
-        )
-        conn.execute(
-            "UPDATE email_verification_tokens SET used_at = %s, updated_at = NOW() WHERE id = %s",
-            (now, row["id"]),
-        )
-    return _Redirect(url="/login?verified=1")
-
-
-class ResendVerificationBody(BaseModel):
-    email: str
-
-
-@auth_router.post("/api/auth/resend-verification")
-async def api_resend_verification(body: ResendVerificationBody):
-    with get_conn() as conn:
-        user = conn.execute(
-            "SELECT id, username, is_verified FROM users WHERE email = %s",
-            (body.email.lower().strip(),)
-        ).fetchone()
-    if not user:
-        raise HTTPException(status_code=404, detail="找不到此 Email 的帳號")
-    if user["is_verified"]:
-        return {"ok": True, "message": "此帳號已完成驗證"}
-    # 廢棄舊 token + 發新 token
-    now = datetime.now(timezone.utc)
-    with get_conn() as conn:
-        conn.execute(
-            "UPDATE email_verification_tokens "
-            "SET used_at = %s, updated_at = NOW() "
-            "WHERE user_id = %s AND used_at IS NULL",
-            (now, user["id"]),
-        )
-        token = secrets.token_urlsafe(32)
-        expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
-        conn.execute(
-            "INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)",
-            (user["id"], token, expires_at),
-        )
-    sent = await send_verification_email(body.email.lower().strip(), user["username"], token)
-    return {"ok": True, "message": "驗證信已重新寄出" if sent else "寄信失敗，請稍後再試"}
 
 
 @auth_router.get("/api/auth/me")

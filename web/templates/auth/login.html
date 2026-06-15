@@ -14,7 +14,7 @@
         <i class="bi bi-snow text-primary me-2"></i>登入
       </h1>
 
-      <!-- URL 參數提示（驗證成功/失敗訊息） -->
+      <!-- 註冊成功提示 -->
       <div id="login-alert"></div>
 
       <!-- Google 登入 -->
@@ -43,10 +43,6 @@
           <input type="password" id="login-password" class="form-control" required autocomplete="current-password">
         </div>
         <div id="login-error" class="alert alert-danger d-none"></div>
-        <!-- 未驗證時顯示「重寄驗證信」區塊 -->
-        <div id="resend-area" class="d-none mb-2">
-          <button type="button" id="resend-btn" class="btn btn-sm btn-outline-warning w-100">重寄驗證信</button>
-        </div>
         <button type="submit" class="btn btn-primary w-100">登入</button>
       </form>
       <hr class="my-3">
@@ -59,53 +55,11 @@
 
 <script>
 (function() {
-  // URL 參數提示處理
+  // 註冊成功提示（從 register 跳轉而來）
   const params = new URLSearchParams(window.location.search);
-  const alertArea = document.getElementById('login-alert');
-
   if (params.get('registered') === '1') {
-    alertArea.innerHTML = '<div class="alert alert-success">&#x2705; 註冊成功！請使用剛建立的帳號登入。</div>';
-  } else if (params.get('verified') === '1') {
-    alertArea.innerHTML = '<div class="alert alert-success">&#x2705; Email 驗證成功！請登入您的帳號。</div>';
-  } else if (params.get('error') === 'invalid_token' || params.get('error') === 'token_used') {
-    alertArea.innerHTML = '<div class="alert alert-danger">&#x274C; 驗證連結已失效或已使用，請重新寄送驗證信。</div>';
-  } else if (params.get('error') === 'token_expired') {
-    alertArea.innerHTML = '<div class="alert alert-warning">&#x23F0; 驗證連結已過期（24 小時），請重新寄送驗證信。</div>';
-  } else if (params.get('error') === 'unverified') {
-    alertArea.innerHTML = '<div class="alert alert-warning">&#x1F4E7; 請先驗證您的 Email 後再登入。</div>';
-  }
-
-  // 重寄驗證信按鈕
-  const resendBtn = document.getElementById('resend-btn');
-  const resendArea = document.getElementById('resend-area');
-  if (resendBtn) {
-    resendBtn.addEventListener('click', async function() {
-      const idEl  = document.getElementById('login-identifier') || document.getElementById('login-email');
-      const email = idEl.value.trim();
-      if (!email || !email.includes('@')) {
-        alert('請在上方輸入您的 Email（重寄驗證信需要 Email，不是使用者名稱）');
-        return;
-      }
-      resendBtn.disabled = true;
-      resendBtn.textContent = '寄送中...';
-      try {
-        const res = await fetch('/api/auth/resend-verification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        const json = await res.json();
-        const errEl = document.getElementById('login-error');
-        errEl.textContent = json.message || (res.ok ? '驗證信已寄出' : '寄送失敗');
-        errEl.className = res.ok ? 'alert alert-info' : 'alert alert-danger';
-        errEl.classList.remove('d-none');
-      } catch(e) {
-        alert('寄送失敗：' + e.message);
-      } finally {
-        resendBtn.disabled = false;
-        resendBtn.textContent = '重寄驗證信';
-      }
-    });
+    document.getElementById('login-alert').innerHTML =
+      '<div class="alert alert-success">&#x2705; 註冊成功！請使用剛建立的帳號登入。</div>';
   }
 })();
 </script>

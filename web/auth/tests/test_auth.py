@@ -115,82 +115,7 @@ async def test_register_creates_verified_user(test_db):
     assert token_count == 0
 
 
-# ── 2. 有效 token 驗證成功 ────────────────────────────────────────────────────
-
-@pytest.mark.asyncio
-async def test_verify_email_valid_token(test_db):
-    # 2026-06-15: register 不再寫 token；此測試直接手動 insert，驗證 verify-email 路由仍 OK
-    # （保留作為日後 opt-in 確認信用）
-    from web.auth.database import get_conn
-    with get_conn() as conn:
-        cur = conn.execute(
-            "INSERT INTO users (email, username, hashed_password, is_verified) "
-            "VALUES (%s, %s, %s, FALSE) RETURNING id",
-            ("v@example.com", "vuser", "hash"),
-        )
-        uid = cur.fetchone()["id"]
-        future = datetime.now(timezone.utc) + timedelta(hours=24)
-        conn.execute(
-            "INSERT INTO email_verification_tokens (user_id, token, expires_at) "
-            "VALUES (%s, %s, %s)",
-            (uid, "validtoken", future),
-        )
-    from web.auth.auth_router import api_verify_email
-    resp = await api_verify_email(token="validtoken")
-    assert resp.headers["location"].endswith("/login?verified=1")
-    with get_conn() as conn:
-        user = conn.execute(
-            "SELECT is_verified FROM users WHERE email = %s",
-            ("v@example.com",),
-        ).fetchone()
-    assert user["is_verified"] is True
-
-
-# ── 3. 過期 token ─────────────────────────────────────────────────────────────
-
-@pytest.mark.asyncio
-async def test_verify_email_expired_token(test_db):
-    from web.auth.database import get_conn
-    with get_conn() as conn:
-        cur = conn.execute(
-            "INSERT INTO users (email, username, hashed_password, is_verified) "
-            "VALUES (%s, %s, %s, FALSE) RETURNING id",
-            ("exp@example.com", "expuser", "hash"),
-        )
-        uid = cur.fetchone()["id"]
-        expired = datetime.now(timezone.utc) - timedelta(hours=1)
-        conn.execute(
-            "INSERT INTO email_verification_tokens (user_id, token, expires_at) "
-            "VALUES (%s, %s, %s)",
-            (uid, "expiredtoken", expired),
-        )
-    from web.auth.auth_router import api_verify_email
-    resp = await api_verify_email(token="expiredtoken")
-    assert "token_expired" in resp.headers["location"]
-
-
-# ── 4. 已使用 token ───────────────────────────────────────────────────────────
-
-@pytest.mark.asyncio
-async def test_verify_email_used_token(test_db):
-    from web.auth.database import get_conn
-    with get_conn() as conn:
-        cur = conn.execute(
-            "INSERT INTO users (email, username, hashed_password, is_verified) "
-            "VALUES (%s, %s, %s, FALSE) RETURNING id",
-            ("used@example.com", "useduser", "hash"),
-        )
-        uid = cur.fetchone()["id"]
-        future = datetime.now(timezone.utc) + timedelta(hours=24)
-        now    = datetime.now(timezone.utc)
-        conn.execute(
-            "INSERT INTO email_verification_tokens "
-            "(user_id, token, expires_at, used_at) VALUES (%s, %s, %s, %s)",
-            (uid, "usedtoken", future, now),
-        )
-    from web.auth.auth_router import api_verify_email
-    resp = await api_verify_email(token="usedtoken")
-    assert "token_used" in resp.headers["location"]
+# ── 2-4. verify-email 相關測試已移除（2026-06-15 拔掉整條驗證信路徑） ────────
 
 
 # ── 5. 登入不再受 is_verified 阻擋（2026-06-15 移除驗證閘） ──────────────────
@@ -216,45 +141,7 @@ async def test_login_succeeds_for_unverified_user(test_db):
     assert "access_token=" in cookies
 
 
-# ── 6. 重寄驗證信：舊 token 失效，新 token 產生 ───────────────────────────────
-
-@pytest.mark.asyncio
-async def test_resend_verification_invalidates_old(test_db):
-    from web.auth.database import get_conn
-    with get_conn() as conn:
-        cur = conn.execute(
-            "INSERT INTO users (email, username, hashed_password, is_verified) "
-            "VALUES (%s, %s, %s, FALSE) RETURNING id",
-            ("resend@example.com", "resenduser", "hash"),
-        )
-        uid = cur.fetchone()["id"]
-        future = datetime.now(timezone.utc) + timedelta(hours=24)
-        conn.execute(
-            "INSERT INTO email_verification_tokens (user_id, token, expires_at) "
-            "VALUES (%s, %s, %s)",
-            (uid, "oldtoken", future),
-        )
-    from web.auth.auth_router import api_resend_verification, ResendVerificationBody
-    with patch(
-        "web.auth.auth_router.send_verification_email",
-        new_callable=AsyncMock, return_value=True,
-    ):
-        resp = await api_resend_verification(
-            ResendVerificationBody(email="resend@example.com")
-        )
-    assert resp["ok"] is True
-    with get_conn() as conn:
-        old = conn.execute(
-            "SELECT used_at FROM email_verification_tokens WHERE token = %s",
-            ("oldtoken",),
-        ).fetchone()
-        new_count_row = conn.execute(
-            "SELECT COUNT(*) AS c FROM email_verification_tokens WHERE token != %s",
-            ("oldtoken",),
-        ).fetchone()
-        new_count = new_count_row["c"]
-    assert old["used_at"] is not None  # 舊 token 已失效
-    assert new_count >= 1               # 新 token 存在
+# ── 6. resend-verification 測試已移除（2026-06-15 路由已刪） ─────────────────
 
 
 # ── 7. Google OAuth 新用戶 ────────────────────────────────────────────────────

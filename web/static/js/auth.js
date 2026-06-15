@@ -25,14 +25,7 @@
           body: JSON.stringify({ email, password }),
         });
         const json = await res.json();
-        if (!res.ok) {
-          // 403 = 未驗證 email，顯示「重寄驗證信」按鈕
-          if (res.status === 403) {
-            const resendArea = document.getElementById('resend-area');
-            if (resendArea) resendArea.classList.remove('d-none');
-          }
-          throw new Error(json.detail || '登入失敗');
-        }
+        if (!res.ok) throw new Error(json.detail || '登入失敗');
         location.href = '/profile';
       } catch (err) {
         errEl.textContent = err.message;
