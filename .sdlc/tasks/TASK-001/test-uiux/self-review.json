@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "document_id": "REVIEW-TEST-UIUX-TASK-001-v1.0",
+  "task_id": "TASK-001",
+  "phase": "test-uiux",
+  "mode": "brownfield-document",
+  "tested_phase": "uiux",
+  "date": "2026-06-15",
+  "reviewer": "Testing",
+  "threshold": 80,
+  "score": 88,
+  "passed": true,
+  "verdict": "PASS",
+  "critical_count": 0,
+  "major_count": 2,
+  "info_count": 5,
+  "items_total": 32,
+  "items_passed": 29,
+  "items_warning": 2,
+  "items_info": 5,
+  "constraints_acknowledged": {
+    "pencilMcp": false,
+    "mcpStatus.chrome": false,
+    "mcpStatus.claudePreview": true,
+    "brownfield": true,
+    "no-screenshots": true,
+    "no-pen-files": true,
+    "no-browser-visual-verify": true,
+    "no-design-system-md": "replaced by design-tokens.json (brownfield decision)"
+  },
+  "findings": [
+    {
+      "id": "WARN-001",
+      "severity": "Major",
+      "title": "PAGE-005 追溯矩陣遺漏 FUNC-031（登出 — clear cookie）",
+      "location": "uiux/wireframes.md §1 + §12",
+      "traces_to": ["FUNC-031", "FR-009"],
+      "remediation": "在 §1 PAGE-005 列加入 FUNC-031；在 §12 追溯矩陣 PAGE-005 列加入 FUNC-031",
+      "blocking": false
+    },
+    {
+      "id": "WARN-002",
+      "severity": "Major",
+      "title": "PAGE-001 Layer 2 FeatureCard hover 描述對第 3 張 disabled card 不精確",
+      "location": "uiux/wireframes.md §3 Layer 2",
+      "traces_to": ["COMP-006", "PAGE-001", "INCONSIS-001"],
+      "evidence": "index.html:70/87 有 card-hover class；index.html:104 第 3 張僅 opacity-65 無 card-hover",
+      "remediation": "Layer 2 row 改為「前 2 個有 card-hover；第 3 個 opacity-65 disabled 無 hover」",
+      "blocking": false
+    },
+    {
+      "id": "INFO-001",
+      "severity": "Info",
+      "title": "sdlc-role-verify.sh uiux 對 brownfield + pencilSkipped 不友善（10 項誤判）",
+      "location": "scripts/sdlc-role-verify.sh",
+      "remediation": "tooling backlog；不阻塞本階段",
+      "blocking": false
+    },
+    {
+      "id": "INFO-002",
+      "severity": "Info",
+      "title": "5 GAP + 1 INCONSIS 已抽樣確認真實存在於 source code",
+      "details": [
+        "GAP-001: web/static/js/ski.js + flight.js 無 addFavorite call - confirmed by grep",
+        "GAP-002: ski.js:178-180 window.location.href no try/catch - confirmed",
+        "GAP-003: login.html:62-74 缺 oauth_state_mismatch / google_denied / google_token_failed / google_userinfo_failed 4 case - confirmed",
+        "GAP-004: profile.html:65 無 else 分支 - confirmed",
+        "INCONSIS-001: index.html:113 即將推出 + line 118 敬請期待 disabled - confirmed"
+      ],
+      "blocking": false
+    },
+    {
+      "id": "INFO-003",
+      "severity": "Info",
+      "title": "FUNC-035 / FUNC-042 正確排除 PAGE 追溯（純後端，無 UI 入口）",
+      "blocking": false
+    },
+    {
+      "id": "INFO-004",
+      "severity": "Info",
+      "title": "design-tokens.json 15+ token 抽樣對照 custom.css 全部一致",
+      "blocking": false
+    },
+    {
+      "id": "INFO-005",
+      "severity": "Info",
+      "title": "i18n-keys.md 標為「建議 / brownfield 不強制重構」— Rule 2 合規",
+      "blocking": false
+    }
+  ],
+  "checklist": [
+    { "id": "report-format-correct", "passed": true, "note": "含 frontmatter / 摘要 / 發現清單 / 維度結果 / 追溯" },
+    { "id": "all-checks-have-result", "passed": true, "note": "32 個檢查項全部有結果" },
+    { "id": "severity-classification-correct", "passed": true },
+    { "id": "findings-have-location-and-rationale", "passed": true },
+    { "id": "traceability-matrix-complete", "passed": true, "note": "17 個測試案例都附 @traces_to" },
+    { "id": "scope-boundary-verified-anti-hallucination", "passed": true, "note": "5 GAP + 1 INCONSIS 抽樣對照 source code" },
+    { "id": "consistency-verification", "passed": true },
+    { "id": "format-verification", "passed": true },
+    { "id": "critical-leads-to-fail-logic", "passed": true, "note": "0 Critical → PASS" },
+    { "id": "recommendations-actionable", "passed": true, "note": "WARN-001 / WARN-002 各 5 分鐘修補即可" },
+    { "id": "no-tested-doc-missed", "passed": true, "note": "wireframes / component-spec / design-tokens / user-flow / i18n-keys / pencil-component-sync / self-review 全讀" },
+    { "id": "baseline-complete", "passed": true, "note": "BA REQ + SA ARCH/FUNC/FIELD/IMPACT + 4 web/ 源檔" },
+    { "id": "finding-numbers-continuous", "passed": true },
+    { "id": "test-method-fits-phase", "passed": true, "note": "D1-D7 + ID 規範 + brownfield 對照（D7 N/A 已標示）" },
+    { "id": "independence-no-dev-conversation", "passed": true },
+    { "id": "test-case-traces-to-spec-id", "passed": true },
+    { "id": "conclusion-aligns-with-findings", "passed": true, "note": "2 WARN + 5 INFO + 0 CRIT → PASS @ 88/100" },
+    { "id": "report-date-version-correct", "passed": true },
+    { "id": "mermaid-syntax", "passed": true, "note": "N/A — 本報告無 Mermaid" },
+    { "id": "template-strictly-followed", "passed": true }
+  ],
+  "dimensions": {
+    "D1-functional-coverage": { "pass": true, "note": "1 個 WARN（FUNC-031 漏列）" },
+    "D2-design-token-completeness": { "pass": true, "note": "色彩 / 字體 / 間距 / 斷點 / 陰影 / 動畫 全部齊全；Modal/Toast token N/A（brownfield 用 native dialog）" },
+    "D3-component-spec-consistency": { "pass": true },
+    "D4-ux-supplement-markers": { "pass": true, "note": "[BROWNFIELD-GAP] × 5 / [INCONSIS] × 2 / [INFERRED-FROM-MAIN] × 2 / [BROWNFIELD-NOTE] × 2 標記齊全" },
+    "D5-wireframe-and-flow-completeness": { "pass": true, "note": "ASCII wireframe + Mermaid + 5 Layer + 多狀態完整" },
+    "D6-cross-document-consistency": { "pass": true },
+    "D7-pencil-visual-verification": { "pass": true, "note": "N/A — pencilMcp=false（合規跳過）" }
+  },
+  "id-range-compliance": {
+    "LAYOUT": { "range": "1-100", "allocated": ["LAYOUT-001"], "continuous": true, "withinRange": true, "collision": false },
+    "PAGE": { "range": "1-100", "allocated": "PAGE-001..PAGE-007", "count": 7, "continuous": true, "withinRange": true, "collision": false },
+    "COMP": { "range": "1-100", "allocated": "COMP-001..COMP-038", "count": 38, "continuous": true, "withinRange": true, "collision": false },
+    "FLOW": { "range": "task-scoped", "allocated": "FLOW-001..FLOW-007", "count": 7, "continuous": true }
+  },
+  "rule-compliance": {
+    "rule-1-source-attribution": true,
+    "rule-2-suggestion-isolation": true,
+    "rule-3-icon-consistency": true,
+    "rule-4-view-permission": "N/A (二級權限)",
+    "rule-6-cross-task-modification": true,
+    "rule-7-incremental-work": true,
+    "rule-8-id-naming": true,
+    "rule-11-irreversible-confirm": true,
+    "rule-17-pencil-two-tier": true
+  },
+  "brownfield-source-truth-verification": {
+    "sampled-pages": ["PAGE-001", "PAGE-002", "PAGE-005"],
+    "all-samples-match-source-code": true,
+    "design-tokens-cross-checked-with-custom-css": true,
+    "gap-claims-verified-in-code": ["GAP-001", "GAP-002", "GAP-003", "GAP-004", "INCONSIS-001"]
+  },
+  "artifacts": [
+    ".sdlc/tasks/TASK-001/test-uiux/test-report-uiux.md",
+    ".sdlc/tasks/TASK-001/test-uiux/self-review.json"
+  ],
+  "recommendation_to_pm": "PASS — 可進入 SD 階段。WARN-001 / WARN-002 為小修補（共 ~10 分鐘）建議快速補正後再 next phase；不阻塞。"
+}
