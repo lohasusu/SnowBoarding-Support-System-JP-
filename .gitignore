@@ -34,3 +34,11 @@ web/data/*.db-journal
 # TASK-002 build-gate manual verification files (not for commit)
 Dockerfile.task002
 docker-compose.task002-verify.yml
+
+# PyInstaller build artifacts (desktop_app exe)
+dist/
+build/
+*.spec.bak
+.tmp_*.py
+.tmp_*.bat
+.tmp_*.sh
