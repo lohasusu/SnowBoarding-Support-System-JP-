@@ -14,7 +14,25 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Optional
 
+import importlib.util
+
 from desktop_app.core.paths import base_dir
+
+
+def _load_flight_search_module():
+    """flight_search/ is not a Python package (no __init__.py) — load
+    flight_search.py directly via importlib.util so we never modify the
+    upstream directory."""
+    if "flight_search_inner" in sys.modules:
+        return sys.modules["flight_search_inner"]
+    fp = base_dir() / "flight_search" / "flight_search.py"
+    spec = importlib.util.spec_from_file_location("flight_search_inner", str(fp))
+    if spec is None or spec.loader is None:
+        raise ImportError(f"cannot load flight_search at {fp}")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["flight_search_inner"] = mod
+    spec.loader.exec_module(mod)
+    return mod
 
 
 def _stub_deep_translator() -> None:
@@ -130,9 +148,9 @@ def run_flight(origin: str, destination: str, dest_name: str,
             progress_cb(f"開始搜尋機票 {origin} → {destination} {departure}"
                         + (f" / {ret_date}" if ret_date else ""))
 
-        from flight_search.flight_search import search_all, build_backends  # type: ignore
-        backends = build_backends(mock_mode=False)
-        results = search_all(
+        fs = _load_flight_search_module()
+        backends = fs.build_backends(mock_mode=False)
+        results = fs.search_all(
             backends=backends,
             origins=[origin],
             destinations=[destination],

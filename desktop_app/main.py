@@ -98,6 +98,8 @@ def main() -> int:
     parser.add_argument("--gui", action="store_true", help="啟動 GUI (預設)")
     parser.add_argument("--headless", action="store_true", help="無 GUI 跑排程任務")
     parser.add_argument("--task", choices=["ski", "flight"], help="--headless 時必填")
+    parser.add_argument("--initial-tab", type=int, default=0,
+                        help="GUI 啟動時要顯示的分頁 (0=雪票 1=機票 2=排程 3=設定)")
     args = parser.parse_args()
 
     if args.headless:
@@ -108,7 +110,7 @@ def main() -> int:
 
     # GUI mode (default)
     from desktop_app.gui.app import launch
-    launch()
+    launch(initial_tab=args.initial_tab)
     return 0
 
 

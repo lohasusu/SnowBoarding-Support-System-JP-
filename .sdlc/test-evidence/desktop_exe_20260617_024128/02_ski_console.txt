@@ -1,0 +1,7 @@
+[02:50:10] [headless] ⛷ headless ski region=北海道 name=無
+[02:50:10] [headless] 開始查詢雪票 region=北海道 name=無
+[設定] 從 urls.json 載入 10 個目標，地區篩選：北海道
+[Rusutsu 留壽都] 擷取 51 筆
+[02:50:10] [headless] 完成 — 共 51 筆
+[02:50:10] [headless] ✅ ski 完成 51 筆 → C:\Users\Owner\SnowTrip_Output\ski_20260617_0250.xlsx
+  duration: 3s

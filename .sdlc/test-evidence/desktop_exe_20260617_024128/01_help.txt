@@ -1,0 +1,7 @@
+usage: SnowTrip Desktop [-h] [--gui] [--headless] [--task {ski,flight}]
+
+options:
+  -h, --help           show this help message and exit
+  --gui                啟動 GUI (預設)
+  --headless           無 GUI 跑排程任務
+  --task {ski,flight}  --headless 時必填

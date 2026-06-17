@@ -1,0 +1,8 @@
+[02:49:13] [headless] ✈ headless flight TPE→CTS 2027-02-15/2027-02-22
+[02:49:13] [headless] 開始搜尋機票 TPE → CTS 2027-02-15 / 2027-02-22
+  ✓ Google Flights (fast-flights) 已載入  [今日已用 1 次]
+  [FastFlights] TPE → CTS (新千歲)... Impersonate 'chrome_126' does not exist, using 'random'
+8 筆
+[02:49:13] [headless] 完成 — 共 8 筆
+[02:49:13] [headless] ✅ flight 完成 8 筆 → C:\Users\Owner\SnowTrip_Output\flight_20260617_0249.xlsx
+  duration: 3s

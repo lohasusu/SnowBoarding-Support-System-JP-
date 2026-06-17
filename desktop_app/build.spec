@@ -24,12 +24,17 @@ datas = [
 
 hidden = [
     'httpx', 'bs4', 'openpyxl', 'tkinter',
-    # flight_search backends loaded by name
-    'flight_search.backends.fast_flights_backend',
-    'flight_search.backends.serpapi_backend',
-    'flight_search.backends.amadeus_backend',
-    'flight_search.backends.travelpayouts_backend',
-    'flight_search.backends.mock_backend',
+    # backends are loaded via "from backends.XXX import ..." after
+    # flight_search/ is added to sys.path at runtime (see core/scrapers.py)
+    'backends',
+    'backends.fast_flights_backend',
+    'backends.serpapi_backend',
+    'backends.amadeus_backend',
+    'backends.travelpayouts_backend',
+    'backends.mock_backend',
+    'backends.base',
+    # fast-flights + serpapi + dotenv runtime deps
+    'fast_flights', 'serpapi', 'dotenv',
 ] + collect_submodules('openpyxl') + collect_submodules('desktop_app')
 
 # Also bundle the desktop_app package as data (PyInstaller sometimes drops the
@@ -38,7 +43,7 @@ datas.append((os.path.join(REPO_ROOT, 'desktop_app'), 'desktop_app'))
 
 a = Analysis(
     [os.path.join(REPO_ROOT, 'desktop_app', 'main.py')],
-    pathex=[REPO_ROOT],
+    pathex=[REPO_ROOT, os.path.join(REPO_ROOT, 'flight_search')],
     binaries=[],
     datas=datas,
     hiddenimports=hidden,

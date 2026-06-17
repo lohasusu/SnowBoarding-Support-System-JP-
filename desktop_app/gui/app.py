@@ -374,7 +374,9 @@ class App:
         cfg_mod.save(self.cfg)
 
 
-def launch():
+def launch(initial_tab: int = 0):
     root = tk.Tk()
-    App(root)
+    app = App(root)
+    if 0 <= initial_tab < 4:
+        app.nb.select(initial_tab)
     root.mainloop()
